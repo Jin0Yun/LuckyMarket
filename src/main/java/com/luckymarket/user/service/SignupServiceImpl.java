@@ -1,6 +1,7 @@
 package com.luckymarket.user.service;
 
 import com.luckymarket.user.domain.Member;
+import com.luckymarket.user.dto.SignupRequestDto;
 import com.luckymarket.user.exception.SignupErrorCode;
 import com.luckymarket.user.exception.SignupException;
 import com.luckymarket.user.repository.UserRepository;
@@ -20,10 +21,11 @@ public class SignupServiceImpl implements SignupService {
     }
 
     @Override
-    public void signup(Member member) {
-        validateEmail(member.getEmail());
-        validatePassword(member.getPassword());
+    public void signup(SignupRequestDto signupRequestDto) {
+        validateEmail(signupRequestDto.getEmail());
+        validatePassword(signupRequestDto.getPassword());
 
+        Member member = signupRequestDto.toEntity(signupRequestDto.getPassword());
         userRepository.save(member);
     }
 

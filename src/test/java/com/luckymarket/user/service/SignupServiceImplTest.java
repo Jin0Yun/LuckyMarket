@@ -3,6 +3,7 @@ package com.luckymarket.user.service;
 import com.luckymarket.user.domain.Member;
 import com.luckymarket.user.domain.Role;
 import com.luckymarket.user.domain.Status;
+import com.luckymarket.user.dto.SignupRequestDto;
 import com.luckymarket.user.exception.SignupErrorCode;
 import com.luckymarket.user.exception.SignupException;
 import com.luckymarket.user.repository.UserRepository;
@@ -29,54 +30,38 @@ class SignupServiceImplTest {
         MockitoAnnotations.openMocks(this);
     }
 
-    private Member createTestMember() {
-        return Member.builder()
-                .email("test@example.com")
-                .password("ValidPassword123!")
-                .username("testuser")
-                .role(Role.USER)
-                .status(Status.ACTIVE)
-                .build();
+    private SignupRequestDto createTestSignupRequestDto() {
+        SignupRequestDto dto = new SignupRequestDto();
+        dto.setEmail("test@example.com");
+        dto.setPassword("ValidPassword123!");
+        dto.setUsername("testuser");
+        return dto;
     }
 
     @DisplayName("유효한 정보를 입력해서 회원가입이 성공하는지 확인하는 테스트")
     @Test
     void shouldSignUpSuccessfullyWithValidInfo() {
         // given
-        Member member = createTestMember();
+        SignupRequestDto dto = createTestSignupRequestDto();
 
         // when
-        signupService.signup(member);
+        signupService.signup(dto);
 
         // then
-        assertThat(member.getEmail()).isEqualTo("test@example.com");
-        assertThat(member.getPassword()).isEqualTo("ValidPassword123!");
-        assertThat(member.getUsername()).isEqualTo("testuser");
-    }
-
-    @DisplayName("회원정보 입력 후 createdAt, updatedAt 저장되는지 확인하는 테스트")
-    @Test
-    void shouldSaveCreatedAtAndUpdatedAt() {
-        // given
-        Member member = createTestMember();
-        member.prePersist();
-
-        // when
-        signupService.signup(member);
-
-        // then
-        assertThat(member.getCreatedAt()).isNotNull();
-        assertThat(member.getUpdatedAt()).isNotNull();
+        assertThat(dto.getEmail()).isEqualTo("test@example.com");
+        assertThat(dto.getPassword()).isEqualTo("ValidPassword123!");
+        assertThat(dto.getUsername()).isEqualTo("testuser");
     }
 
     @DisplayName("Role 기본값으로 저장되는지 확인하는 테스트")
     @Test
     void shouldSaveWithDefaultRole() {
         // given
-        Member member = createTestMember();
+        SignupRequestDto dto = createTestSignupRequestDto();
+        Member member = dto.toEntity(dto.getEmail());
 
         // when
-        signupService.signup(member);
+        signupService.signup(dto);
 
         // then
         assertThat(member.getRole()).isEqualTo(Role.USER);
@@ -86,10 +71,11 @@ class SignupServiceImplTest {
     @Test
     void shouldSaveWithDefaultStatus() {
         // given
-        Member member = createTestMember();
+        SignupRequestDto dto = createTestSignupRequestDto();
+        Member member = dto.toEntity(dto.getEmail());
 
         // when
-        signupService.signup(member);
+        signupService.signup(dto);
 
         // then
         assertThat(member.getStatus()).isEqualTo(Status.ACTIVE);
@@ -99,11 +85,11 @@ class SignupServiceImplTest {
     @Test
     void shouldThrowExceptionWhenEmailIsBlank() {
         // given
-        Member member = createTestMember();
-        member.setEmail(" ");
+        SignupRequestDto dto = createTestSignupRequestDto();
+        dto.setEmail(" ");
 
         // when & then
-        SignupException exception = assertThrows(SignupException.class, () -> signupService.signup(member));
+        SignupException exception = assertThrows(SignupException.class, () -> signupService.signup(dto));
         assertThat(exception.getMessage()).isEqualTo(SignupErrorCode.EMAIL_BLANK.getMessage());
     }
 
@@ -111,11 +97,11 @@ class SignupServiceImplTest {
     @Test
     void shouldThrowExceptionWhenEmailIsMissing() {
         // given
-        Member member = createTestMember();
-        member.setEmail(null);
+        SignupRequestDto dto = createTestSignupRequestDto();
+        dto.setEmail(null);
 
         // when & then
-        SignupException exception = assertThrows(SignupException.class, () -> signupService.signup(member));
+        SignupException exception = assertThrows(SignupException.class, () -> signupService.signup(dto));
         assertThat(exception.getMessage()).isEqualTo(SignupErrorCode.EMAIL_BLANK.getMessage());
     }
 
@@ -123,12 +109,12 @@ class SignupServiceImplTest {
     @Test
     void shouldThrowExceptionWhenEmailAlreadyExists() {
         // given
-        Member member = createTestMember();
+        SignupRequestDto dto = createTestSignupRequestDto();
 
         when(userRepository.existsByEmail("test@example.com")).thenReturn(true);
 
         // when & then
-        SignupException exception = assertThrows(SignupException.class, () -> signupService.signup(member));
+        SignupException exception = assertThrows(SignupException.class, () -> signupService.signup(dto));
         assertThat(exception.getMessage()).isEqualTo(SignupErrorCode.EMAIL_ALREADY_USED.getMessage());
     }
 
@@ -136,11 +122,11 @@ class SignupServiceImplTest {
     @Test
     void shouldThrowExceptionWhenEmailFormatIsInvalid() {
         // given
-        Member member = createTestMember();
-        member.setEmail("invalid-email");
+        SignupRequestDto dto = createTestSignupRequestDto();
+        dto.setEmail("invalid-email");
 
         // when & then
-        SignupException exception = assertThrows(SignupException.class, () -> signupService.signup(member));
+        SignupException exception = assertThrows(SignupException.class, () -> signupService.signup(dto));
         assertThat(exception.getMessage()).isEqualTo(SignupErrorCode.INVALID_EMAIL_FORMAT.getMessage());
     }
 
@@ -148,11 +134,11 @@ class SignupServiceImplTest {
     @Test
     void shouldThrowExceptionWhenPasswordIsLessThan8Characters() {
         // given
-        Member member = createTestMember();
-        member.setPassword("short");
+        SignupRequestDto dto = createTestSignupRequestDto();
+        dto.setPassword("short");
 
         // when & then
-        SignupException exception = assertThrows(SignupException.class, () -> signupService.signup(member));
+        SignupException exception = assertThrows(SignupException.class, () -> signupService.signup(dto));
         assertThat(exception.getMessage()).isEqualTo(SignupErrorCode.PASSWORD_TOO_SHORT.getMessage());
     }
 
@@ -160,11 +146,11 @@ class SignupServiceImplTest {
     @Test
     void shouldThrowExceptionWhenPasswordDoesNotContainUppercaseLetter() {
         // given
-        Member member = createTestMember();
-        member.setPassword("lowercase123");
+        SignupRequestDto dto = createTestSignupRequestDto();
+        dto.setPassword("lowercase123");
 
         // when & then
-        SignupException exception = assertThrows(SignupException.class, () -> signupService.signup(member));
+        SignupException exception = assertThrows(SignupException.class, () -> signupService.signup(dto));
         assertThat(exception.getMessage()).isEqualTo(SignupErrorCode.PASSWORD_MISSING_UPPERCASE.getMessage());
     }
 
@@ -172,11 +158,11 @@ class SignupServiceImplTest {
     @Test
     void shouldThrowExceptionWhenPasswordDoesNotContainLowercaseLetter() {
         // given
-        Member member = createTestMember();
-        member.setPassword("UPPERCASE123");
+        SignupRequestDto dto = createTestSignupRequestDto();
+        dto.setPassword("UPPERCASE123");
 
         // when & then
-        SignupException exception = assertThrows(SignupException.class, () -> signupService.signup(member));
+        SignupException exception = assertThrows(SignupException.class, () -> signupService.signup(dto));
         assertThat(exception.getMessage()).isEqualTo(SignupErrorCode.PASSWORD_MISSING_LOWERCASE.getMessage());
     }
 
@@ -184,11 +170,11 @@ class SignupServiceImplTest {
     @Test
     void shouldThrowExceptionWhenPasswordDoesNotContainSpecialCharacter() {
         // given
-        Member member = createTestMember();
-        member.setPassword("Password123");
+        SignupRequestDto dto = createTestSignupRequestDto();
+        dto.setPassword("Password123");
 
         // when & then
-        SignupException exception = assertThrows(SignupException.class, () -> signupService.signup(member));
+        SignupException exception = assertThrows(SignupException.class, () -> signupService.signup(dto));
         assertThat(exception.getMessage()).isEqualTo(SignupErrorCode.PASSWORD_MISSING_SPECIAL_CHAR.getMessage());
     }
 
@@ -196,11 +182,11 @@ class SignupServiceImplTest {
     @Test
     void shouldThrowExceptionWhenPasswordIsBlank() {
         // given
-        Member member = createTestMember();
-        member.setPassword(" ");
+        SignupRequestDto dto = createTestSignupRequestDto();
+        dto.setPassword(" ");
 
         // when & then
-        SignupException exception = assertThrows(SignupException.class, () -> signupService.signup(member));
+        SignupException exception = assertThrows(SignupException.class, () -> signupService.signup(dto));
         assertThat(exception.getMessage()).isEqualTo(SignupErrorCode.PASSWORD_BLANK.getMessage());
     }
 
@@ -208,11 +194,11 @@ class SignupServiceImplTest {
     @Test
     void shouldThrowExceptionWhenPasswordIsMissing() {
         // given
-        Member member = createTestMember();
-        member.setPassword(null);
+        SignupRequestDto dto = createTestSignupRequestDto();
+        dto.setPassword(null);
 
         // when & then
-        SignupException exception = assertThrows(SignupException.class, () -> signupService.signup(member));
+        SignupException exception = assertThrows(SignupException.class, () -> signupService.signup(dto));
         assertThat(exception.getMessage()).isEqualTo(SignupErrorCode.PASSWORD_BLANK.getMessage());
     }
 }

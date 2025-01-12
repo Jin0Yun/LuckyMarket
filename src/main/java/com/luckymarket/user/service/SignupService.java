@@ -1,6 +1,7 @@
 package com.luckymarket.user.service;
 
-import com.luckymarket.user.domain.Member;
+import com.luckymarket.user.dto.SignupRequestDto;
+
 public interface SignupService {
-    void signup(Member member);
+    void signup(SignupRequestDto signupRequestDto);
 }
