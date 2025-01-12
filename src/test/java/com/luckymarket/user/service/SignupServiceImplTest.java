@@ -1,6 +1,8 @@
 package com.luckymarket.user.service;
 
 import com.luckymarket.user.domain.Member;
+import com.luckymarket.user.domain.Role;
+import com.luckymarket.user.domain.Status;
 import com.luckymarket.user.exception.SignupErrorCode;
 import com.luckymarket.user.exception.SignupException;
 import com.luckymarket.user.repository.UserRepository;
@@ -25,6 +27,73 @@ class SignupServiceImplTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+    }
+
+    @DisplayName("유효한 정보를 입력해서 회원가입이 성공하는지 확인하는 테스트")
+    @Test
+    void shouldSignUpSuccessfullyWithValidInfo() {
+        // given
+        Member member = new Member();
+        member.setEmail("test@example.com");
+        member.setPassword("ValidPassword123!");
+        member.setUsername("testuser");
+
+        // when
+        signupService.signup(member);
+
+        // then
+        assertThat(member.getEmail()).isEqualTo("test@example.com");
+        assertThat(member.getPassword()).isEqualTo("ValidPassword123!");
+        assertThat(member.getUsername()).isEqualTo("testuser");
+    }
+
+    @DisplayName("회원정보 입력 후 createdAt, updatedAt 저장되는지 확인하는 테스트")
+    @Test
+    void shouldSaveCreatedAtAndUpdatedAt() {
+        // given
+        Member member = new Member();
+        member.setEmail("test@example.com");
+        member.setPassword("ValidPassword123!");
+        member.setUsername("testuser");
+
+        // when
+        signupService.signup(member);
+
+        // then
+        assertThat(member.getCreatedAt()).isNotNull();
+        assertThat(member.getUpdatedAt()).isNotNull();
+    }
+
+    @DisplayName("Role 기본값으로 저장되는지 확인하는 테스트")
+    @Test
+    void shouldSaveWithDefaultRole() {
+        // given
+        Member member = new Member();
+        member.setEmail("test@example.com");
+        member.setPassword("ValidPassword123!");
+        member.setUsername("testuser");
+
+        // when
+        signupService.signup(member);
+
+        // then
+        assertThat(member.getRole()).isEqualTo(Role.USER);
+    }
+
+    @DisplayName("Status 기본값으로 저장되는지 확인하는 테스트")
+    @Test
+    void shouldSaveWithDefaultStatus() {
+        // given
+        Member member = new Member();
+        member.setEmail("test@example.com");
+        member.setPassword("ValidPassword123!");
+        member.setUsername("testuser");
+
+        // when
+        signupService.signup(member);
+
+        // then
+        assertThat(member.getStatus()).isEqualTo(Status.ACTIVE);
     }
 
     @DisplayName("회원가입 시 이메일이 공백인지 확인하는 테스트")
