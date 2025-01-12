@@ -7,8 +7,11 @@ import com.luckymarket.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.regex.Pattern;
+
 @Service
 public class SignupServiceImpl implements SignupService {
+    private static final String EMAIL_REGEX = "^[A-Za-z0-9+_.-]+@(.+)$";
     private final UserRepository userRepository;
 
     @Autowired
@@ -18,9 +21,23 @@ public class SignupServiceImpl implements SignupService {
 
     @Override
     public void signup(Member member) {
+        validateEmail(member.getEmail());
         validatePassword(member.getPassword());
 
         userRepository.save(member);
+    }
+
+    private void validateEmail(String email) {
+        if (email == null || email.trim().isEmpty()) {
+            throw new SignupException(SignupErrorCode.EMAIL_BLANK);
+        }
+
+        if (!Pattern.matches(EMAIL_REGEX, email)) {
+            throw new SignupException(SignupErrorCode.INVALID_EMAIL_FORMAT);
+        }
+        if (userRepository.existsByEmail(email)) {
+            throw new SignupException(SignupErrorCode.EMAIL_ALREADY_USED);
+        }
     }
 
     private static void validatePassword(String password) {
