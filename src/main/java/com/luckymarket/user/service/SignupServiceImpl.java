@@ -5,11 +5,13 @@ import com.luckymarket.user.dto.SignupRequestDto;
 import com.luckymarket.user.exception.SignupErrorCode;
 import com.luckymarket.user.exception.SignupException;
 import com.luckymarket.user.repository.UserRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.regex.Pattern;
 
+@Slf4j
 @Service
 public class SignupServiceImpl implements SignupService {
     private static final String EMAIL_REGEX = "^[A-Za-z0-9+_.-]+@(.+)$";
@@ -22,11 +24,13 @@ public class SignupServiceImpl implements SignupService {
 
     @Override
     public Member signup(SignupRequestDto signupRequestDto) {
+        log.debug("회원가입 요청을 받았습니다. 이메일: {}", signupRequestDto.getEmail());
         validateEmail(signupRequestDto.getEmail());
         validatePassword(signupRequestDto.getPassword());
 
         Member member = signupRequestDto.toEntity(signupRequestDto.getEmail());
         userRepository.save(member);
+        log.info("회원가입 성공. 이메일: {}", member.getEmail());
         return member;
     }
 
