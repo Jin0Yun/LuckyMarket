@@ -11,10 +11,12 @@ class SignupRequestDtoTest {
     @Test
     void shouldConvertToMember() {
         // given
-        SignupRequestDto dto = new SignupRequestDto();
-        dto.setEmail("test@example.com");
-        dto.setPassword("ValidPassword123!");
-        dto.setUsername("testuser");
+        SignupRequestDto dto = SignupRequestDto
+                .builder()
+                .email("test@test.com")
+                .password("ValidPassword123!")
+                .username("testuser")
+                .build();
 
         // when
         Member member = dto.toEntity(dto.getPassword());

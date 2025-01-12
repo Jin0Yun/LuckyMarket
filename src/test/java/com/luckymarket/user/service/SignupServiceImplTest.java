@@ -31,10 +31,12 @@ class SignupServiceImplTest {
     }
 
     private SignupRequestDto createTestSignupRequestDto() {
-        SignupRequestDto dto = new SignupRequestDto();
-        dto.setEmail("test@example.com");
-        dto.setPassword("ValidPassword123!");
-        dto.setUsername("testuser");
+        SignupRequestDto dto = SignupRequestDto
+                .builder()
+                .email("test@test.com")
+                .password("ValidPassword123!")
+                .username("testuser")
+                .build();
         return dto;
     }
 
