@@ -21,12 +21,13 @@ public class SignupServiceImpl implements SignupService {
     }
 
     @Override
-    public void signup(SignupRequestDto signupRequestDto) {
+    public Member signup(SignupRequestDto signupRequestDto) {
         validateEmail(signupRequestDto.getEmail());
         validatePassword(signupRequestDto.getPassword());
 
-        Member member = signupRequestDto.toEntity(signupRequestDto.getPassword());
+        Member member = signupRequestDto.toEntity(signupRequestDto.getEmail());
         userRepository.save(member);
+        return member;
     }
 
     private void validateEmail(String email) {

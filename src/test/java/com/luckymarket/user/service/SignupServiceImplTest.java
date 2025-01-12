@@ -46,12 +46,12 @@ class SignupServiceImplTest {
         SignupRequestDto dto = createTestSignupRequestDto();
 
         // when
-        signupService.signup(dto);
+        Member member = signupService.signup(dto);
 
         // then
-        assertThat(dto.getEmail()).isEqualTo("test@example.com");
-        assertThat(dto.getPassword()).isEqualTo("ValidPassword123!");
-        assertThat(dto.getUsername()).isEqualTo("testuser");
+        assertThat(member.getEmail()).isEqualTo("test@test.com");
+        assertThat(member.getPassword()).isEqualTo("ValidPassword123!");
+        assertThat(member.getUsername()).isEqualTo("testuser");
     }
 
     @DisplayName("Role 기본값으로 저장되는지 확인하는 테스트")
@@ -112,7 +112,7 @@ class SignupServiceImplTest {
         // given
         SignupRequestDto dto = createTestSignupRequestDto();
 
-        when(userRepository.existsByEmail("test@example.com")).thenReturn(true);
+        when(userRepository.existsByEmail(dto.getEmail())).thenReturn(true);
 
         // when & then
         SignupException exception = assertThrows(SignupException.class, () -> signupService.signup(dto));
