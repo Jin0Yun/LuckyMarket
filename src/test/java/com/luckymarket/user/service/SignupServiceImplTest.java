@@ -31,13 +31,12 @@ class SignupServiceImplTest {
     }
 
     private SignupRequestDto createTestSignupRequestDto() {
-        SignupRequestDto dto = SignupRequestDto
+        return SignupRequestDto
                 .builder()
                 .email("test@test.com")
                 .password("ValidPassword123!")
                 .username("testuser")
                 .build();
-        return dto;
     }
 
     @DisplayName("유효한 정보를 입력해서 회원가입이 성공하는지 확인하는 테스트")
