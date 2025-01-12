@@ -1,6 +1,8 @@
 package com.luckymarket.user.service;
 
 import com.luckymarket.user.domain.Member;
+import com.luckymarket.user.exception.SignupErrorCode;
+import com.luckymarket.user.exception.SignupException;
 import com.luckymarket.user.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -9,7 +11,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class SignupServiceImplTest {
@@ -32,8 +34,8 @@ class SignupServiceImplTest {
         member.setPassword("short");
 
         // when & then
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> signupService.signup(member));
-        assertThat(exception.getMessage()).isEqualTo("비밀번호는 최소 8자 이상이어야 합니다.");
+        SignupException exception = assertThrows(SignupException.class, () -> signupService.signup(member));
+        assertThat(exception.getMessage()).isEqualTo(SignupErrorCode.PASSWORD_TOO_SHORT.getMessage());
     }
 
     @DisplayName("회원가입 시 비밀번호에 대문자가 포함되어 있는지 확인하는 테스트")
@@ -44,8 +46,8 @@ class SignupServiceImplTest {
         member.setPassword("lowercase123");
 
         // when & then
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> signupService.signup(member));
-        assertThat(exception.getMessage()).isEqualTo("비밀번호는 최소 1개의 대문자를 포함해야 합니다.");
+        SignupException exception = assertThrows(SignupException.class, () -> signupService.signup(member));
+        assertThat(exception.getMessage()).isEqualTo(SignupErrorCode.PASSWORD_MISSING_UPPERCASE.getMessage());
     }
 
     @DisplayName("회원가입 시 비밀번호에 소문자가 포함되어 있는지 확인하는 테스트")
@@ -56,8 +58,8 @@ class SignupServiceImplTest {
         member.setPassword("UPPERCASE123");
 
         // when & then
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> signupService.signup(member));
-        assertThat(exception.getMessage()).isEqualTo("비밀번호는 최소 1개의 소문자를 포함해야 합니다.");
+        SignupException exception = assertThrows(SignupException.class, () -> signupService.signup(member));
+        assertThat(exception.getMessage()).isEqualTo(SignupErrorCode.PASSWORD_MISSING_LOWERCASE.getMessage());
     }
 
     @DisplayName("회원가입 시 비밀번호에 특수문자가 포함되어 있는지 확인하는 테스트")
@@ -68,8 +70,8 @@ class SignupServiceImplTest {
         member.setPassword("Password123");
 
         // when & then
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> signupService.signup(member));
-        assertThat(exception.getMessage()).isEqualTo("비밀번호는 최소 1개의 특수문자를 포함해야 합니다.");
+        SignupException exception = assertThrows(SignupException.class, () -> signupService.signup(member));
+        assertThat(exception.getMessage()).isEqualTo(SignupErrorCode.PASSWORD_MISSING_SPECIAL_CHAR.getMessage());
     }
 
     @DisplayName("회원가입 시 비밀번호가 공백인지 확인하는 테스트")
@@ -80,8 +82,8 @@ class SignupServiceImplTest {
         member.setPassword(" ");
 
         // when & then
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> signupService.signup(member));
-        assertThat(exception.getMessage()).isEqualTo("비밀번호는 필수 항목입니다.");
+        SignupException exception = assertThrows(SignupException.class, () -> signupService.signup(member));
+        assertThat(exception.getMessage()).isEqualTo(SignupErrorCode.PASSWORD_BLANK.getMessage());
     }
 
     @DisplayName("회원가입 시 비밀번호가 누락되었는지 확인하는 테스트")
@@ -92,7 +94,7 @@ class SignupServiceImplTest {
         member.setPassword(null);
 
         // when & then
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> signupService.signup(member));
-        assertThat(exception.getMessage()).isEqualTo("비밀번호는 필수 항목입니다.");
+        SignupException exception = assertThrows(SignupException.class, () -> signupService.signup(member));
+        assertThat(exception.getMessage()).isEqualTo(SignupErrorCode.PASSWORD_BLANK.getMessage());
     }
 }
