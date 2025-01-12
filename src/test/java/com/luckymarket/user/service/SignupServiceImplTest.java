@@ -13,6 +13,7 @@ import org.mockito.MockitoAnnotations;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.when;
 
 class SignupServiceImplTest {
     @Mock
@@ -96,5 +97,55 @@ class SignupServiceImplTest {
         // when & then
         SignupException exception = assertThrows(SignupException.class, () -> signupService.signup(member));
         assertThat(exception.getMessage()).isEqualTo(SignupErrorCode.PASSWORD_BLANK.getMessage());
+    }
+
+    @DisplayName("회원가입 시 이메일이 공백인지 확인하는 테스트")
+    @Test
+    void shouldThrowExceptionWhenEmailIsBlank() {
+        // given
+        Member member = new Member();
+        member.setEmail(" ");
+
+        // when & then
+        SignupException exception = assertThrows(SignupException.class, () -> signupService.signup(member));
+        assertThat(exception.getMessage()).isEqualTo(SignupErrorCode.EMAIL_BLANK.getMessage());
+    }
+
+    @DisplayName("회원가입 시 이메일이 누락되었는지 확인하는 테스트")
+    @Test
+    void shouldThrowExceptionWhenEmailIsMissing() {
+        // given
+        Member member = new Member();
+        member.setEmail(null);
+
+        // when & then
+        SignupException exception = assertThrows(SignupException.class, () -> signupService.signup(member));
+        assertThat(exception.getMessage()).isEqualTo(SignupErrorCode.EMAIL_BLANK.getMessage());
+    }
+
+    @DisplayName("회원가입 시 이메일이 이미 존재하는지 확인하는 테스트")
+    @Test
+    void shouldThrowExceptionWhenEmailAlreadyExists() {
+        // given
+        Member member = new Member();
+        member.setEmail("existing@example.com");
+
+        when(userRepository.existsByEmail("existing@example.com")).thenReturn(true);
+
+        // when & then
+        SignupException exception = assertThrows(SignupException.class, () -> signupService.signup(member));
+        assertThat(exception.getMessage()).isEqualTo(SignupErrorCode.EMAIL_ALREADY_USED.getMessage());
+    }
+
+    @DisplayName("회원가입 시 잘못된 이메일 형식인지 확인하는 테스트")
+    @Test
+    void shouldThrowExceptionWhenEmailFormatIsInvalid() {
+        // given
+        Member member = new Member();
+        member.setEmail("invalid-email");
+
+        // when & then
+        SignupException exception = assertThrows(SignupException.class, () -> signupService.signup(member));
+        assertThat(exception.getMessage()).isEqualTo(SignupErrorCode.INVALID_EMAIL_FORMAT.getMessage());
     }
 }
