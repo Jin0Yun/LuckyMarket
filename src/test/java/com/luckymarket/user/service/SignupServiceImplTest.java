@@ -29,14 +29,21 @@ class SignupServiceImplTest {
         MockitoAnnotations.openMocks(this);
     }
 
+    private Member createTestMember() {
+        return Member.builder()
+                .email("test@example.com")
+                .password("ValidPassword123!")
+                .username("testuser")
+                .role(Role.USER)
+                .status(Status.ACTIVE)
+                .build();
+    }
+
     @DisplayName("유효한 정보를 입력해서 회원가입이 성공하는지 확인하는 테스트")
     @Test
     void shouldSignUpSuccessfullyWithValidInfo() {
         // given
-        Member member = new Member();
-        member.setEmail("test@example.com");
-        member.setPassword("ValidPassword123!");
-        member.setUsername("testuser");
+        Member member = createTestMember();
 
         // when
         signupService.signup(member);
@@ -51,10 +58,8 @@ class SignupServiceImplTest {
     @Test
     void shouldSaveCreatedAtAndUpdatedAt() {
         // given
-        Member member = new Member();
-        member.setEmail("test@example.com");
-        member.setPassword("ValidPassword123!");
-        member.setUsername("testuser");
+        Member member = createTestMember();
+        member.prePersist();
 
         // when
         signupService.signup(member);
@@ -68,10 +73,7 @@ class SignupServiceImplTest {
     @Test
     void shouldSaveWithDefaultRole() {
         // given
-        Member member = new Member();
-        member.setEmail("test@example.com");
-        member.setPassword("ValidPassword123!");
-        member.setUsername("testuser");
+        Member member = createTestMember();
 
         // when
         signupService.signup(member);
@@ -84,10 +86,7 @@ class SignupServiceImplTest {
     @Test
     void shouldSaveWithDefaultStatus() {
         // given
-        Member member = new Member();
-        member.setEmail("test@example.com");
-        member.setPassword("ValidPassword123!");
-        member.setUsername("testuser");
+        Member member = createTestMember();
 
         // when
         signupService.signup(member);
@@ -100,7 +99,7 @@ class SignupServiceImplTest {
     @Test
     void shouldThrowExceptionWhenEmailIsBlank() {
         // given
-        Member member = new Member();
+        Member member = createTestMember();
         member.setEmail(" ");
 
         // when & then
@@ -112,7 +111,7 @@ class SignupServiceImplTest {
     @Test
     void shouldThrowExceptionWhenEmailIsMissing() {
         // given
-        Member member = new Member();
+        Member member = createTestMember();
         member.setEmail(null);
 
         // when & then
@@ -124,10 +123,9 @@ class SignupServiceImplTest {
     @Test
     void shouldThrowExceptionWhenEmailAlreadyExists() {
         // given
-        Member member = new Member();
-        member.setEmail("existing@example.com");
+        Member member = createTestMember();
 
-        when(userRepository.existsByEmail("existing@example.com")).thenReturn(true);
+        when(userRepository.existsByEmail("test@example.com")).thenReturn(true);
 
         // when & then
         SignupException exception = assertThrows(SignupException.class, () -> signupService.signup(member));
@@ -138,7 +136,7 @@ class SignupServiceImplTest {
     @Test
     void shouldThrowExceptionWhenEmailFormatIsInvalid() {
         // given
-        Member member = new Member();
+        Member member = createTestMember();
         member.setEmail("invalid-email");
 
         // when & then
@@ -150,8 +148,7 @@ class SignupServiceImplTest {
     @Test
     void shouldThrowExceptionWhenPasswordIsLessThan8Characters() {
         // given
-        Member member = new Member();
-        member.setEmail("test@example.com");
+        Member member = createTestMember();
         member.setPassword("short");
 
         // when & then
@@ -163,8 +160,7 @@ class SignupServiceImplTest {
     @Test
     void shouldThrowExceptionWhenPasswordDoesNotContainUppercaseLetter() {
         // given
-        Member member = new Member();
-        member.setEmail("test@example.com");
+        Member member = createTestMember();
         member.setPassword("lowercase123");
 
         // when & then
@@ -176,8 +172,7 @@ class SignupServiceImplTest {
     @Test
     void shouldThrowExceptionWhenPasswordDoesNotContainLowercaseLetter() {
         // given
-        Member member = new Member();
-        member.setEmail("test@example.com");
+        Member member = createTestMember();
         member.setPassword("UPPERCASE123");
 
         // when & then
@@ -189,8 +184,7 @@ class SignupServiceImplTest {
     @Test
     void shouldThrowExceptionWhenPasswordDoesNotContainSpecialCharacter() {
         // given
-        Member member = new Member();
-        member.setEmail("test@example.com");
+        Member member = createTestMember();
         member.setPassword("Password123");
 
         // when & then
@@ -202,8 +196,7 @@ class SignupServiceImplTest {
     @Test
     void shouldThrowExceptionWhenPasswordIsBlank() {
         // given
-        Member member = new Member();
-        member.setEmail("test@example.com");
+        Member member = createTestMember();
         member.setPassword(" ");
 
         // when & then
@@ -215,8 +208,7 @@ class SignupServiceImplTest {
     @Test
     void shouldThrowExceptionWhenPasswordIsMissing() {
         // given
-        Member member = new Member();
-        member.setEmail("test@example.com");
+        Member member = createTestMember();
         member.setPassword(null);
 
         // when & then

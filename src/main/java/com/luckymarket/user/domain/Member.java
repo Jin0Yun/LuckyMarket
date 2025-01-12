@@ -1,13 +1,16 @@
 package com.luckymarket.user.domain;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
+@Entity
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Member {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,9 +28,11 @@ public class Member {
     private String phoneNumber;
     private String address;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     private Role role = Role.USER;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     private Status status = Status.ACTIVE;
 
