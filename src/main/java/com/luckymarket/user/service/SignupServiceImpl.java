@@ -4,6 +4,7 @@ import com.luckymarket.user.domain.Member;
 import com.luckymarket.user.dto.SignupRequestDto;
 import com.luckymarket.user.exception.SignupErrorCode;
 import com.luckymarket.user.exception.SignupException;
+import com.luckymarket.user.mapper.MemberMapper;
 import com.luckymarket.user.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +33,7 @@ public class SignupServiceImpl implements SignupService {
         validatePassword(signupRequestDto.getPassword());
 
         String password = passwordEncoder.encode(signupRequestDto.getPassword());
-        Member member = signupRequestDto.toEntity(password);
+        Member member = MemberMapper.toEntity(signupRequestDto);
         userRepository.save(member);
         log.info("회원가입 성공. 이메일: {}", member.getEmail());
         return member;

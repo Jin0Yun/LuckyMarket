@@ -1,6 +1,7 @@
 package com.luckymarket.user.dto;
 
 import com.luckymarket.user.domain.Member;
+import com.luckymarket.user.mapper.MemberMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -19,7 +20,7 @@ class SignupRequestDtoTest {
                 .build();
 
         // when
-        Member member = dto.toEntity(dto.getPassword());
+        Member member = MemberMapper.toEntity(dto);
 
         // then
         assertThat(member.getEmail()).isEqualTo(dto.getEmail());

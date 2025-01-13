@@ -1,8 +1,5 @@
 package com.luckymarket.user.dto;
 
-import com.luckymarket.user.domain.Member;
-import com.luckymarket.user.domain.Role;
-import com.luckymarket.user.domain.Status;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -22,15 +19,4 @@ public class SignupRequestDto {
     private String password;
     @NotBlank(message = "이름은 필수 입력값입니다.")
     private String username;
-
-    public Member toEntity(String password) {
-        return Member
-                .builder()
-                .email(this.email)
-                .password(password)
-                .username(this.username)
-                .role(Role.USER)
-                .status(Status.ACTIVE)
-                .build();
-    }
 }

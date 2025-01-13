@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -21,6 +22,9 @@ import static org.mockito.Mockito.when;
 class SignupServiceImplTest {
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private PasswordEncoder passwordEncoder;
 
     @InjectMocks
     private SignupServiceImpl signupService;
@@ -50,7 +54,6 @@ class SignupServiceImplTest {
 
         // then
         assertThat(member.getEmail()).isEqualTo("test@test.com");
-        assertThat(member.getPassword()).isEqualTo("ValidPassword123!");
         assertThat(member.getUsername()).isEqualTo("testuser");
     }
 
@@ -59,10 +62,9 @@ class SignupServiceImplTest {
     void shouldSaveWithDefaultRole() {
         // given
         SignupRequestDto dto = createTestSignupRequestDto();
-        Member member = dto.toEntity(dto.getEmail());
 
         // when
-        signupService.signup(dto);
+        Member member = signupService.signup(dto);
 
         // then
         assertThat(member.getRole()).isEqualTo(Role.USER);
@@ -73,10 +75,8 @@ class SignupServiceImplTest {
     void shouldSaveWithDefaultStatus() {
         // given
         SignupRequestDto dto = createTestSignupRequestDto();
-        Member member = dto.toEntity(dto.getEmail());
-
         // when
-        signupService.signup(dto);
+        Member member = signupService.signup(dto);
 
         // then
         assertThat(member.getStatus()).isEqualTo(Status.ACTIVE);
