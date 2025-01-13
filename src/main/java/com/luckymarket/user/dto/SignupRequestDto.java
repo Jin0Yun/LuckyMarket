@@ -27,7 +27,7 @@ public class SignupRequestDto {
         return Member
                 .builder()
                 .email(this.email)
-                .password(this.password)
+                .password(password)
                 .username(this.username)
                 .role(Role.USER)
                 .status(Status.ACTIVE)

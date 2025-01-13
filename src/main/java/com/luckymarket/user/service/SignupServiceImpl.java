@@ -7,6 +7,7 @@ import com.luckymarket.user.exception.SignupException;
 import com.luckymarket.user.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.regex.Pattern;
@@ -16,10 +17,12 @@ import java.util.regex.Pattern;
 public class SignupServiceImpl implements SignupService {
     private static final String EMAIL_REGEX = "^[A-Za-z0-9+_.-]+@(.+)$";
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public SignupServiceImpl(UserRepository userRepository) {
+    public SignupServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -28,7 +31,8 @@ public class SignupServiceImpl implements SignupService {
         validateEmail(signupRequestDto.getEmail());
         validatePassword(signupRequestDto.getPassword());
 
-        Member member = signupRequestDto.toEntity(signupRequestDto.getEmail());
+        String password = passwordEncoder.encode(signupRequestDto.getPassword());
+        Member member = signupRequestDto.toEntity(password);
         userRepository.save(member);
         log.info("회원가입 성공. 이메일: {}", member.getEmail());
         return member;
