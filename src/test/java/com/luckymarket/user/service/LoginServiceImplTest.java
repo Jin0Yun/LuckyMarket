@@ -2,6 +2,8 @@ package com.luckymarket.user.service;
 
 import com.luckymarket.user.domain.Member;
 import com.luckymarket.user.dto.LoginRequestDto;
+import com.luckymarket.user.exception.LoginErrorCode;
+import com.luckymarket.user.exception.LoginException;
 import com.luckymarket.user.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -50,8 +52,8 @@ class LoginServiceImplTest {
         when(userRepository.findByEmail(dto.getEmail())).thenReturn(null);
 
         // when & then
-        Exception exception = assertThrows(Exception.class, () -> loginService.login(dto.getEmail(), dto.getPassword()));
-        assertThat(exception.getMessage()).isEqualTo("이메일이 존재하지 않습니다: nonexistent@example.com");
+        LoginException exception = assertThrows(LoginException.class, () -> loginService.login(dto.getEmail(), dto.getPassword()));
+        assertThat(exception.getMessage()).isEqualTo(LoginErrorCode.EMAIL_NOT_FOUND.getMessage());
     }
 
     @DisplayName("잘못된 비밀번호로 로그인 시 예외 처리 테스트")
@@ -66,8 +68,8 @@ class LoginServiceImplTest {
         when(passwordEncoder.matches(dto.getPassword(), mockMember.getPassword())).thenReturn(false);
 
         // when & then
-        Exception exception = assertThrows(Exception.class, () -> loginService.login(dto.getEmail(), dto.getPassword()));
-        assertThat(exception.getMessage()).isEqualTo("비밀번호가 틀렸습니다: luckymarket@gmail.com");
+        LoginException exception = assertThrows(LoginException.class, () -> loginService.login(dto.getEmail(), dto.getPassword()));
+        assertThat(exception.getMessage()).isEqualTo(LoginErrorCode.PASSWORD_MISMATCH.getMessage());
     }
 
     @DisplayName("이메일이 빈 값일 경우 로그인 시 예외 처리 테스트")
@@ -79,8 +81,8 @@ class LoginServiceImplTest {
         dto.setPassword("LuckyMarket123!!");
 
         // when & then
-        Exception exception = assertThrows(Exception.class, () -> loginService.login(dto.getEmail(), dto.getPassword()));
-        assertThat(exception.getMessage()).isEqualTo("이메일은 필수 입력 값입니다.");
+        LoginException exception = assertThrows(LoginException.class, () -> loginService.login(dto.getEmail(), dto.getPassword()));
+        assertThat(exception.getMessage()).isEqualTo(LoginErrorCode.EMAIL_BLANK.getMessage());
     }
 
     @DisplayName("비밀번호가 빈 값일 경우 로그인 시 예외 처리 테스트")
@@ -92,8 +94,8 @@ class LoginServiceImplTest {
         dto.setPassword(" ");
 
         // when & then
-        Exception exception = assertThrows(Exception.class, () -> loginService.login(dto.getEmail(), dto.getPassword()));
-        assertThat(exception.getMessage()).isEqualTo("비밀번호는 필수 입력 값입니다.");
+        LoginException exception = assertThrows(LoginException.class, () -> loginService.login(dto.getEmail(), dto.getPassword()));
+        assertThat(exception.getMessage()).isEqualTo(LoginErrorCode.PASSWORD_BLANK.getMessage());
     }
 
     @DisplayName("이메일 형식이 잘못된 경우 로그인 시 예외 처리 테스트")
@@ -105,8 +107,8 @@ class LoginServiceImplTest {
         dto.setPassword("LuckyMarket123!!");
 
         // when & then
-        Exception exception = assertThrows(Exception.class, () -> loginService.login(dto.getEmail(), dto.getPassword()));
-        assertThat(exception.getMessage()).isEqualTo("잘못된 이메일 형식입니다.");
+        LoginException exception = assertThrows(LoginException.class, () -> loginService.login(dto.getEmail(), dto.getPassword()));
+        assertThat(exception.getMessage()).isEqualTo(LoginErrorCode.INVALID_EMAIL_FORMAT.getMessage());
     }
 
     @DisplayName("로그인 성공 시 사용자 정보를 반환하는지 테스트")
