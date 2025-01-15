@@ -128,6 +128,6 @@ class LoginServiceImplTest {
         // then
         assertThat(result).isNotNull();
         assertThat(result.getEmail()).isEqualTo(mockMember.getEmail());
-        assertThat(result.getUsername()).isEqualTo(mockMember.getUsername());
+        assertThat(result.getPassword()).isEqualTo(mockMember.getPassword());
     }
 }
