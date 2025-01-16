@@ -34,6 +34,7 @@ public class SignupServiceImpl implements SignupService {
 
         String password = passwordEncoder.encode(signupRequestDto.getPassword());
         Member member = MemberMapper.toEntity(signupRequestDto);
+        member.setPassword(password);
         userRepository.save(member);
         log.info("회원가입 성공. 이메일: {}", member.getEmail());
         return member;
