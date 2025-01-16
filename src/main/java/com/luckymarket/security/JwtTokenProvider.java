@@ -37,6 +37,16 @@ public class JwtTokenProvider {
                 .compact();
     }
 
+    public String createRefreshToken() {
+        long now = (new Date()).getTime();
+        Date refreshTokenExpiresIn = new Date(now + EXPIRATION_TIME * 24);
+
+        return Jwts.builder()
+                .setExpiration(refreshTokenExpiresIn)
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
+    }
+
     public boolean validateToken(String token) {
         try {
             Jwts.parserBuilder()
