@@ -41,7 +41,7 @@ public class LoginServiceImpl implements LoginService {
 
     @Override
     public String generateToken(Member member) {
-        return null;
+        return jwtTokenProvider.createToken(member.getEmail());
     }
 
     private void validateEmail(String email) {

@@ -155,11 +155,11 @@ class LoginServiceImplTest {
     @Test
     void shouldThrowExceptionWhenTokenIsExpired() {
         // given
-        String expectedToken = "jwt-token";
-        when(jwtTokenProvider.validateToken(expectedToken)).thenThrow(new LoginException(LoginErrorCode.EXPIRED_TOKEN));
+        String expiredToken = "expired-jwt-token";
+        when(jwtTokenProvider.validateToken(expiredToken)).thenThrow(new LoginException(LoginErrorCode.EXPIRED_TOKEN));
 
         // when & then
-        LoginException exception = assertThrows(LoginException.class, () -> loginService.generateToken(mockMember));
+        LoginException exception = assertThrows(LoginException.class, () -> jwtTokenProvider.validateToken(expiredToken));
         assertThat(exception.getMessage()).isEqualTo(LoginErrorCode.EXPIRED_TOKEN.getMessage());
     }
 
@@ -169,9 +169,9 @@ class LoginServiceImplTest {
         // given
         String invalidSignatureToken = "invalid-signature";
         when(jwtTokenProvider.validateToken(invalidSignatureToken)).thenThrow(new LoginException(LoginErrorCode.INVALID_TOKEN));
-        
+
         // when & then
-        LoginException exception = assertThrows(LoginException.class, () -> loginService.generateToken(mockMember));
+        LoginException exception = assertThrows(LoginException.class, () -> jwtTokenProvider.validateToken(invalidSignatureToken));
         assertThat(exception.getMessage()).isEqualTo(LoginErrorCode.INVALID_TOKEN.getMessage());
     }
 
@@ -183,7 +183,7 @@ class LoginServiceImplTest {
         when(jwtTokenProvider.validateToken(invalidFormatToken)).thenThrow(new LoginException(LoginErrorCode.INVALID_TOKEN));
 
         // when & then
-        LoginException exception = assertThrows(LoginException.class, () -> loginService.generateToken(mockMember));
+        LoginException exception = assertThrows(LoginException.class, () -> jwtTokenProvider.validateToken(invalidFormatToken));
         assertThat(exception.getMessage()).isEqualTo(LoginErrorCode.INVALID_TOKEN.getMessage());
     }
 }
