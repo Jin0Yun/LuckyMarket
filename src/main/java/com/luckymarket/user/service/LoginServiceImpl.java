@@ -1,5 +1,6 @@
 package com.luckymarket.user.service;
 
+import com.luckymarket.security.JwtTokenProvider;
 import com.luckymarket.user.domain.Member;
 import com.luckymarket.user.exception.LoginErrorCode;
 import com.luckymarket.user.exception.LoginException;
@@ -14,11 +15,13 @@ import java.util.regex.Pattern;
 public class LoginServiceImpl implements LoginService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtTokenProvider jwtTokenProvider;
 
     @Autowired
-    public LoginServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public LoginServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtTokenProvider jwtTokenProvider) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.jwtTokenProvider = jwtTokenProvider;
     }
 
     @Override
@@ -34,6 +37,11 @@ public class LoginServiceImpl implements LoginService {
             throw new LoginException(LoginErrorCode.PASSWORD_MISMATCH);
         }
         return member;
+    }
+
+    @Override
+    public String generateToken(Member member) {
+        return null;
     }
 
     private void validateEmail(String email) {
