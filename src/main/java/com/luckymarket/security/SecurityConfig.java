@@ -1,4 +1,4 @@
-package com.luckymarket.user;
+package com.luckymarket.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
