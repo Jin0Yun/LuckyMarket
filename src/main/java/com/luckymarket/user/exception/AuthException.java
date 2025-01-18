@@ -1,9 +1,9 @@
 package com.luckymarket.user.exception;
 
-public class LoginException extends RuntimeException {
-    private final LoginErrorCode errorCode;
+public class AuthException extends RuntimeException {
+    private final AuthErrorCode errorCode;
 
-    public LoginException(LoginErrorCode errorCode) {
+    public AuthException(AuthErrorCode errorCode) {
         super(errorCode.getMessage());
         this.errorCode = errorCode;
     }

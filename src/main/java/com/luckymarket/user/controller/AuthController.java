@@ -5,8 +5,8 @@ import com.luckymarket.security.JwtTokenProvider;
 import com.luckymarket.user.domain.Member;
 import com.luckymarket.user.dto.JwtTokenDto;
 import com.luckymarket.user.dto.LoginRequestDto;
-import com.luckymarket.user.exception.LoginException;
-import com.luckymarket.user.service.LoginService;
+import com.luckymarket.user.exception.AuthException;
+import com.luckymarket.user.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -20,13 +20,13 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/member")
 @Tag(name = "회원 API", description = "회원 관련 API")
-public class LoginController {
-    private final LoginService loginService;
+public class AuthController {
+    private final AuthService authService;
     private final JwtTokenProvider jwtTokenProvider;
 
     @Autowired
-    public LoginController(LoginService loginService, JwtTokenProvider jwtTokenProvider) {
-        this.loginService = loginService;
+    public AuthController(AuthService authService, JwtTokenProvider jwtTokenProvider) {
+        this.authService = authService;
         this.jwtTokenProvider = jwtTokenProvider;
     }
 
@@ -43,7 +43,7 @@ public class LoginController {
     public ResponseEntity<ApiResponseWrapper<Object>> login(@RequestBody LoginRequestDto loginRequestDto) {
         try {
             log.debug("로그인 요청 처리: 이메일 = {}", loginRequestDto.getEmail());
-            Member member = loginService.login(loginRequestDto.getEmail(), loginRequestDto.getPassword());
+            Member member = authService.login(loginRequestDto.getEmail(), loginRequestDto.getPassword());
             String token = jwtTokenProvider.createToken(member.getEmail());
             String refreshToken = jwtTokenProvider.createRefreshToken();
 
@@ -54,7 +54,7 @@ public class LoginController {
             log.info("로그인 성공: 이메일 = {}", loginRequestDto.getEmail());
             ApiResponseWrapper<Object> response = ApiResponseWrapper.withData("로그인 성공", jwtTokenDto);
             return ResponseEntity.ok(response);
-        } catch (LoginException e) {
+        } catch (AuthException e) {
             log.error("로그인 실패: {}", e.getMessage());
             ApiResponseWrapper<Object> response = ApiResponseWrapper.error(e.getMessage(), HttpStatus.UNAUTHORIZED.value());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);

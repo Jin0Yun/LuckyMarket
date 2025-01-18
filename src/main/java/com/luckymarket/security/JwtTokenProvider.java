@@ -1,7 +1,7 @@
 package com.luckymarket.security;
 
-import com.luckymarket.user.exception.LoginErrorCode;
-import com.luckymarket.user.exception.LoginException;
+import com.luckymarket.user.exception.AuthErrorCode;
+import com.luckymarket.user.exception.AuthException;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -61,16 +61,16 @@ public class JwtTokenProvider {
             return true;
         } catch (ExpiredJwtException e) {
             log.warn("만료된 토큰입니다.");
-            throw new LoginException(LoginErrorCode.EXPIRED_TOKEN);
+            throw new AuthException(AuthErrorCode.EXPIRED_TOKEN);
         } catch (MalformedJwtException e) {
             log.warn("잘못된 토큰 형식입니다.");
-            throw new LoginException(LoginErrorCode.INVALID_TOKEN);
+            throw new AuthException(AuthErrorCode.INVALID_TOKEN);
         } catch (SignatureException e) {
             log.warn("JWT 서명이 일치하지 않습니다.");
-            throw new LoginException(LoginErrorCode.TOKEN_SIGNATURE_INVALID);
+            throw new AuthException(AuthErrorCode.TOKEN_SIGNATURE_INVALID);
         } catch (Exception e) {
             log.error("유효하지 않은 토큰입니다.");
-            throw new LoginException(LoginErrorCode.INVALID_TOKEN);
+            throw new AuthException(AuthErrorCode.INVALID_TOKEN);
         }
     }
 
@@ -88,7 +88,7 @@ public class JwtTokenProvider {
                     .getBody();
         } catch (Exception e) {
             log.error("토큰을 파싱하는 중 오류가 발생했습니다.");
-            throw new LoginException(LoginErrorCode.TOKEN_PARSING_FAILED);
+            throw new AuthException(AuthErrorCode.TOKEN_PARSING_FAILED);
         }
     }
 

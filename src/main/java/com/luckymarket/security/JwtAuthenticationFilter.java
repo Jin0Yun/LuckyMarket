@@ -1,6 +1,6 @@
 package com.luckymarket.security;
 
-import com.luckymarket.user.exception.LoginException;
+import com.luckymarket.user.exception.AuthException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -30,7 +30,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     Authentication authentication = jwtTokenProvider.getAuthentication(token);
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 }
-            } catch (LoginException e) {
+            } catch (AuthException e) {
                 log.error("유효하지 않은 JWT 토큰: {}", token);
                 response.setStatus(HttpServletResponse.SC_FORBIDDEN);
                 response.getWriter().write("Invalid JWT token");

@@ -3,8 +3,8 @@ package com.luckymarket.user.service;
 import com.luckymarket.security.JwtTokenProvider;
 import com.luckymarket.user.domain.Member;
 import com.luckymarket.user.dto.LoginRequestDto;
-import com.luckymarket.user.exception.LoginErrorCode;
-import com.luckymarket.user.exception.LoginException;
+import com.luckymarket.user.exception.AuthErrorCode;
+import com.luckymarket.user.exception.AuthException;
 import com.luckymarket.user.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -18,7 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
-class LoginServiceImplTest {
+class AuthServiceImplTest {
     @Mock
     private JwtTokenProvider jwtTokenProvider;
 
@@ -29,7 +29,7 @@ class LoginServiceImplTest {
     private PasswordEncoder passwordEncoder;
 
     @InjectMocks
-    private LoginServiceImpl loginService;
+    private AuthServiceImpl loginService;
 
     private Member mockMember;
 
@@ -56,8 +56,8 @@ class LoginServiceImplTest {
         when(userRepository.findByEmail(dto.getEmail())).thenReturn(null);
 
         // when & then
-        LoginException exception = assertThrows(LoginException.class, () -> loginService.login(dto.getEmail(), dto.getPassword()));
-        assertThat(exception.getMessage()).isEqualTo(LoginErrorCode.EMAIL_NOT_FOUND.getMessage());
+        AuthException exception = assertThrows(AuthException.class, () -> loginService.login(dto.getEmail(), dto.getPassword()));
+        assertThat(exception.getMessage()).isEqualTo(AuthErrorCode.EMAIL_NOT_FOUND.getMessage());
     }
 
     @DisplayName("잘못된 비밀번호로 로그인 시 예외를 반환하는지 테스트")
@@ -72,8 +72,8 @@ class LoginServiceImplTest {
         when(passwordEncoder.matches(dto.getPassword(), mockMember.getPassword())).thenReturn(false);
 
         // when & then
-        LoginException exception = assertThrows(LoginException.class, () -> loginService.login(dto.getEmail(), dto.getPassword()));
-        assertThat(exception.getMessage()).isEqualTo(LoginErrorCode.PASSWORD_MISMATCH.getMessage());
+        AuthException exception = assertThrows(AuthException.class, () -> loginService.login(dto.getEmail(), dto.getPassword()));
+        assertThat(exception.getMessage()).isEqualTo(AuthErrorCode.PASSWORD_MISMATCH.getMessage());
     }
 
     @DisplayName("이메일이 빈 값일 경우 로그인 시 예외를 반환하는지 테스트")
@@ -85,8 +85,8 @@ class LoginServiceImplTest {
         dto.setPassword("LuckyMarket123!!");
 
         // when & then
-        LoginException exception = assertThrows(LoginException.class, () -> loginService.login(dto.getEmail(), dto.getPassword()));
-        assertThat(exception.getMessage()).isEqualTo(LoginErrorCode.EMAIL_BLANK.getMessage());
+        AuthException exception = assertThrows(AuthException.class, () -> loginService.login(dto.getEmail(), dto.getPassword()));
+        assertThat(exception.getMessage()).isEqualTo(AuthErrorCode.EMAIL_BLANK.getMessage());
     }
 
     @DisplayName("비밀번호가 빈 값일 경우 로그인 시 예외를 반환하는지 테스트")
@@ -98,8 +98,8 @@ class LoginServiceImplTest {
         dto.setPassword(" ");
 
         // when & then
-        LoginException exception = assertThrows(LoginException.class, () -> loginService.login(dto.getEmail(), dto.getPassword()));
-        assertThat(exception.getMessage()).isEqualTo(LoginErrorCode.PASSWORD_BLANK.getMessage());
+        AuthException exception = assertThrows(AuthException.class, () -> loginService.login(dto.getEmail(), dto.getPassword()));
+        assertThat(exception.getMessage()).isEqualTo(AuthErrorCode.PASSWORD_BLANK.getMessage());
     }
 
     @DisplayName("이메일 형식이 잘못된 경우 로그인 시 예외를 반환하는지 테스트")
@@ -111,8 +111,8 @@ class LoginServiceImplTest {
         dto.setPassword("LuckyMarket123!!");
 
         // when & then
-        LoginException exception = assertThrows(LoginException.class, () -> loginService.login(dto.getEmail(), dto.getPassword()));
-        assertThat(exception.getMessage()).isEqualTo(LoginErrorCode.INVALID_EMAIL_FORMAT.getMessage());
+        AuthException exception = assertThrows(AuthException.class, () -> loginService.login(dto.getEmail(), dto.getPassword()));
+        assertThat(exception.getMessage()).isEqualTo(AuthErrorCode.INVALID_EMAIL_FORMAT.getMessage());
     }
 
     @DisplayName("로그인 성공 시 사용자 정보를 반환하는지 테스트")
@@ -156,11 +156,11 @@ class LoginServiceImplTest {
     void shouldThrowExceptionWhenTokenIsExpired() {
         // given
         String expiredToken = "expired-jwt-token";
-        when(jwtTokenProvider.validateToken(expiredToken)).thenThrow(new LoginException(LoginErrorCode.EXPIRED_TOKEN));
+        when(jwtTokenProvider.validateToken(expiredToken)).thenThrow(new AuthException(AuthErrorCode.EXPIRED_TOKEN));
 
         // when & then
-        LoginException exception = assertThrows(LoginException.class, () -> jwtTokenProvider.validateToken(expiredToken));
-        assertThat(exception.getMessage()).isEqualTo(LoginErrorCode.EXPIRED_TOKEN.getMessage());
+        AuthException exception = assertThrows(AuthException.class, () -> jwtTokenProvider.validateToken(expiredToken));
+        assertThat(exception.getMessage()).isEqualTo(AuthErrorCode.EXPIRED_TOKEN.getMessage());
     }
 
     @DisplayName("잘못된 서명을 가진 JWT 토큰 시 예외를 반환하는지 테스트")
@@ -168,11 +168,11 @@ class LoginServiceImplTest {
     void shouldThrowExceptionWhenTokenHasInvalidSignature() {
         // given
         String invalidSignatureToken = "invalid-signature";
-        when(jwtTokenProvider.validateToken(invalidSignatureToken)).thenThrow(new LoginException(LoginErrorCode.INVALID_TOKEN));
+        when(jwtTokenProvider.validateToken(invalidSignatureToken)).thenThrow(new AuthException(AuthErrorCode.INVALID_TOKEN));
 
         // when & then
-        LoginException exception = assertThrows(LoginException.class, () -> jwtTokenProvider.validateToken(invalidSignatureToken));
-        assertThat(exception.getMessage()).isEqualTo(LoginErrorCode.INVALID_TOKEN.getMessage());
+        AuthException exception = assertThrows(AuthException.class, () -> jwtTokenProvider.validateToken(invalidSignatureToken));
+        assertThat(exception.getMessage()).isEqualTo(AuthErrorCode.INVALID_TOKEN.getMessage());
     }
 
     @DisplayName("잘못된 형식의 JWT 토큰 시 예외를 반환하는지 테스트")
@@ -180,10 +180,10 @@ class LoginServiceImplTest {
     void shouldThrowExceptionWhenTokenHasInvalidFormat() {
         // given
         String invalidFormatToken = "invalid-format";
-        when(jwtTokenProvider.validateToken(invalidFormatToken)).thenThrow(new LoginException(LoginErrorCode.INVALID_TOKEN));
+        when(jwtTokenProvider.validateToken(invalidFormatToken)).thenThrow(new AuthException(AuthErrorCode.INVALID_TOKEN));
 
         // when & then
-        LoginException exception = assertThrows(LoginException.class, () -> jwtTokenProvider.validateToken(invalidFormatToken));
-        assertThat(exception.getMessage()).isEqualTo(LoginErrorCode.INVALID_TOKEN.getMessage());
+        AuthException exception = assertThrows(AuthException.class, () -> jwtTokenProvider.validateToken(invalidFormatToken));
+        assertThat(exception.getMessage()).isEqualTo(AuthErrorCode.INVALID_TOKEN.getMessage());
     }
 }

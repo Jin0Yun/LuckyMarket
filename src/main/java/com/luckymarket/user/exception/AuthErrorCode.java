@@ -1,6 +1,6 @@
 package com.luckymarket.user.exception;
 
-public enum LoginErrorCode {
+public enum AuthErrorCode {
     EMAIL_NOT_FOUND("이메일을 찾을 수 없습니다."),
     PASSWORD_MISMATCH("비밀번호가 일치하지 않습니다."),
     INVALID_TOKEN("유효하지 않은 토큰입니다."),
@@ -13,7 +13,7 @@ public enum LoginErrorCode {
 
     private final String message;
 
-    LoginErrorCode(String message) {
+    AuthErrorCode(String message) {
         this.message = message;
     }
 
