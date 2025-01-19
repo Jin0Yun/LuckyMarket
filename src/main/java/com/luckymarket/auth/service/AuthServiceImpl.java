@@ -7,6 +7,7 @@ import com.luckymarket.auth.exception.AuthErrorCode;
 import com.luckymarket.auth.exception.AuthException;
 import com.luckymarket.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -35,15 +36,13 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public TokenResponseDto login(String email, String password) {
-        authValidator.validateEmail(email);
-        authValidator.validatePassword(password);
+        validateLoginRequest(email, password);
 
-        Member member = userRepository.findByEmail(email);
-        if (member == null) {
-            throw new AuthException(AuthErrorCode.EMAIL_NOT_FOUND);
-        }
-        if (!passwordEncoder.matches(password, member.getPassword())) {
-            throw new AuthException(AuthErrorCode.PASSWORD_MISMATCH);
+        Member member = findMemberByEmail(email);
+        verifyPassword(password, member);
+
+        if (redisService.isUserLoggedIn(String.valueOf(member.getId()))) {
+            throw new AuthException(AuthErrorCode.ALREADY_LOGGED_IN_OTHER_DEVICE);
         }
 
         String accessToken = createAccessToken(member);
@@ -51,6 +50,25 @@ public class AuthServiceImpl implements AuthService {
 
         saveRefreshTokenToRedis(member, refreshToken);
         return new TokenResponseDto(accessToken);
+    }
+
+    private void validateLoginRequest(String email, String password) {
+        authValidator.validateEmail(email);
+        authValidator.validatePassword(password);
+    }
+
+    private Member findMemberByEmail(String email) {
+        Member member = userRepository.findByEmail(email);
+        if (member == null) {
+            throw new AuthException(AuthErrorCode.EMAIL_NOT_FOUND);
+        }
+        return member;
+    }
+
+    private void verifyPassword(String password, Member member) {
+        if (!passwordEncoder.matches(password, member.getPassword())) {
+            throw new AuthException(AuthErrorCode.PASSWORD_MISMATCH);
+        }
     }
 
     private String createAccessToken(Member member) {
