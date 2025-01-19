@@ -171,4 +171,32 @@ class RedisServiceImplTest {
         // then
         assertThat(result).isFalse();
     }
+
+    @DisplayName("키 존재 여부를 성공적으로 확인하는지 테스트")
+    @Test
+    void shouldCheckIfKeyExists() {
+        // given
+        String key = "sampleKey";
+        when(redisTemplate.hasKey(key)).thenReturn(true);
+
+        // when
+        boolean result = redisService.isKeyExist(key);
+
+        // then
+        assertThat(result).isTrue();
+    }
+
+    @DisplayName("키 존재 여부 확인 실패 시 false를 반환하는지 테스트")
+    @Test
+    void shouldReturnFalseWhenKeyExistCheckFails() {
+        // given
+        String key = "sampleKey";
+        when(redisTemplate.hasKey(key)).thenThrow(new RuntimeException("Redis error"));
+
+        // when & then
+        boolean result = redisService.isKeyExist(key);
+
+        // then
+        assertThat(result).isFalse();
+    }
 }
