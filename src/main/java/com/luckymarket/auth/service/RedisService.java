@@ -10,4 +10,5 @@ public interface RedisService {
     void addToBlacklist(String token, long expiration);
     boolean isBlacklisted(String token);
     boolean isKeyExist(String key);
+    boolean isUserLoggedIn(String userId);
 }

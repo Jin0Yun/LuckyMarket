@@ -90,4 +90,13 @@ public class RedisServiceImpl implements RedisService {
             return false;
         }
     }
+
+    @Override
+    public boolean isUserLoggedIn(String userId) {
+        try {
+            return redisTemplate.hasKey("refresh:" + userId);
+        } catch (Exception e) {
+            return false;
+        }
+    }
 }
