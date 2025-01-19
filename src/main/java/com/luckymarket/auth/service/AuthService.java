@@ -1,8 +1,7 @@
 package com.luckymarket.auth.service;
 
-import com.luckymarket.user.domain.Member;
+import com.luckymarket.auth.dto.TokenResponseDto;
 
 public interface AuthService {
-    Member login(String email, String password);
-    String generateToken(Member member);
+    TokenResponseDto login(String email, String password);
 }
