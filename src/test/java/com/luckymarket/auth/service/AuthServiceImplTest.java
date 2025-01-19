@@ -1,6 +1,7 @@
 package com.luckymarket.auth.service;
 
-import com.luckymarket.security.JwtTokenProvider;
+import com.luckymarket.auth.dto.TokenResponseDto;
+import com.luckymarket.auth.security.JwtTokenProvider;
 import com.luckymarket.user.domain.Member;
 import com.luckymarket.auth.dto.LoginRequestDto;
 import com.luckymarket.auth.exception.AuthErrorCode;
@@ -28,8 +29,14 @@ class AuthServiceImplTest {
     @Mock
     private PasswordEncoder passwordEncoder;
 
+    @Mock
+    private AuthValidator authValidator;
+
+    @Mock
+    private RedisServiceImpl redisServiceImpl;
+
     @InjectMocks
-    private AuthServiceImpl loginService;
+    private AuthServiceImpl authService;
 
     private Member mockMember;
 
@@ -56,7 +63,7 @@ class AuthServiceImplTest {
         when(userRepository.findByEmail(dto.getEmail())).thenReturn(null);
 
         // when & then
-        AuthException exception = assertThrows(AuthException.class, () -> loginService.login(dto.getEmail(), dto.getPassword()));
+        AuthException exception = assertThrows(AuthException.class, () -> authService.login(dto.getEmail(), dto.getPassword()));
         assertThat(exception.getMessage()).isEqualTo(AuthErrorCode.EMAIL_NOT_FOUND.getMessage());
     }
 
@@ -72,7 +79,7 @@ class AuthServiceImplTest {
         when(passwordEncoder.matches(dto.getPassword(), mockMember.getPassword())).thenReturn(false);
 
         // when & then
-        AuthException exception = assertThrows(AuthException.class, () -> loginService.login(dto.getEmail(), dto.getPassword()));
+        AuthException exception = assertThrows(AuthException.class, () -> authService.login(dto.getEmail(), dto.getPassword()));
         assertThat(exception.getMessage()).isEqualTo(AuthErrorCode.PASSWORD_MISMATCH.getMessage());
     }
 
@@ -85,7 +92,7 @@ class AuthServiceImplTest {
         dto.setPassword("LuckyMarket123!!");
 
         // when & then
-        AuthException exception = assertThrows(AuthException.class, () -> loginService.login(dto.getEmail(), dto.getPassword()));
+        AuthException exception = assertThrows(AuthException.class, () -> authService.login(dto.getEmail(), dto.getPassword()));
         assertThat(exception.getMessage()).isEqualTo(AuthErrorCode.EMAIL_BLANK.getMessage());
     }
 
@@ -98,7 +105,7 @@ class AuthServiceImplTest {
         dto.setPassword(" ");
 
         // when & then
-        AuthException exception = assertThrows(AuthException.class, () -> loginService.login(dto.getEmail(), dto.getPassword()));
+        AuthException exception = assertThrows(AuthException.class, () -> authService.login(dto.getEmail(), dto.getPassword()));
         assertThat(exception.getMessage()).isEqualTo(AuthErrorCode.PASSWORD_BLANK.getMessage());
     }
 
@@ -111,11 +118,11 @@ class AuthServiceImplTest {
         dto.setPassword("LuckyMarket123!!");
 
         // when & then
-        AuthException exception = assertThrows(AuthException.class, () -> loginService.login(dto.getEmail(), dto.getPassword()));
+        AuthException exception = assertThrows(AuthException.class, () -> authService.login(dto.getEmail(), dto.getPassword()));
         assertThat(exception.getMessage()).isEqualTo(AuthErrorCode.INVALID_EMAIL_FORMAT.getMessage());
     }
 
-    @DisplayName("로그인 성공 시 사용자 정보를 반환하는지 테스트")
+    @DisplayName("로그인 성공 시 JWT 토큰을 반환하는지 테스트")
     @Test
     void shouldReturnUserWhenLoginIsSuccessful() {
         // given
@@ -127,28 +134,10 @@ class AuthServiceImplTest {
         when(passwordEncoder.matches(dto.getPassword(), mockMember.getPassword())).thenReturn(true);
 
         // when
-        Member result = loginService.login(dto.getEmail(), dto.getPassword());
+        TokenResponseDto result = authService.login(dto.getEmail(), dto.getPassword());
 
         // then
-        assertThat(result).isNotNull();
-        assertThat(result.getEmail()).isEqualTo(mockMember.getEmail());
-        assertThat(result.getPassword()).isEqualTo(mockMember.getPassword());
-    }
-
-    @DisplayName("로그인 성공 후 JWT 토큰이 생성되는지 확인하는 테스트")
-    @Test
-    void shouldReturnJWTWhenLoginIsSuccessful() {
-        // given
-        String expectedToken = "jwt-token";
-        when(userRepository.findByEmail(mockMember.getEmail())).thenReturn(mockMember);
-        when(passwordEncoder.matches(mockMember.getPassword(), mockMember.getPassword())).thenReturn(true);
-        when(jwtTokenProvider.createToken(mockMember.getEmail())).thenReturn(expectedToken);
-
-        // when
-        String token = loginService.generateToken(mockMember);
-
-        // then
-        assertThat(token).isEqualTo(expectedToken);
+        assertThat(result.getAccessToken()).startsWith("Bearer ");
     }
 
     @DisplayName("만료된 JWT 토큰으로 인증 시 예외를 반환하는지 테스트")
