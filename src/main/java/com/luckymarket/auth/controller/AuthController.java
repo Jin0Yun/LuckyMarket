@@ -1,12 +1,12 @@
-package com.luckymarket.user.controller;
+package com.luckymarket.auth.controller;
 
 import com.luckymarket.common.ApiResponseWrapper;
 import com.luckymarket.security.JwtTokenProvider;
 import com.luckymarket.user.domain.Member;
-import com.luckymarket.user.dto.JwtTokenDto;
-import com.luckymarket.user.dto.LoginRequestDto;
-import com.luckymarket.user.exception.AuthException;
-import com.luckymarket.user.service.AuthService;
+import com.luckymarket.auth.dto.JwtTokenDto;
+import com.luckymarket.auth.dto.LoginRequestDto;
+import com.luckymarket.auth.exception.AuthException;
+import com.luckymarket.auth.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;

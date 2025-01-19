@@ -1,10 +1,10 @@
-package com.luckymarket.user.service;
+package com.luckymarket.auth.service;
 
 import com.luckymarket.security.JwtTokenProvider;
 import com.luckymarket.user.domain.Member;
-import com.luckymarket.user.dto.LoginRequestDto;
-import com.luckymarket.user.exception.AuthErrorCode;
-import com.luckymarket.user.exception.AuthException;
+import com.luckymarket.auth.dto.LoginRequestDto;
+import com.luckymarket.auth.exception.AuthErrorCode;
+import com.luckymarket.auth.exception.AuthException;
 import com.luckymarket.user.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

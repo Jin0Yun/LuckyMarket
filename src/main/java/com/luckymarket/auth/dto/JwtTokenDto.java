@@ -1,4 +1,4 @@
-package com.luckymarket.user.dto;
+package com.luckymarket.auth.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;

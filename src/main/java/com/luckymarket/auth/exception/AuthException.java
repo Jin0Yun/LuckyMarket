@@ -1,4 +1,4 @@
-package com.luckymarket.user.exception;
+package com.luckymarket.auth.exception;
 
 public class AuthException extends RuntimeException {
     private final AuthErrorCode errorCode;

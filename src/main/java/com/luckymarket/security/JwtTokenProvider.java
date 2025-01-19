@@ -1,7 +1,7 @@
 package com.luckymarket.security;
 
-import com.luckymarket.user.exception.AuthErrorCode;
-import com.luckymarket.user.exception.AuthException;
+import com.luckymarket.auth.exception.AuthErrorCode;
+import com.luckymarket.auth.exception.AuthException;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;

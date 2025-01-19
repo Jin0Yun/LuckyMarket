@@ -1,4 +1,4 @@
-package com.luckymarket.user.exception;
+package com.luckymarket.auth.exception;
 
 public enum AuthErrorCode {
     EMAIL_NOT_FOUND("이메일을 찾을 수 없습니다."),

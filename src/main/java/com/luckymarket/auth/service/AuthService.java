@@ -1,4 +1,4 @@
-package com.luckymarket.user.service;
+package com.luckymarket.auth.service;
 
 import com.luckymarket.user.domain.Member;
 
