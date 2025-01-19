@@ -120,4 +120,55 @@ class RedisServiceImplTest {
                 .isInstanceOf(RedisException.class)
                 .hasMessage(RedisErrorCode.REFRESH_TOKEN_DELETE_FAILED.getMessage());
     }
+
+    @DisplayName("블랙리스트에 토큰을 성공적으로 추가하는지 테스트")
+    @Test
+    void shouldAddToBlacklistSuccessfully() {
+        // given
+        doNothing().when(valueOperations).set("blacklist:" + accessToken, "BLACKLISTED", expiration, TimeUnit.MILLISECONDS);
+
+        // when
+        redisService.addToBlacklist(accessToken, expiration);
+
+        // then
+        verify(valueOperations).set("blacklist:" + accessToken, "BLACKLISTED", expiration, TimeUnit.MILLISECONDS);
+    }
+
+    @DisplayName("블랙리스트 토큰 추가 실패 시 예외를 던지는지 테스트")
+    @Test
+    void shouldThrowExceptionWhenAddToBlacklistFails() {
+        // given
+        doThrow(new RuntimeException("Redis error")).when(valueOperations).set("blacklist:" + accessToken, "BLACKLISTED", expiration, TimeUnit.MILLISECONDS);
+
+        // when & then
+        assertThatThrownBy(() -> redisService.addToBlacklist(accessToken, expiration))
+                .isInstanceOf(RedisException.class)
+                .hasMessage(RedisErrorCode.BLACKLIST_TOKEN_SAVE_FAILED.getMessage());
+    }
+
+    @DisplayName("블랙리스트에 토큰이 있는지 확인하는지 테스트")
+    @Test
+    void shouldCheckIfTokenIsBlacklisted() {
+        // given
+        when(redisTemplate.hasKey("blacklist:" + accessToken)).thenReturn(true);
+
+        // when
+        boolean result = redisService.isBlacklisted(accessToken);
+
+        // then
+        assertThat(result).isTrue();
+    }
+
+    @DisplayName("블랙리스트에 토큰이 없는 경우 확인하는지 테스트")
+    @Test
+    void shouldReturnFalseWhenTokenIsNotBlacklisted() {
+        // given
+        when(redisTemplate.hasKey("blacklist:" + accessToken)).thenReturn(false);
+
+        // when
+        boolean result = redisService.isBlacklisted(accessToken);
+
+        // then
+        assertThat(result).isFalse();
+    }
 }
