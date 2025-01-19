@@ -1,5 +1,6 @@
-package com.luckymarket.security;
+package com.luckymarket.auth.security;
 
+import com.luckymarket.auth.exception.AuthErrorCode;
 import com.luckymarket.auth.exception.AuthException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -10,6 +11,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
+
 import java.io.IOException;
 
 @Slf4j
@@ -21,19 +23,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
         String token = resolveToken(request);
 
         if (token != null) {
             try {
-                if (jwtTokenProvider.validateToken(token)) {
-                    Authentication authentication = jwtTokenProvider.getAuthentication(token);
-                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                if (!jwtTokenProvider.validateToken(token)) {
+                    throw new AuthException(AuthErrorCode.INVALID_TOKEN);
                 }
+                Authentication authentication = jwtTokenProvider.getAuthentication(token);
+                SecurityContextHolder.getContext().setAuthentication(authentication);
             } catch (AuthException e) {
-                log.error("유효하지 않은 JWT 토큰: {}", token);
+                log.error("JWT 인증 실패: {}", e.getMessage());
                 response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                response.getWriter().write("Invalid JWT token");
+                response.getWriter().write("Authentication failed: " + e.getMessage());
                 return;
             }
         }
