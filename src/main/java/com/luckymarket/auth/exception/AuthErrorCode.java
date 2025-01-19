@@ -13,7 +13,8 @@ public enum AuthErrorCode {
     MALFORMED_TOKEN("잘못된 토큰 형식입니다."),
     TOKEN_SIGNATURE_INVALID("토큰 서명이 유효하지 않습니다."),
 
-    JWT_AUTHENTICATION_FAILED("JWT 인증에 실패했습니다.");
+    JWT_AUTHENTICATION_FAILED("JWT 인증에 실패했습니다."),
+    ALREADY_LOGGED_IN_OTHER_DEVICE("이미 다른 기기에서 로그인 중입니다.");
 
     private final String message;
 
