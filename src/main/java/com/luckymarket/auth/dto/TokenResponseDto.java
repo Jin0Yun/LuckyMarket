@@ -6,10 +6,11 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class JwtTokenDto {
+public class TokenResponseDto {
     @Schema(description = "액세스 토큰", example = "Bearer <access_token>")
     private String accessToken;
 
-    @Schema(description = "리프레시 토큰", example = "<refresh_token>")
-    private String refreshToken;
+    public TokenResponseDto(String accessToken) {
+        this.accessToken = "Bearer " + accessToken;
+    }
 }
