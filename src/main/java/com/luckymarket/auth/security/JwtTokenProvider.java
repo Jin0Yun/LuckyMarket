@@ -5,7 +5,6 @@ import com.luckymarket.auth.exception.AuthException;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -25,10 +24,6 @@ public class JwtTokenProvider {
     public JwtTokenProvider(@Value("${jwt.secret}") String secretKey) {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         this.key = Keys.hmacShaKeyFor(keyBytes);
-    }
-
-    public long getRefreshTokenExpiration() {
-        return REFRESH_TOKEN_EXPIRATION;
     }
 
     private String createToken(String userId, long expiration) {
@@ -88,16 +83,12 @@ public class JwtTokenProvider {
     }
 
     public long getRemainingExpirationTime(String token) {
-        try {
-            Date expiration = Jwts.parserBuilder()
-                    .setSigningKey(key)
-                    .build()
-                    .parseClaimsJws(token)
-                    .getBody()
-                    .getExpiration();
-            return expiration.getTime() - System.currentTimeMillis();
-        } catch (ExpiredJwtException e) {
-            return 0;
-        }
+        Date expiration = Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .getExpiration();
+        return expiration.getTime() - System.currentTimeMillis();
     }
 }

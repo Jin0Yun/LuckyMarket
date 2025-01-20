@@ -1,6 +1,5 @@
 package com.luckymarket.auth.security;
 
-import com.luckymarket.auth.exception.AuthErrorCode;
 import com.luckymarket.auth.exception.AuthException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -29,15 +28,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (token != null) {
             try {
-                if (!jwtTokenProvider.validateToken(token)) {
-                    throw new AuthException(AuthErrorCode.INVALID_TOKEN);
-                }
+                jwtTokenProvider.validateToken(token);
                 Authentication authentication = jwtTokenProvider.getAuthentication(token);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             } catch (AuthException e) {
                 log.error("JWT 인증 실패: {}", e.getMessage());
                 response.setStatus(HttpServletResponse.SC_FORBIDDEN);
                 response.getWriter().write("Authentication failed: " + e.getMessage());
+                return;
+            } catch (Exception e) {
+                log.error("JWT 처리 중 예외 발생: {}", e.getMessage());
+                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                response.getWriter().write("Internal Server Error: " + e.getMessage());
                 return;
             }
         }
