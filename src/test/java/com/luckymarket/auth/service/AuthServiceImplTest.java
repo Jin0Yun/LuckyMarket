@@ -17,7 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class AuthServiceImplTest {
     @Mock
@@ -174,5 +174,43 @@ class AuthServiceImplTest {
         // when & then
         AuthException exception = assertThrows(AuthException.class, () -> jwtTokenProvider.validateToken(invalidFormatToken));
         assertThat(exception.getMessage()).isEqualTo(AuthErrorCode.INVALID_TOKEN.getMessage());
+    }
+
+    @DisplayName("로그아웃 성공 시 토큰이 블랙리스트에 추가되고 리프레시 토큰이 삭제되는지 테스트")
+    @Test
+    void shouldBlacklistTokenAndDeleteRefreshTokenWhenLogoutIsSuccessful() {
+        // given
+        String accessToken = "Bearer valid-jwt-token";
+        String token = "valid-jwt-token";
+        String userId = "1";
+
+        when(jwtTokenProvider.getSubject(token)).thenReturn(userId);
+        when(redisServiceImpl.isBlacklisted(token)).thenReturn(false);
+
+        // when
+        authService.logout(accessToken);
+
+        // then
+        verify(redisServiceImpl).addToBlacklist(token, jwtTokenProvider.getRemainingExpirationTime(token));
+        verify(redisServiceImpl).deleteRefreshToken(userId);
+    }
+
+    @DisplayName("이미 블랙리스트에 있는 토큰으로 로그아웃 시 예외를 반환하는지 테스트")
+    @Test
+    void shouldThrowExceptionWhenTokenIsAlreadyBlacklistedDuringLogout() {
+        // given
+        String accessToken = "Bearer blacklisted-jwt-token";
+        String token = "blacklisted-jwt-token";
+        String userId = "1";
+
+        when(jwtTokenProvider.getSubject(token)).thenReturn(userId);
+        when(redisServiceImpl.isBlacklisted(token)).thenReturn(true);
+
+        // when & then
+        AuthException exception = assertThrows(AuthException.class, () -> authService.logout(accessToken));
+        assertThat(exception.getMessage()).isEqualTo(AuthErrorCode.INVALID_TOKEN.getMessage());
+
+        verify(redisServiceImpl, never()).addToBlacklist(token, jwtTokenProvider.getRemainingExpirationTime(token));
+        verify(redisServiceImpl, never()).deleteRefreshToken(userId);
     }
 }
