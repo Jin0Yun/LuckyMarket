@@ -7,7 +7,6 @@ import com.luckymarket.auth.exception.AuthErrorCode;
 import com.luckymarket.auth.exception.AuthException;
 import com.luckymarket.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -52,6 +51,19 @@ public class AuthServiceImpl implements AuthService {
         return new TokenResponseDto(accessToken);
     }
 
+    @Override
+    public void logout(String accessToken) {
+        String token = accessToken.replace("Bearer ", "").trim();
+        String userId = jwtTokenProvider.getSubject(token);
+
+        if (redisService.isBlacklisted(token)) {
+            throw new AuthException(AuthErrorCode.INVALID_TOKEN);
+        }
+
+        redisService.addToBlacklist(token, jwtTokenProvider.getRemainingExpirationTime(token));
+        redisService.deleteRefreshToken(userId);
+    }
+
     private void validateLoginRequest(String email, String password) {
         authValidator.validateEmail(email);
         authValidator.validatePassword(password);
@@ -80,6 +92,6 @@ public class AuthServiceImpl implements AuthService {
     }
 
     private void saveRefreshTokenToRedis(Member member, String refreshToken) {
-        redisService.saveRefreshToken(String.valueOf(member.getId()), refreshToken, jwtTokenProvider.getRefreshTokenExpiration());
+        redisService.saveRefreshToken(String.valueOf(member.getId()), refreshToken, jwtTokenProvider.getRemainingExpirationTime(refreshToken));
     }
 }
