@@ -1,6 +1,5 @@
 package com.luckymarket.auth.controller;
 
-import com.luckymarket.auth.security.JwtTokenProvider;
 import com.luckymarket.common.ApiResponseWrapper;
 import com.luckymarket.auth.dto.TokenResponseDto;
 import com.luckymarket.auth.dto.LoginRequestDto;

@@ -1,7 +1,7 @@
 package com.luckymarket.auth.service;
 
 import com.luckymarket.auth.dto.TokenResponseDto;
-import com.luckymarket.auth.security.JwtTokenProvider;
+import com.luckymarket.auth.security.JwtTokenProviderImpl;
 import com.luckymarket.user.domain.Member;
 import com.luckymarket.auth.dto.LoginRequestDto;
 import com.luckymarket.auth.exception.AuthErrorCode;
@@ -21,7 +21,7 @@ import static org.mockito.Mockito.*;
 
 class AuthServiceImplTest {
     @Mock
-    private JwtTokenProvider jwtTokenProvider;
+    private JwtTokenProviderImpl jwtTokenProvider;
 
     @Mock
     private UserRepository userRepository;
