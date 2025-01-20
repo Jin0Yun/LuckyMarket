@@ -54,4 +54,27 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
         }
     }
+
+    @PostMapping("/logout")
+    @Operation(
+            summary = "로그아웃",
+            description = "로그아웃 처리. 클라이언트가 전달한 JWT 토큰을 블랙리스트에 추가하고, 해당 사용자의 리프레시 토큰을 삭제합니다.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "로그아웃 성공"),
+                    @ApiResponse(responseCode = "401", description = "인증되지 않은 요청 (토큰 불일치, 만료 등)"),
+                    @ApiResponse(responseCode = "500", description = "서버 오류")
+            }
+    )
+    public ResponseEntity<ApiResponseWrapper<Object>> logout(@RequestHeader("Authorization") String accessToken) {
+        try {
+            authService.logout(accessToken);
+            return ResponseEntity.ok(ApiResponseWrapper.withData("로그아웃 성공", null));
+        } catch (AuthException e) {
+            ApiResponseWrapper<Object> response = ApiResponseWrapper.error(e.getMessage(), HttpStatus.UNAUTHORIZED.value());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        } catch (Exception e) {
+            ApiResponseWrapper<Object> errorResponse = ApiResponseWrapper.error(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
+    }
 }
