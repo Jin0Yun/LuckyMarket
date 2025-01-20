@@ -1,4 +1,4 @@
-package com.luckymarket.auth.service;
+package com.luckymarket.auth.service.redis;
 
 import java.util.Optional;
 

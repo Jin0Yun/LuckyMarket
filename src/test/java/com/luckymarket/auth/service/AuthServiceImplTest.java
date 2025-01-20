@@ -2,6 +2,8 @@ package com.luckymarket.auth.service;
 
 import com.luckymarket.auth.dto.TokenResponseDto;
 import com.luckymarket.auth.security.JwtTokenProviderImpl;
+import com.luckymarket.auth.service.login.LoginValidator;
+import com.luckymarket.auth.service.redis.RedisServiceImpl;
 import com.luckymarket.user.domain.Member;
 import com.luckymarket.auth.dto.LoginRequestDto;
 import com.luckymarket.auth.exception.AuthErrorCode;
@@ -30,7 +32,7 @@ class AuthServiceImplTest {
     private PasswordEncoder passwordEncoder;
 
     @Mock
-    private AuthValidator authValidator;
+    private LoginValidator loginValidator;
 
     @Mock
     private RedisServiceImpl redisServiceImpl;

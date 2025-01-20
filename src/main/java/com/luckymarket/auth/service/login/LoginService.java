@@ -1,9 +1,10 @@
-package com.luckymarket.auth.service;
+package com.luckymarket.auth.service.login;
 
 import com.luckymarket.auth.dto.TokenResponseDto;
 import com.luckymarket.auth.exception.AuthErrorCode;
 import com.luckymarket.auth.exception.AuthException;
 import com.luckymarket.auth.security.JwtTokenProvider;
+import com.luckymarket.auth.service.redis.RedisService;
 import com.luckymarket.user.domain.Member;
 import com.luckymarket.user.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -15,19 +16,19 @@ public class LoginService {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final RedisService redisService;
-    private final AuthValidator authValidator;
+    private final LoginValidator loginValidator;
 
-    public LoginService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtTokenProvider jwtTokenProvider, RedisService redisService, AuthValidator authValidator) {
+    public LoginService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtTokenProvider jwtTokenProvider, RedisService redisService, LoginValidator loginValidator) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtTokenProvider = jwtTokenProvider;
         this.redisService = redisService;
-        this.authValidator = authValidator;
+        this.loginValidator = loginValidator;
     }
 
     public TokenResponseDto login(String email, String password) {
-        authValidator.validateEmail(email);
-        authValidator.validatePassword(password);
+        loginValidator.validateEmail(email);
+        loginValidator.validatePassword(password);
 
         Member member = userRepository.findByEmail(email);
         if (member == null) {

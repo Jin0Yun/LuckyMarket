@@ -1,4 +1,4 @@
-package com.luckymarket.auth.service;
+package com.luckymarket.auth.service.login;
 
 import com.luckymarket.auth.exception.AuthErrorCode;
 import com.luckymarket.auth.exception.AuthException;
@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import java.util.regex.Pattern;
 
 @Service
-public class AuthValidator {
+public class LoginValidator {
     public void validateEmail(String email) {
         if (email == null || email.trim().isEmpty()) {
             throw new AuthException(AuthErrorCode.EMAIL_BLANK);

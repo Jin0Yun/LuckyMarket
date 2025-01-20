@@ -1,8 +1,9 @@
-package com.luckymarket.auth.service;
+package com.luckymarket.auth.service.logout;
 
 import com.luckymarket.auth.exception.AuthErrorCode;
 import com.luckymarket.auth.exception.AuthException;
 import com.luckymarket.auth.security.JwtTokenProvider;
+import com.luckymarket.auth.service.redis.RedisService;
 import org.springframework.stereotype.Service;
 
 @Service
