@@ -10,6 +10,8 @@ import com.luckymarket.user.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+
 @Service
 public class LoginService {
     private final UserRepository userRepository;
@@ -47,7 +49,8 @@ public class LoginService {
         String refreshToken = jwtTokenProvider.createRefreshToken(member.getId());
 
         redisService.saveRefreshToken(member.getId(), refreshToken, jwtTokenProvider.getRemainingExpirationTime(refreshToken));
-
+        member.setLastLogin(LocalDateTime.now());
+        userRepository.save(member);
         return new TokenResponseDto(accessToken);
     }
 }
