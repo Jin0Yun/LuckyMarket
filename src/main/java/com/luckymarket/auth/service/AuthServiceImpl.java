@@ -66,6 +66,30 @@ public class AuthServiceImpl implements AuthService {
         redisService.deleteRefreshToken(userId);
     }
 
+    @Override
+    public TokenResponseDto refreshAccessToken(String accessToken) {
+        if (!jwtTokenProvider.validateToken(accessToken)) {
+            throw new AuthException(AuthErrorCode.INVALID_TOKEN);
+        }
+
+        Long userId = Long.parseLong(jwtTokenProvider.getSubject(accessToken));
+        String currentRefreshToken = redisService.getRefreshToken(userId).orElseThrow(() -> new AuthException(AuthErrorCode.INVALID_TOKEN));
+
+        if (!jwtTokenProvider.validateToken(currentRefreshToken)) {
+            throw new RedisException(RedisErrorCode.INVALID_REFRESH_TOKEN);
+        }
+
+        String newAccessToken = jwtTokenProvider.createAccessToken(userId);
+        String refreshToken = jwtTokenProvider.createRefreshToken(userId);
+
+        redisService.addToBlacklist(accessToken, jwtTokenProvider.getRemainingExpirationTime(accessToken));
+        redisService.deleteRefreshToken(userId);
+        redisService.saveRefreshToken(userId, refreshToken, jwtTokenProvider.getRemainingExpirationTime(refreshToken));
+
+        return new TokenResponseDto(newAccessToken);
+    }
+
+
     private void validateLoginRequest(String email, String password) {
         authValidator.validateEmail(email);
         authValidator.validatePassword(password);
