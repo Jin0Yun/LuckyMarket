@@ -17,7 +17,7 @@ public class RedisServiceImpl implements RedisService {
     }
 
     @Override
-    public void saveRefreshToken(String userId, String refreshToken, long expiration) {
+    public void saveRefreshToken(Long userId, String refreshToken, long expiration) {
         try {
             Boolean isSet = redisTemplate.opsForValue().setIfAbsent("refresh:" + userId, refreshToken);
             if (isSet != null && isSet) {
@@ -31,7 +31,7 @@ public class RedisServiceImpl implements RedisService {
     }
 
     @Override
-    public Optional<String> getRefreshToken(String userId) {
+    public Optional<String> getRefreshToken(Long userId) {
         try {
             String token = redisTemplate.opsForValue().get("refresh:" + userId);
             return Optional.ofNullable(token);
@@ -41,7 +41,7 @@ public class RedisServiceImpl implements RedisService {
     }
 
     @Override
-    public void deleteRefreshToken(String userId) {
+    public void deleteRefreshToken(Long userId) {
         try {
             boolean result = redisTemplate.delete("refresh:" + userId);
             if (!result) {
@@ -92,7 +92,7 @@ public class RedisServiceImpl implements RedisService {
     }
 
     @Override
-    public boolean isUserLoggedIn(String userId) {
+    public boolean isUserLoggedIn(Long userId) {
         try {
             return redisTemplate.hasKey("refresh:" + userId);
         } catch (Exception e) {

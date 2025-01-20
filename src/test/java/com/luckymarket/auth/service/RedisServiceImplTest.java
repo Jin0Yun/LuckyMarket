@@ -28,7 +28,7 @@ class RedisServiceImplTest {
     @InjectMocks
     private RedisServiceImpl redisService;
 
-    private String userId;
+    private Long userId;
     private String refreshToken;
     private String accessToken;
     private long expiration;
@@ -36,7 +36,7 @@ class RedisServiceImplTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        userId = "user123";
+        userId = 2342L;
         refreshToken = "refresh-token";
         accessToken = "blacklist-token";
         expiration = 1000L;

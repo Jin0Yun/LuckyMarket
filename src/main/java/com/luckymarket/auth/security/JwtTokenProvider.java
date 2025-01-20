@@ -10,10 +10,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
+
 import java.security.Key;
 import java.util.Collections;
 import java.util.Date;
-import java.util.List;
 
 @Component
 public class JwtTokenProvider {
@@ -26,7 +26,7 @@ public class JwtTokenProvider {
         this.key = Keys.hmacShaKeyFor(keyBytes);
     }
 
-    private String createToken(String userId, long expiration) {
+    private String createToken(Long userId, long expiration) {
         long now = System.currentTimeMillis();
         Date expiryDate = new Date(now + expiration);
 
@@ -35,17 +35,17 @@ public class JwtTokenProvider {
                 .signWith(key, SignatureAlgorithm.HS256);
 
         if (userId != null) {
-            builder.setSubject(userId);
+            builder.setSubject(String.valueOf(userId));
         }
 
         return builder.compact();
     }
 
-    public String createAccessToken(String userId) {
+    public String createAccessToken(Long userId) {
         return createToken(userId, ACCESS_TOKEN_EXPIRATION);
     }
 
-    public String createRefreshToken(String userId) {
+    public String createRefreshToken(Long userId) {
         return createToken(userId, REFRESH_TOKEN_EXPIRATION);
     }
 
@@ -77,9 +77,8 @@ public class JwtTokenProvider {
     }
 
     public Authentication getAuthentication(String token) {
-        String userId = getSubject(token);
-        List<SimpleGrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"));
-        return new UsernamePasswordAuthenticationToken(userId, token, authorities);
+        Long userId = Long.parseLong(getSubject(token));
+        return new UsernamePasswordAuthenticationToken(userId, token, Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")));
     }
 
     public long getRemainingExpirationTime(String token) {

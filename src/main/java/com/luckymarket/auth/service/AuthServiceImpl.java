@@ -1,6 +1,8 @@
 package com.luckymarket.auth.service;
 
 import com.luckymarket.auth.dto.TokenResponseDto;
+import com.luckymarket.auth.exception.RedisErrorCode;
+import com.luckymarket.auth.exception.RedisException;
 import com.luckymarket.auth.security.JwtTokenProvider;
 import com.luckymarket.user.domain.Member;
 import com.luckymarket.auth.exception.AuthErrorCode;
@@ -40,7 +42,7 @@ public class AuthServiceImpl implements AuthService {
         Member member = findMemberByEmail(email);
         verifyPassword(password, member);
 
-        if (redisService.isUserLoggedIn(String.valueOf(member.getId()))) {
+        if (redisService.isUserLoggedIn(member.getId())) {
             throw new AuthException(AuthErrorCode.ALREADY_LOGGED_IN_OTHER_DEVICE);
         }
 
@@ -54,7 +56,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public void logout(String accessToken) {
         String token = accessToken.replace("Bearer ", "").trim();
-        String userId = jwtTokenProvider.getSubject(token);
+        Long userId = Long.parseLong(jwtTokenProvider.getSubject(token));
 
         if (redisService.isBlacklisted(token)) {
             throw new AuthException(AuthErrorCode.INVALID_TOKEN);
@@ -84,14 +86,14 @@ public class AuthServiceImpl implements AuthService {
     }
 
     private String createAccessToken(Member member) {
-        return jwtTokenProvider.createAccessToken(String.valueOf(member.getId()));
+        return jwtTokenProvider.createAccessToken(member.getId());
     }
 
     private String createRefreshToken(Member member) {
-        return jwtTokenProvider.createRefreshToken(String.valueOf(member.getId()));
+        return jwtTokenProvider.createRefreshToken(member.getId());
     }
 
     private void saveRefreshTokenToRedis(Member member, String refreshToken) {
-        redisService.saveRefreshToken(String.valueOf(member.getId()), refreshToken, jwtTokenProvider.getRemainingExpirationTime(refreshToken));
+        redisService.saveRefreshToken(member.getId(), refreshToken, jwtTokenProvider.getRemainingExpirationTime(refreshToken));
     }
 }

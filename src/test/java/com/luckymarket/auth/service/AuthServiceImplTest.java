@@ -182,9 +182,9 @@ class AuthServiceImplTest {
         // given
         String accessToken = "Bearer valid-jwt-token";
         String token = "valid-jwt-token";
-        String userId = "1";
+        Long userId = 1L;
 
-        when(jwtTokenProvider.getSubject(token)).thenReturn(userId);
+        when(jwtTokenProvider.getSubject(token)).thenReturn(userId.toString());
         when(redisServiceImpl.isBlacklisted(token)).thenReturn(false);
 
         // when
@@ -201,9 +201,9 @@ class AuthServiceImplTest {
         // given
         String accessToken = "Bearer blacklisted-jwt-token";
         String token = "blacklisted-jwt-token";
-        String userId = "1";
+        Long userId = 1L;
 
-        when(jwtTokenProvider.getSubject(token)).thenReturn(userId);
+        when(jwtTokenProvider.getSubject(token)).thenReturn(userId.toString());
         when(redisServiceImpl.isBlacklisted(token)).thenReturn(true);
 
         // when & then
