@@ -1,8 +1,7 @@
-package com.luckymarket.auth.service;
+package com.luckymarket.auth.service.redis;
 
 import com.luckymarket.auth.exception.RedisErrorCode;
 import com.luckymarket.auth.exception.RedisException;
-import com.luckymarket.auth.service.redis.RedisServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,7 +18,6 @@ import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class RedisServiceImplTest {
-
     @Mock
     private RedisTemplate<String, String> redisTemplate;
 
@@ -70,7 +68,7 @@ class RedisServiceImplTest {
                 .hasMessage(RedisErrorCode.REFRESH_TOKEN_SAVE_FAILED.getMessage());
     }
 
-    @DisplayName("리프레시 토큰을 Redis에서 성공적으로 조회하는지 테스트")
+    @DisplayName("리프레시 토큰을 Redis에서 조회되는지 테스트")
     @Test
     void shouldGetRefreshTokenSuccessfully() {
         // given
@@ -97,7 +95,7 @@ class RedisServiceImplTest {
         assertThat(result).isNotPresent();
     }
 
-    @DisplayName("리프레시 토큰을 Redis에서 성공적으로 삭제하는지 테스트")
+    @DisplayName("리프레시 토큰을 Redis에서 삭제되는지 테스트")
     @Test
     void shouldDeleteRefreshTokenSuccessfully() {
         // given
