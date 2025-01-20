@@ -77,4 +77,24 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
         }
     }
+
+    @PostMapping("/refresh")
+    @Operation(
+            summary = "액세스 토큰 재발급",
+            description = "리프레시 토큰을 사용하여 새로운 액세스 토큰을 발급받습니다. 클라이언트가 전달한 액세스 토큰을 검증하고 유효한 경우 새로운 액세스 토큰을 반환합니다.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "엑세스 토큰 갱신 성공"),
+                    @ApiResponse(responseCode = "401", description = "인증되지 않은 요청 (토큰 불일치, 만료 등)"),
+                    @ApiResponse(responseCode = "500", description = "서버 오류")
+            }
+    )
+    public ResponseEntity<ApiResponseWrapper<Object>> refreshToken(@RequestHeader("Authorization") String accessToken) {
+        try {
+            TokenResponseDto jwtTokenDto = authService.refreshAccessToken(accessToken.replace("Bearer ", ""));
+            return ResponseEntity.ok(ApiResponseWrapper.withData("엑세스 토큰 갱신 성공", jwtTokenDto));
+        } catch (AuthException e) {
+            log.error("엑세스 토큰 갱신 실패: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponseWrapper.error(e.getMessage(), HttpStatus.UNAUTHORIZED.value()));
+        }
+    }
 }
