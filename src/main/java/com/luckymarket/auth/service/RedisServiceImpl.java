@@ -42,26 +42,12 @@ public class RedisServiceImpl implements RedisService {
 
     @Override
     public void deleteRefreshToken(Long userId) {
-        try {
-            boolean result = redisTemplate.delete("refresh:" + userId);
-            if (!result) {
-                throw new RedisException(RedisErrorCode.REFRESH_TOKEN_DELETE_FAILED);
-            }
-        } catch (Exception e) {
-            throw new RedisException(RedisErrorCode.REFRESH_TOKEN_DELETE_FAILED);
-        }
+        deleteKey("refresh:" + userId, RedisErrorCode.REFRESH_TOKEN_DELETE_FAILED);
     }
 
     @Override
     public void deleteBlacklistToken(String token) {
-        try {
-            boolean result = redisTemplate.delete("blacklist:" + token);
-            if (!result) {
-                throw new RedisException(RedisErrorCode.BLACKLIST_TOKEN_DELETE_FAILED);
-            }
-        } catch (Exception e) {
-            throw new RedisException(RedisErrorCode.BLACKLIST_TOKEN_DELETE_FAILED);
-        }
+        deleteKey("blacklist:" + token, RedisErrorCode.BLACKLIST_TOKEN_DELETE_FAILED);
     }
 
     @Override
@@ -97,6 +83,13 @@ public class RedisServiceImpl implements RedisService {
             return redisTemplate.hasKey("refresh:" + userId);
         } catch (Exception e) {
             return false;
+        }
+    }
+
+    private void deleteKey(String key, RedisErrorCode errorCode) {
+        boolean result = redisTemplate.delete(key);
+        if (!result) {
+            throw new RedisException(errorCode);
         }
     }
 }
