@@ -1,5 +1,7 @@
-package com.luckymarket.security;
+package com.luckymarket.common.config;
 
+import com.luckymarket.auth.security.JwtAuthenticationFilter;
+import com.luckymarket.auth.security.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
