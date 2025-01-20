@@ -87,7 +87,7 @@ public class AuthController {
                     @ApiResponse(responseCode = "500", description = "서버 오류")
             }
     )
-    public ResponseEntity<ApiResponseWrapper<Object>> refreshToken(@RequestHeader("Authorization") String accessToken) {
+    public ResponseEntity<ApiResponseWrapper<Object>> reissueAccessToken(@RequestHeader("Authorization") String accessToken) {
         try {
             TokenResponseDto jwtTokenDto = authService.refreshAccessToken(accessToken.replace("Bearer ", ""));
             return ResponseEntity.ok(ApiResponseWrapper.withData("엑세스 토큰 갱신 성공", jwtTokenDto));
