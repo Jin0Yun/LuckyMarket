@@ -1,4 +1,4 @@
-package com.luckymarket.auth.config;
+package com.luckymarket.common.config;
 
 import com.luckymarket.auth.security.JwtAuthenticationFilter;
 import com.luckymarket.auth.security.JwtTokenProvider;
