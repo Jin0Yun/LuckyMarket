@@ -29,6 +29,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Member updatePhoneNumber(Long userId, String newPhoneNumber) {
-        return null;
+        return phoneNumberUpdateService.updatePhoneNumber(userId, newPhoneNumber);
     }
 }

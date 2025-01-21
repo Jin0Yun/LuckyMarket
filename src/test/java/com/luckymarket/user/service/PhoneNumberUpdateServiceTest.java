@@ -1,7 +1,6 @@
 package com.luckymarket.user.service;
 
 import com.luckymarket.user.domain.Member;
-import com.luckymarket.user.dto.PhoneNumberUpdateDto;
 import com.luckymarket.user.exception.UserErrorCode;
 import com.luckymarket.user.exception.UserException;
 import com.luckymarket.user.repository.UserRepository;
@@ -23,7 +22,6 @@ class PhoneNumberUpdateServiceTest {
     private PhoneNumberUpdateService phoneNumberUpdateService;
 
     private Member member;
-    private PhoneNumberUpdateDto phoneNumberUpdateDto;
 
     @BeforeEach
     void setUp() {
@@ -32,19 +30,16 @@ class PhoneNumberUpdateServiceTest {
         member = new Member();
         member.setId(1L);
         member.setPhoneNumber("1234567890");
-
-        phoneNumberUpdateDto = new PhoneNumberUpdateDto();
-        phoneNumberUpdateDto.setPhoneNumber("0987654321");
     }
 
     @DisplayName("전화번호 형식이 맞는지 확인하는 테스트")
     @Test
     void shouldThrowExceptionWhenPhoneNumberFormatIsInvalid() {
         // given
-        phoneNumberUpdateDto.setPhoneNumber("invalidPhoneNumber");
+        String invalidPhoneNumber = "invalidPhoneNumber";
 
         // when & then
-        UserException exception = assertThrows(UserException.class, () -> phoneNumberUpdateService.updatePhoneNumber(1L, phoneNumberUpdateDto));
+        UserException exception = assertThrows(UserException.class, () -> phoneNumberUpdateService.updatePhoneNumber(1L, invalidPhoneNumber));
         assertEquals(UserErrorCode.INVALID_PHONE_NUMBER_FORMAT.getMessage(), exception.getMessage());
     }
 
@@ -52,10 +47,10 @@ class PhoneNumberUpdateServiceTest {
     @Test
     void shouldThrowExceptionWhenPhoneNumberIsBlank() {
         // given
-        phoneNumberUpdateDto.setPhoneNumber(null);
+        String blankPhoneNumber = null;
 
         // when & then
-        UserException exception = assertThrows(UserException.class, () -> phoneNumberUpdateService.updatePhoneNumber(1L, phoneNumberUpdateDto));
+        UserException exception = assertThrows(UserException.class, () -> phoneNumberUpdateService.updatePhoneNumber(1L, blankPhoneNumber));
         assertEquals(UserErrorCode.PHONE_NUMBER_BLANK.getMessage(), exception.getMessage());
     }
 
@@ -63,14 +58,14 @@ class PhoneNumberUpdateServiceTest {
     @Test
     void shouldUpdatePhoneNumberSuccessfully() {
         // given
-        phoneNumberUpdateDto.setPhoneNumber("0987654321");
+        String newPhoneNumber = "0987654321";
         when(userRepository.findById(1L)).thenReturn(java.util.Optional.of(member));
         when(userRepository.save(member)).thenReturn(member);
 
         // when
-        Member updatedMember = phoneNumberUpdateService.updatePhoneNumber(1L, phoneNumberUpdateDto);
+        Member updatedMember = phoneNumberUpdateService.updatePhoneNumber(1L, newPhoneNumber);
 
         // then
-        assertEquals("0987654321", updatedMember.getPhoneNumber());
+        assertEquals(newPhoneNumber, updatedMember.getPhoneNumber());
     }
 }
