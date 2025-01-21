@@ -30,7 +30,7 @@ public class SignupServiceImpl implements SignupService {
     public Member signup(SignupRequestDto signupRequestDto) {
         log.debug("회원가입 요청을 받았습니다. 이메일: {}", signupRequestDto.getEmail());
         validateEmail(signupRequestDto.getEmail());
-        validatePassword(signupRequestDto.getPassword());
+        PasswordValidator.validatePassword(signupRequestDto.getPassword());
 
         String password = passwordEncoder.encode(signupRequestDto.getPassword());
         Member member = MemberMapper.toEntity(signupRequestDto);
@@ -50,28 +50,6 @@ public class SignupServiceImpl implements SignupService {
         }
         if (userRepository.existsByEmail(email)) {
             throw new SignupException(SignupErrorCode.EMAIL_ALREADY_USED);
-        }
-    }
-
-    private static void validatePassword(String password) {
-        if (password == null || password.trim().isEmpty()) {
-            throw new SignupException(SignupErrorCode.PASSWORD_BLANK);
-        }
-
-        if (password.length() < 8) {
-            throw new SignupException(SignupErrorCode.PASSWORD_TOO_SHORT);
-        }
-
-        if (!password.matches(".*[A-Z].*")) {
-            throw new SignupException(SignupErrorCode.PASSWORD_MISSING_UPPERCASE);
-        }
-
-        if (!password.matches(".*[a-z].*")) {
-            throw new SignupException(SignupErrorCode.PASSWORD_MISSING_LOWERCASE);
-        }
-
-        if (!password.matches(".*[!@#$%^&*(),.?\":{}|<>].*")) {
-            throw new SignupException(SignupErrorCode.PASSWORD_MISSING_SPECIAL_CHAR);
         }
     }
 }
