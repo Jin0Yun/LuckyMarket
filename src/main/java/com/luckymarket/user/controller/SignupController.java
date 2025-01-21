@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RestController
 @RequestMapping("/api/member")
-@Tag(name = "회원 API", description = "회원 관련 API")
+@Tag(name = "회원 가입 API", description = "사용자 회원 가입 관련 API")
 public class SignupController {
     private final SignupService signupService;
 
