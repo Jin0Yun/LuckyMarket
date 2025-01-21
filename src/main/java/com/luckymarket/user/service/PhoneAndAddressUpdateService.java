@@ -1,7 +1,6 @@
 package com.luckymarket.user.service;
 
 import com.luckymarket.user.domain.Member;
-import com.luckymarket.user.dto.PhoneNumberUpdateDto;
 import com.luckymarket.user.exception.UserErrorCode;
 import com.luckymarket.user.exception.UserException;
 import com.luckymarket.user.repository.UserRepository;
@@ -9,11 +8,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class PhoneNumberUpdateService {
+public class PhoneAndAddressUpdateService {
     private final UserRepository userRepository;
 
     @Autowired
-    public PhoneNumberUpdateService(UserRepository userRepository) {
+    public PhoneAndAddressUpdateService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
@@ -27,6 +26,10 @@ public class PhoneNumberUpdateService {
         return userRepository.save(member);
     }
 
+    public Member updateAddress(Long userId, String newAddress) {
+        return null;
+    }
+
     private void validatePhoneNumber(String phoneNumber) {
         if (phoneNumber == null || phoneNumber.trim().isEmpty()) {
             throw new UserException(UserErrorCode.PHONE_NUMBER_BLANK);
@@ -35,5 +38,9 @@ public class PhoneNumberUpdateService {
         if (!phoneNumber.matches("^\\+?[0-9]{10,15}$")) {
             throw new UserException(UserErrorCode.INVALID_PHONE_NUMBER_FORMAT);
         }
+    }
+
+    private void validateAddress(String address) {
+
     }
 }

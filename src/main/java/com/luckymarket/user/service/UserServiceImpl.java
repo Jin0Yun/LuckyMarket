@@ -11,12 +11,12 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
-    private final PhoneNumberUpdateService phoneNumberUpdateService;
+    private final PhoneAndAddressUpdateService phoneAndAddressUpdateService;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, PhoneNumberUpdateService phoneNumberUpdateService) {
+    public UserServiceImpl(UserRepository userRepository, PhoneAndAddressUpdateService phoneAndAddressUpdateService) {
         this.userRepository = userRepository;
-        this.phoneNumberUpdateService = phoneNumberUpdateService;
+        this.phoneAndAddressUpdateService = phoneAndAddressUpdateService;
     }
 
     @Override
@@ -29,6 +29,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Member updatePhoneNumber(Long userId, String newPhoneNumber) {
-        return phoneNumberUpdateService.updatePhoneNumber(userId, newPhoneNumber);
+        return phoneAndAddressUpdateService.updatePhoneNumber(userId, newPhoneNumber);
+    }
+
+    @Override
+    public Member updateAddress(Long userId, String newAddress) {
+        return null;
     }
 }

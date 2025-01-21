@@ -14,12 +14,12 @@ import org.mockito.MockitoAnnotations;
 import static org.mockito.Mockito.when;
 import static org.junit.jupiter.api.Assertions.*;
 
-class PhoneNumberUpdateServiceTest {
+class PhoneAndAddressUpdateServiceTest {
     @Mock
     private UserRepository userRepository;
 
     @InjectMocks
-    private PhoneNumberUpdateService phoneNumberUpdateService;
+    private PhoneAndAddressUpdateService phoneAndAddressUpdateService;
 
     private Member member;
 
@@ -39,7 +39,7 @@ class PhoneNumberUpdateServiceTest {
         String invalidPhoneNumber = "invalidPhoneNumber";
 
         // when & then
-        UserException exception = assertThrows(UserException.class, () -> phoneNumberUpdateService.updatePhoneNumber(1L, invalidPhoneNumber));
+        UserException exception = assertThrows(UserException.class, () -> phoneAndAddressUpdateService.updatePhoneNumber(1L, invalidPhoneNumber));
         assertEquals(UserErrorCode.INVALID_PHONE_NUMBER_FORMAT.getMessage(), exception.getMessage());
     }
 
@@ -50,7 +50,7 @@ class PhoneNumberUpdateServiceTest {
         String blankPhoneNumber = null;
 
         // when & then
-        UserException exception = assertThrows(UserException.class, () -> phoneNumberUpdateService.updatePhoneNumber(1L, blankPhoneNumber));
+        UserException exception = assertThrows(UserException.class, () -> phoneAndAddressUpdateService.updatePhoneNumber(1L, blankPhoneNumber));
         assertEquals(UserErrorCode.PHONE_NUMBER_BLANK.getMessage(), exception.getMessage());
     }
 
@@ -63,9 +63,35 @@ class PhoneNumberUpdateServiceTest {
         when(userRepository.save(member)).thenReturn(member);
 
         // when
-        Member updatedMember = phoneNumberUpdateService.updatePhoneNumber(1L, newPhoneNumber);
+        Member updatedMember = phoneAndAddressUpdateService.updatePhoneNumber(1L, newPhoneNumber);
 
         // then
         assertEquals(newPhoneNumber, updatedMember.getPhoneNumber());
+    }
+
+    @DisplayName("주소가 비어있을 경우 예외가 발생하는지 확인하는 테스트")
+    @Test
+    void shouldThrowExceptionWhenAddressIsBlank() {
+        // given
+        String blankAddress = null;
+
+        // when & then
+        UserException exception = assertThrows(UserException.class, () -> phoneAndAddressUpdateService.updateAddress(1L, blankAddress));
+        assertEquals(UserErrorCode.ADDRESS_BLANK.getMessage(), exception.getMessage());
+    }
+
+    @DisplayName("주소가 변경되는지 확인하는 테스트")
+    @Test
+    void shouldUpdateAddressSuccessfully() {
+        // given
+        String newAddress = "New Address";
+        when(userRepository.findById(1L)).thenReturn(java.util.Optional.of(member));
+        when(userRepository.save(member)).thenReturn(member);
+
+        // when
+        Member updatedMember = phoneAndAddressUpdateService.updateAddress(1L, newAddress);
+
+        // then
+        assertEquals(newAddress, updatedMember.getAddress());
     }
 }
