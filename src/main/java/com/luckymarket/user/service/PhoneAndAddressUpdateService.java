@@ -27,7 +27,13 @@ public class PhoneAndAddressUpdateService {
     }
 
     public Member updateAddress(Long userId, String newAddress) {
-        return null;
+        validateAddress(newAddress);
+
+        Member member = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(UserErrorCode.ADDRESS_BLANK));
+
+        member.setAddress(newAddress);
+        return userRepository.save(member);
     }
 
     private void validatePhoneNumber(String phoneNumber) {
@@ -41,6 +47,8 @@ public class PhoneAndAddressUpdateService {
     }
 
     private void validateAddress(String address) {
-
+        if (address == null || address.trim().isEmpty()) {
+            throw new UserException(UserErrorCode.ADDRESS_BLANK);
+        }
     }
 }

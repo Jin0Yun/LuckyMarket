@@ -34,6 +34,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Member updateAddress(Long userId, String newAddress) {
-        return null;
+        return phoneAndAddressUpdateService.updateAddress(userId, newAddress);
     }
 }
