@@ -41,7 +41,7 @@ public class AuthController {
             log.debug("로그인 요청 처리: 이메일 = {}", loginRequestDto.getEmail());
             TokenResponseDto tokenResponseDto = authService.login(loginRequestDto.getEmail(), loginRequestDto.getPassword());
             log.info("로그인 성공: 이메일 = {}", loginRequestDto.getEmail());
-            ApiResponseWrapper<Object> response = ApiResponseWrapper.withData("로그인 성공", tokenResponseDto);
+            ApiResponseWrapper<Object> response = ApiResponseWrapper.success("로그인 성공", tokenResponseDto);
             return ResponseEntity.ok(response);
         } catch (AuthException e) {
             log.error("로그인 실패: {}", e.getMessage());
@@ -67,7 +67,7 @@ public class AuthController {
     public ResponseEntity<ApiResponseWrapper<Object>> logout(@RequestHeader("Authorization") String accessToken) {
         try {
             authService.logout(accessToken);
-            return ResponseEntity.ok(ApiResponseWrapper.withData("로그아웃 성공", null));
+            return ResponseEntity.ok(ApiResponseWrapper.success("로그아웃 성공", null));
         } catch (AuthException e) {
             ApiResponseWrapper<Object> response = ApiResponseWrapper.error(e.getMessage(), HttpStatus.UNAUTHORIZED.value());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
@@ -90,7 +90,7 @@ public class AuthController {
     public ResponseEntity<ApiResponseWrapper<Object>> reissueAccessToken(@RequestHeader("Authorization") String accessToken) {
         try {
             TokenResponseDto jwtTokenDto = authService.refreshAccessToken(accessToken.replace("Bearer ", ""));
-            return ResponseEntity.ok(ApiResponseWrapper.withData("엑세스 토큰 갱신 성공", jwtTokenDto));
+            return ResponseEntity.ok(ApiResponseWrapper.success("엑세스 토큰 갱신 성공", jwtTokenDto));
         } catch (AuthException e) {
             log.error("엑세스 토큰 갱신 실패: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponseWrapper.error(e.getMessage(), HttpStatus.UNAUTHORIZED.value()));

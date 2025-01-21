@@ -25,15 +25,15 @@ public class ApiResponseWrapper<T> {
     @Schema(description = "응답 데이터")
     private T data;
 
+    public static <T> ApiResponseWrapper<T> createResponse(String code, String message, HttpStatus status, T data) {
+        return new ApiResponseWrapper<>(code, message, status.value(), data);
+    }
+
     public static <T> ApiResponseWrapper<T> success(String message, T data) {
-        return new ApiResponseWrapper<>("SUCCESS", message, HttpStatus.OK.value(), data);
+        return createResponse("SUCCESS", message, HttpStatus.OK, data);
     }
 
     public static <T> ApiResponseWrapper<T> error(String message, int status) {
-        return new ApiResponseWrapper<>("ERROR", message, status, null);
-    }
-
-    public static <T> ApiResponseWrapper<T> withData(String message, T data) {
-        return new ApiResponseWrapper<>("SUCCESS", message, HttpStatus.OK.value(), data);
+        return createResponse("ERROR", message, HttpStatus.valueOf(status), null);
     }
 }
