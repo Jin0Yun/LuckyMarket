@@ -14,7 +14,9 @@ public enum AuthErrorCode {
     TOKEN_SIGNATURE_INVALID("토큰 서명이 유효하지 않습니다."),
 
     JWT_AUTHENTICATION_FAILED("JWT 인증에 실패했습니다."),
-    ALREADY_LOGGED_IN_OTHER_DEVICE("이미 다른 기기에서 로그인 중입니다.");
+    ALREADY_LOGGED_IN_OTHER_DEVICE("이미 다른 기기에서 로그인 중입니다."),
+
+    USER_ALREADY_DELETED("회원은 이미 탈퇴한 상태입니다.");
 
     private final String message;
 

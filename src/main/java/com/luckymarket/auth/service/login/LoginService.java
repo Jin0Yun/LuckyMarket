@@ -6,6 +6,7 @@ import com.luckymarket.auth.exception.AuthException;
 import com.luckymarket.auth.security.JwtTokenProvider;
 import com.luckymarket.auth.service.redis.RedisService;
 import com.luckymarket.user.domain.Member;
+import com.luckymarket.user.domain.Status;
 import com.luckymarket.user.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -37,6 +38,10 @@ public class LoginService {
             throw new AuthException(AuthErrorCode.EMAIL_NOT_FOUND);
         }
 
+        if (member.getStatus() == Status.DELETED) {
+            throw new AuthException(AuthErrorCode.USER_ALREADY_DELETED);
+        }
+
         if (!passwordEncoder.matches(password, member.getPassword())) {
             throw new AuthException(AuthErrorCode.PASSWORD_MISMATCH);
         }
@@ -51,7 +56,7 @@ public class LoginService {
         redisService.saveRefreshToken(member.getId(), refreshToken, jwtTokenProvider.getRemainingExpirationTime(refreshToken));
         member.setLastLogin(LocalDateTime.now());
         userRepository.save(member);
-        return new TokenResponseDto(accessToken);
+        return new TokenResponseDto(member.getId(), accessToken);
     }
 }
 
