@@ -37,7 +37,8 @@ class AuthServiceImplTest {
         // given
         String email = "test@gmail.com";
         String password = "password";
-        TokenResponseDto mockToken = new TokenResponseDto("mockAccessToken");
+        Long userId = 12345L;
+        TokenResponseDto mockToken = new TokenResponseDto(userId, "mockAccessToken");
         when(loginService.login(email, password)).thenReturn(mockToken);
 
         // when
@@ -65,7 +66,9 @@ class AuthServiceImplTest {
     void shouldCallTokenServiceWhenRefreshAccessToken() {
         // given
         String accessToken = "Bearer valid-access-token";
-        TokenResponseDto mockToken = new TokenResponseDto("newAccessToken");
+        Long userId = 12345L;
+
+        TokenResponseDto mockToken = new TokenResponseDto(userId, "newAccessToken");
         when(tokenService.refreshAccessToken(accessToken)).thenReturn(mockToken);
 
         // when
