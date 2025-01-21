@@ -5,4 +5,5 @@ import com.luckymarket.user.dto.NameUpdateDto;
 
 public interface UserService {
     Member updateName(Long userId, NameUpdateDto nameDto);
+    Member updatePhoneNumber(Long userId, String newPhoneNumber);
 }
