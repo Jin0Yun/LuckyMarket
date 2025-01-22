@@ -3,6 +3,7 @@ package com.luckymarket.user.service;
 import com.luckymarket.user.domain.Member;
 import com.luckymarket.user.dto.AddressUpdateDto;
 import com.luckymarket.user.dto.NameUpdateDto;
+import com.luckymarket.user.dto.PasswordUpdateDto;
 import com.luckymarket.user.dto.PhoneNumberUpdateDto;
 import com.luckymarket.user.repository.UserRepository;
 import com.luckymarket.user.service.account.AccountDeactivationService;
@@ -113,13 +114,14 @@ class UserServiceImplTest {
     @Test
     void shouldCallPasswordChangeServiceWhenChangePassword() {
         // given
-        String newPassword = "newPassword123!";
+        PasswordUpdateDto passwordDto = new PasswordUpdateDto();
+        passwordDto.setPassword("newPassword123!");
 
         // when
-        userService.changePassword(1L, newPassword);
+        userService.changePassword(1L, passwordDto);
 
         // then
-        verify(passwordChangeService, times(1)).changePassword(1L, newPassword);
+        verify(passwordChangeService, times(1)).changePassword(1L, passwordDto);
     }
 
     @DisplayName("회원 탈퇴 서비스가 호출되는지 확인하는 테스트")

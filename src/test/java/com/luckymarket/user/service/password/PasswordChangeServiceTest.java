@@ -1,6 +1,7 @@
 package com.luckymarket.user.service.password;
 
 import com.luckymarket.user.domain.Member;
+import com.luckymarket.user.dto.PasswordUpdateDto;
 import com.luckymarket.user.exception.SignupErrorCode;
 import com.luckymarket.user.exception.SignupException;
 import com.luckymarket.user.exception.UserErrorCode;
@@ -42,15 +43,16 @@ class PasswordChangeServiceTest {
     @Test
     void shouldChangePasswordSuccessfully() {
         // given
-        String newPassword = "newPassword123!";
+        PasswordUpdateDto passwordDto = new PasswordUpdateDto();
+        passwordDto.setPassword("newPassword123!");
         String encodedPassword = "encodedPassword123!";
 
-        when(passwordEncoder.encode(newPassword)).thenReturn(encodedPassword);
+        when(passwordEncoder.encode(passwordDto.getPassword())).thenReturn(encodedPassword);
         when(userRepository.findById(1L)).thenReturn(java.util.Optional.of(member));
         when(userRepository.save(member)).thenReturn(member);
 
         // when
-        Member updatedMember = passwordChangeService.changePassword(1L, newPassword);
+        Member updatedMember = passwordChangeService.changePassword(1L, passwordDto);
 
         // then
         assertEquals(encodedPassword, updatedMember.getPassword());
@@ -60,10 +62,11 @@ class PasswordChangeServiceTest {
     @Test
     void shouldThrowExceptionWhenPasswordIsBlank() {
         // given
-        String blankPassword = "";
+        PasswordUpdateDto passwordDto = new PasswordUpdateDto();
+        passwordDto.setPassword("");
 
         // when & then
-        SignupException exception = assertThrows(SignupException.class, () -> passwordChangeService.changePassword(1L, blankPassword));
+        SignupException exception = assertThrows(SignupException.class, () -> passwordChangeService.changePassword(1L, passwordDto));
         assertEquals(SignupErrorCode.PASSWORD_BLANK.getMessage(), exception.getMessage());
     }
 
@@ -71,10 +74,11 @@ class PasswordChangeServiceTest {
     @Test
     void shouldThrowExceptionWhenPasswordIsInvalid() {
         // given
-        String invalidPassword = "short";
+        PasswordUpdateDto passwordDto = new PasswordUpdateDto();
+        passwordDto.setPassword("short");
 
         // when & then
-        SignupException exception = assertThrows(SignupException.class, () -> passwordChangeService.changePassword(1L, invalidPassword));
+        SignupException exception = assertThrows(SignupException.class, () -> passwordChangeService.changePassword(1L, passwordDto));
         assertEquals(SignupErrorCode.PASSWORD_TOO_SHORT.getMessage(), exception.getMessage());
     }
 
@@ -82,10 +86,11 @@ class PasswordChangeServiceTest {
     @Test
     void shouldThrowExceptionWhenUserNotFound() {
         // given
-        String newPassword = "newPassword123!";
+        PasswordUpdateDto passwordDto = new PasswordUpdateDto();
+        passwordDto.setPassword("newPassword123!");
 
         // when & then
-        UserException exception = assertThrows(UserException.class, () -> passwordChangeService.changePassword(999L, newPassword));
+        UserException exception = assertThrows(UserException.class, () -> passwordChangeService.changePassword(999L, passwordDto));
         assertEquals(UserErrorCode.USER_NOT_FOUND.getMessage(), exception.getMessage());
     }
 }
