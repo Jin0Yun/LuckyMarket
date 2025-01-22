@@ -37,4 +37,8 @@ public class PhoneAndAddressUpdateService {
         member.setAddress(addressDto.getAddress());
         return userRepository.save(member);
     }
+
+    public Member updatePhoneNumberAndAddress(Long userId, PhoneNumberUpdateDto phoneDto, AddressUpdateDto addressDto) {
+        return null;
+    }
 }

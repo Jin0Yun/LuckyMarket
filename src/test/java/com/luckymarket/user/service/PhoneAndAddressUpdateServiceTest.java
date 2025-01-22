@@ -104,4 +104,40 @@ class PhoneAndAddressUpdateServiceTest {
         // then
         assertEquals("New Address", updatedMember.getAddress());
     }
+
+    @DisplayName("전화번호와 주소를 동시에 업데이트하는지 확인하는 테스트")
+    @Test
+    void shouldUpdatePhoneNumberAndAddressSuccessfully() {
+        // given
+        PhoneNumberUpdateDto newPhoneDto = new PhoneNumberUpdateDto();
+        newPhoneDto.setPhoneNumber("0987654321");
+
+        AddressUpdateDto newAddressDto = new AddressUpdateDto();
+        newAddressDto.setAddress("New Address");
+
+        when(userRepository.findById(1L)).thenReturn(java.util.Optional.of(member));
+        when(userRepository.save(member)).thenReturn(member);
+
+        // when
+        Member updatedMember = phoneAndAddressUpdateService.updatePhoneNumberAndAddress(1L, newPhoneDto, newAddressDto);
+
+        // then
+        assertEquals("0987654321", updatedMember.getPhoneNumber());
+        assertEquals("New Address", updatedMember.getAddress());
+    }
+
+    @DisplayName("전화번호와 주소가 둘 다 비어있을 경우 예외가 발생하는지 확인하는 테스트")
+    @Test
+    void shouldThrowExceptionWhenPhoneNumberAndAddressAreBlank() {
+        // given
+        PhoneNumberUpdateDto blankPhoneDto = new PhoneNumberUpdateDto();
+        blankPhoneDto.setPhoneNumber(null);
+
+        AddressUpdateDto blankAddressDto = new AddressUpdateDto();
+        blankAddressDto.setAddress(null);
+
+        // when & then
+        UserException exception = assertThrows(UserException.class, () -> phoneAndAddressUpdateService.updatePhoneNumberAndAddress(1L, blankPhoneDto, blankAddressDto));
+        assertEquals(UserErrorCode.PHONE_NUMBER_BLANK.getMessage(), exception.getMessage());
+    }
 }

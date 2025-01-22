@@ -38,4 +38,9 @@ public class UserServiceImpl implements UserService {
     public Member updateAddress(Long userId, AddressUpdateDto addressDto) {
         return phoneAndAddressUpdateService.updateAddress(userId, addressDto);
     }
+
+    @Override
+    public Member updatePhoneNumberAndAddress(Long userId, PhoneNumberUpdateDto phoneDto, AddressUpdateDto addressDto) {
+        return null;
+    }
 }

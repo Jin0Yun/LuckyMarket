@@ -9,4 +9,5 @@ public interface UserService {
     Member updateName(Long userId, NameUpdateDto nameDto);
     Member updatePhoneNumber(Long userId, PhoneNumberUpdateDto phoneDto);
     Member updateAddress(Long userId, AddressUpdateDto addressDto);
+    Member updatePhoneNumberAndAddress(Long userId, PhoneNumberUpdateDto phoneDto, AddressUpdateDto addressDto);
 }
