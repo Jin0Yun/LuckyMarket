@@ -1,6 +1,7 @@
 package com.luckymarket.user.service.password;
 
 import com.luckymarket.user.domain.Member;
+import com.luckymarket.user.dto.PasswordUpdateDto;
 import com.luckymarket.user.exception.UserErrorCode;
 import com.luckymarket.user.exception.UserException;
 import com.luckymarket.user.repository.UserRepository;
@@ -20,13 +21,13 @@ public class PasswordChangeService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public Member changePassword(Long userId, String newPassword) {
-        PasswordValidator.validatePassword(newPassword);
+    public Member changePassword(Long userId, PasswordUpdateDto passwordDto) {
+        PasswordValidator.validatePassword(passwordDto.getPassword());
 
         Member member = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
 
-        String encryptedPassword = passwordEncoder.encode(newPassword);
+        String encryptedPassword = passwordEncoder.encode(passwordDto.getPassword());
         member.setPassword(encryptedPassword);
         return userRepository.save(member);
     }

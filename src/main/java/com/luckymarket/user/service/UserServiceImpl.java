@@ -3,6 +3,7 @@ package com.luckymarket.user.service;
 import com.luckymarket.user.domain.Member;
 import com.luckymarket.user.dto.AddressUpdateDto;
 import com.luckymarket.user.dto.NameUpdateDto;
+import com.luckymarket.user.dto.PasswordUpdateDto;
 import com.luckymarket.user.dto.PhoneNumberUpdateDto;
 import com.luckymarket.user.exception.UserErrorCode;
 import com.luckymarket.user.exception.UserException;
@@ -57,8 +58,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Member changePassword(Long userId, String newPassword) {
-        return passwordChangeService.changePassword(userId, newPassword);
+    public Member changePassword(Long userId, PasswordUpdateDto passwordDto) {
+        return passwordChangeService.changePassword(userId, passwordDto);
     }
 
     @Override

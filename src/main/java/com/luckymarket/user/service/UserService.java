@@ -3,6 +3,7 @@ package com.luckymarket.user.service;
 import com.luckymarket.user.domain.Member;
 import com.luckymarket.user.dto.AddressUpdateDto;
 import com.luckymarket.user.dto.NameUpdateDto;
+import com.luckymarket.user.dto.PasswordUpdateDto;
 import com.luckymarket.user.dto.PhoneNumberUpdateDto;
 
 public interface UserService {
@@ -10,6 +11,6 @@ public interface UserService {
     Member updatePhoneNumber(Long userId, PhoneNumberUpdateDto phoneDto);
     Member updateAddress(Long userId, AddressUpdateDto addressDto);
     Member updatePhoneNumberAndAddress(Long userId, PhoneNumberUpdateDto phoneDto, AddressUpdateDto addressDto);
-    Member changePassword(Long userId, String newPassword);
+    Member changePassword(Long userId, PasswordUpdateDto passwordDto);
     void deleteAccount(Long userId);
 }
