@@ -20,6 +20,13 @@ public class PasswordChangeService {
     }
 
     public Member changePassword(Long userId, String newPassword) {
-        return null;
+        PasswordValidator.validatePassword(newPassword);
+
+        Member member = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
+
+        String encryptedPassword = passwordEncoder.encode(newPassword);
+        member.setPassword(encryptedPassword);
+        return userRepository.save(member);
     }
 }

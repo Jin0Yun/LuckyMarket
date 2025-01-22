@@ -52,6 +52,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Member changePassword(Long userId, String newPassword) {
-        return null;
+        return passwordChangeService.changePassword(userId, newPassword);
     }
 }
