@@ -2,6 +2,7 @@ package com.luckymarket.user.service.phoneAndAddress;
 
 import com.luckymarket.user.domain.Member;
 import com.luckymarket.user.dto.AddressUpdateDto;
+import com.luckymarket.user.dto.PhoneNumberAndAddressUpdateDto;
 import com.luckymarket.user.dto.PhoneNumberUpdateDto;
 import com.luckymarket.user.exception.UserErrorCode;
 import com.luckymarket.user.exception.UserException;
@@ -40,15 +41,15 @@ public class PhoneAndAddressUpdateService {
         return userRepository.save(member);
     }
 
-    public Member updatePhoneNumberAndAddress(Long userId, PhoneNumberUpdateDto phoneDto, AddressUpdateDto addressDto) {
-        PhoneNumberValidator.validate(phoneDto);
-        AddressValidator.validate(addressDto);
+    public Member updatePhoneNumberAndAddress(Long userId, PhoneNumberAndAddressUpdateDto dto) {
+        PhoneNumberValidator.validate(dto);
+        AddressValidator.validate(dto);
 
         Member member = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
 
-        member.setPhoneNumber(phoneDto.getPhoneNumber());
-        member.setAddress(addressDto.getAddress());
+        member.setPhoneNumber(dto.getPhoneNumber());
+        member.setAddress(dto.getAddress());
         return userRepository.save(member);
     }
 }
