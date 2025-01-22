@@ -5,7 +5,8 @@ public enum UserErrorCode {
     PHONE_NUMBER_BLANK("전화번호는 필수 입력값입니다."),
     INVALID_PHONE_NUMBER("유효하지 않은 전화번호 형식입니다."),
     INVALID_PHONE_NUMBER_FORMAT("전화번호 형식이 잘못되었습니다."),
-    ADDRESS_BLANK("주소는 필수 입력값입니다.");
+    ADDRESS_BLANK("주소는 필수 입력값입니다."),
+    USER_NOT_FOUND("사용자를 찾을 수 없습니다.");
 
     private final String message;
 
