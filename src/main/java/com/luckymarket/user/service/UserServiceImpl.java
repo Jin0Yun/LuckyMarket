@@ -15,16 +15,19 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PhoneAndAddressUpdateService phoneAndAddressUpdateService;
     private final PasswordChangeService passwordChangeService;
+    private final AccountDeactivationService accountDeactivationService;
 
     @Autowired
     public UserServiceImpl(
             UserRepository userRepository,
             PhoneAndAddressUpdateService phoneAndAddressUpdateService,
-            PasswordChangeService passwordChangeService
+            PasswordChangeService passwordChangeService,
+            AccountDeactivationService accountDeactivationService
     ) {
         this.userRepository = userRepository;
         this.phoneAndAddressUpdateService = phoneAndAddressUpdateService;
         this.passwordChangeService = passwordChangeService;
+        this.accountDeactivationService = accountDeactivationService;
     }
 
     @Override
@@ -53,5 +56,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public Member changePassword(Long userId, String newPassword) {
         return passwordChangeService.changePassword(userId, newPassword);
+    }
+
+    @Override
+    public void deleteAccount(Long userId) {
+
     }
 }
