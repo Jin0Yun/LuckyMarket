@@ -33,6 +33,6 @@ public class TokenService {
         redisService.deleteRefreshToken(userId);
         redisService.saveRefreshToken(userId, newRefreshToken, jwtTokenProvider.getRemainingExpirationTime(newRefreshToken));
 
-        return new TokenResponseDto(newAccessToken);
+        return new TokenResponseDto(userId, newAccessToken);
     }
 }
