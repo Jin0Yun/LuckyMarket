@@ -1,7 +1,9 @@
 package com.luckymarket.user.service;
 
 import com.luckymarket.user.domain.Member;
+import com.luckymarket.user.dto.AddressUpdateDto;
 import com.luckymarket.user.dto.NameUpdateDto;
+import com.luckymarket.user.dto.PhoneNumberUpdateDto;
 import com.luckymarket.user.exception.UserErrorCode;
 import com.luckymarket.user.exception.UserException;
 import com.luckymarket.user.repository.UserRepository;
@@ -28,12 +30,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Member updatePhoneNumber(Long userId, String newPhoneNumber) {
-        return phoneAndAddressUpdateService.updatePhoneNumber(userId, newPhoneNumber);
+    public Member updatePhoneNumber(Long userId, PhoneNumberUpdateDto phoneDto) {
+        return phoneAndAddressUpdateService.updatePhoneNumber(userId, phoneDto);
     }
 
     @Override
-    public Member updateAddress(Long userId, String newAddress) {
-        return phoneAndAddressUpdateService.updateAddress(userId, newAddress);
+    public Member updateAddress(Long userId, AddressUpdateDto addressDto) {
+        return phoneAndAddressUpdateService.updateAddress(userId, addressDto);
     }
 }
