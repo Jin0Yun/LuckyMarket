@@ -1,6 +1,8 @@
 package com.luckymarket.user.service;
 
 import com.luckymarket.user.domain.Member;
+import com.luckymarket.user.dto.AddressUpdateDto;
+import com.luckymarket.user.dto.PhoneNumberUpdateDto;
 import com.luckymarket.user.exception.UserErrorCode;
 import com.luckymarket.user.exception.UserException;
 import com.luckymarket.user.repository.UserRepository;
@@ -36,10 +38,11 @@ class PhoneAndAddressUpdateServiceTest {
     @Test
     void shouldThrowExceptionWhenPhoneNumberFormatIsInvalid() {
         // given
-        String invalidPhoneNumber = "invalidPhoneNumber";
+        PhoneNumberUpdateDto invalidPhoneDto = new PhoneNumberUpdateDto();
+        invalidPhoneDto.setPhoneNumber("invalidPhoneNumber");
 
         // when & then
-        UserException exception = assertThrows(UserException.class, () -> phoneAndAddressUpdateService.updatePhoneNumber(1L, invalidPhoneNumber));
+        UserException exception = assertThrows(UserException.class, () -> phoneAndAddressUpdateService.updatePhoneNumber(1L, invalidPhoneDto));
         assertEquals(UserErrorCode.INVALID_PHONE_NUMBER_FORMAT.getMessage(), exception.getMessage());
     }
 
@@ -47,10 +50,11 @@ class PhoneAndAddressUpdateServiceTest {
     @Test
     void shouldThrowExceptionWhenPhoneNumberIsBlank() {
         // given
-        String blankPhoneNumber = null;
+        PhoneNumberUpdateDto blankPhoneDto = new PhoneNumberUpdateDto();
+        blankPhoneDto.setPhoneNumber(null);
 
         // when & then
-        UserException exception = assertThrows(UserException.class, () -> phoneAndAddressUpdateService.updatePhoneNumber(1L, blankPhoneNumber));
+        UserException exception = assertThrows(UserException.class, () -> phoneAndAddressUpdateService.updatePhoneNumber(1L, blankPhoneDto));
         assertEquals(UserErrorCode.PHONE_NUMBER_BLANK.getMessage(), exception.getMessage());
     }
 
@@ -58,40 +62,46 @@ class PhoneAndAddressUpdateServiceTest {
     @Test
     void shouldUpdatePhoneNumberSuccessfully() {
         // given
-        String newPhoneNumber = "0987654321";
+        PhoneNumberUpdateDto newPhoneDto = new PhoneNumberUpdateDto();
+        newPhoneDto.setPhoneNumber("0987654321");
+
         when(userRepository.findById(1L)).thenReturn(java.util.Optional.of(member));
         when(userRepository.save(member)).thenReturn(member);
 
         // when
-        Member updatedMember = phoneAndAddressUpdateService.updatePhoneNumber(1L, newPhoneNumber);
+        Member updatedMember = phoneAndAddressUpdateService.updatePhoneNumber(1L, newPhoneDto);
 
         // then
-        assertEquals(newPhoneNumber, updatedMember.getPhoneNumber());
+        assertEquals("0987654321", updatedMember.getPhoneNumber());
     }
 
     @DisplayName("주소가 비어있을 경우 예외가 발생하는지 확인하는 테스트")
     @Test
     void shouldThrowExceptionWhenAddressIsBlank() {
         // given
-        String blankAddress = null;
+        AddressUpdateDto blankAddressDto = new AddressUpdateDto();
+        blankAddressDto.setAddress(null);
 
         // when & then
-        UserException exception = assertThrows(UserException.class, () -> phoneAndAddressUpdateService.updateAddress(1L, blankAddress));
+        UserException exception = assertThrows(UserException.class, () -> phoneAndAddressUpdateService.updateAddress(1L, blankAddressDto));
         assertEquals(UserErrorCode.ADDRESS_BLANK.getMessage(), exception.getMessage());
     }
+
 
     @DisplayName("주소가 변경되는지 확인하는 테스트")
     @Test
     void shouldUpdateAddressSuccessfully() {
         // given
-        String newAddress = "New Address";
+        AddressUpdateDto newAddressDto = new AddressUpdateDto();
+        newAddressDto.setAddress("New Address");
+
         when(userRepository.findById(1L)).thenReturn(java.util.Optional.of(member));
         when(userRepository.save(member)).thenReturn(member);
 
         // when
-        Member updatedMember = phoneAndAddressUpdateService.updateAddress(1L, newAddress);
+        Member updatedMember = phoneAndAddressUpdateService.updateAddress(1L, newAddressDto);
 
         // then
-        assertEquals(newAddress, updatedMember.getAddress());
+        assertEquals("New Address", updatedMember.getAddress());
     }
 }
