@@ -32,14 +32,9 @@ public class SignupController {
     @PostMapping("/signup")
     @Operation(
             summary = "회원가입",
-            description = "사용자가 이메일, 비밀번호, 이름으로 회원가입을 요청합니다.",
-            responses = {
-                    @ApiResponse(responseCode = "201", description = "회원가입 성공"),
-                    @ApiResponse(responseCode = "400", description = "잘못된 요청(유효성 검증 실패)"),
-                    @ApiResponse(responseCode = "500", description = "서버 오류")
-            }
+            description = "사용자가 이메일, 비밀번호, 이름으로 회원가입을 요청합니다."
     )
-    public ResponseEntity<ApiResponseWrapper<String>> signup(@RequestBody @Valid SignupRequestDto signupRequestDto) {
+    public ResponseEntity<ApiResponseWrapper<String>> signup(@RequestBody SignupRequestDto signupRequestDto) {
         log.debug("회원가입 요청을 받았습니다. 이메일: {}", signupRequestDto.getEmail());
         try {
             signupService.signup(signupRequestDto);

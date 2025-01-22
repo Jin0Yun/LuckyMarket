@@ -29,12 +29,7 @@ public class AuthController {
     @PostMapping("/login")
     @Operation(
             summary = "로그인",
-            description = "사용자가 이메일과 비밀번호를 입력해서 로그인하고, JWT 토큰을 반환받습니다.",
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "로그인 성공"),
-                    @ApiResponse(responseCode = "401", description = "잘못된 로그인 정보(이메일/비밀번호 불일치)"),
-                    @ApiResponse(responseCode = "500", description = "서버 오류")
-            }
+            description = "사용자가 이메일과 비밀번호를 입력해서 로그인하고, JWT 토큰을 반환받습니다."
     )
     public ResponseEntity<ApiResponseWrapper<Object>> login(@RequestBody LoginRequestDto loginRequestDto) {
         try {
@@ -57,12 +52,7 @@ public class AuthController {
     @PostMapping("/logout")
     @Operation(
             summary = "로그아웃",
-            description = "로그아웃 처리. 클라이언트가 전달한 JWT 토큰을 블랙리스트에 추가하고, 해당 사용자의 리프레시 토큰을 삭제합니다.",
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "로그아웃 성공"),
-                    @ApiResponse(responseCode = "401", description = "인증되지 않은 요청 (토큰 불일치, 만료 등)"),
-                    @ApiResponse(responseCode = "500", description = "서버 오류")
-            }
+            description = "로그아웃 처리. 클라이언트가 전달한 JWT 토큰을 블랙리스트에 추가하고, 해당 사용자의 리프레시 토큰을 삭제합니다."
     )
     public ResponseEntity<ApiResponseWrapper<Object>> logout(@RequestHeader("Authorization") String accessToken) {
         try {
@@ -80,12 +70,7 @@ public class AuthController {
     @PostMapping("/refresh")
     @Operation(
             summary = "액세스 토큰 재발급",
-            description = "리프레시 토큰을 사용하여 새로운 액세스 토큰을 발급받습니다. 클라이언트가 전달한 액세스 토큰을 검증하고 유효한 경우 새로운 액세스 토큰을 반환합니다.",
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "엑세스 토큰 갱신 성공"),
-                    @ApiResponse(responseCode = "401", description = "인증되지 않은 요청 (토큰 불일치, 만료 등)"),
-                    @ApiResponse(responseCode = "500", description = "서버 오류")
-            }
+            description = "리프레시 토큰을 사용하여 새로운 액세스 토큰을 발급받습니다. 클라이언트가 전달한 액세스 토큰을 검증하고 유효한 경우 새로운 액세스 토큰을 반환합니다."
     )
     public ResponseEntity<ApiResponseWrapper<Object>> reissueAccessToken(@RequestHeader("Authorization") String accessToken) {
         try {
