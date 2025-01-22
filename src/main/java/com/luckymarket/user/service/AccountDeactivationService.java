@@ -21,6 +21,15 @@ public class AccountDeactivationService {
     }
 
     public void deleteAccount(Long userId) {
-        
+        Member member = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
+
+        if (member.getStatus() == Status.DELETED) {
+            throw new UserException(UserErrorCode.USER_ALREADY_DELETED);
+        }
+
+        redisService.deleteRefreshToken(userId);
+        member.setStatus(Status.DELETED);
+        userRepository.save(member);
     }
 }
