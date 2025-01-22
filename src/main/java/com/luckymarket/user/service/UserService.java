@@ -10,4 +10,5 @@ public interface UserService {
     Member updatePhoneNumber(Long userId, PhoneNumberUpdateDto phoneDto);
     Member updateAddress(Long userId, AddressUpdateDto addressDto);
     Member updatePhoneNumberAndAddress(Long userId, PhoneNumberUpdateDto phoneDto, AddressUpdateDto addressDto);
+    Member changePassword(Long userId, String newPassword);
 }
