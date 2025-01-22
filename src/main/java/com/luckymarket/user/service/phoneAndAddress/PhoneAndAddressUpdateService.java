@@ -1,4 +1,4 @@
-package com.luckymarket.user.service;
+package com.luckymarket.user.service.phoneAndAddress;
 
 import com.luckymarket.user.domain.Member;
 import com.luckymarket.user.dto.AddressUpdateDto;
@@ -6,6 +6,8 @@ import com.luckymarket.user.dto.PhoneNumberUpdateDto;
 import com.luckymarket.user.exception.UserErrorCode;
 import com.luckymarket.user.exception.UserException;
 import com.luckymarket.user.repository.UserRepository;
+import com.luckymarket.user.validator.AddressValidator;
+import com.luckymarket.user.validator.PhoneNumberValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

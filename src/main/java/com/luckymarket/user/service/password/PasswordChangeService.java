@@ -1,9 +1,10 @@
-package com.luckymarket.user.service;
+package com.luckymarket.user.service.password;
 
 import com.luckymarket.user.domain.Member;
 import com.luckymarket.user.exception.UserErrorCode;
 import com.luckymarket.user.exception.UserException;
 import com.luckymarket.user.repository.UserRepository;
+import com.luckymarket.user.validator.PasswordValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;

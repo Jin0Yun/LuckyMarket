@@ -7,6 +7,9 @@ import com.luckymarket.user.dto.PhoneNumberUpdateDto;
 import com.luckymarket.user.exception.UserErrorCode;
 import com.luckymarket.user.exception.UserException;
 import com.luckymarket.user.repository.UserRepository;
+import com.luckymarket.user.service.account.AccountDeactivationService;
+import com.luckymarket.user.service.password.PasswordChangeService;
+import com.luckymarket.user.service.phoneAndAddress.PhoneAndAddressUpdateService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

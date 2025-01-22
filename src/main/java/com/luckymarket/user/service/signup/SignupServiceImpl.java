@@ -1,4 +1,4 @@
-package com.luckymarket.user.service;
+package com.luckymarket.user.service.signup;
 
 import com.luckymarket.user.domain.Member;
 import com.luckymarket.user.dto.SignupRequestDto;
@@ -6,6 +6,7 @@ import com.luckymarket.user.exception.SignupErrorCode;
 import com.luckymarket.user.exception.SignupException;
 import com.luckymarket.user.mapper.MemberMapper;
 import com.luckymarket.user.repository.UserRepository;
+import com.luckymarket.user.validator.PasswordValidator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;

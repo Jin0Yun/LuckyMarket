@@ -1,4 +1,4 @@
-package com.luckymarket.user.service;
+package com.luckymarket.user.service.phoneAndAddress;
 
 import com.luckymarket.user.domain.Member;
 import com.luckymarket.user.dto.AddressUpdateDto;

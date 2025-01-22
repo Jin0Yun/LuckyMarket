@@ -1,4 +1,4 @@
-package com.luckymarket.user.service;
+package com.luckymarket.user.service.password;
 
 import com.luckymarket.user.domain.Member;
 import com.luckymarket.user.exception.SignupErrorCode;

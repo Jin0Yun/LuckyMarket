@@ -3,7 +3,7 @@ package com.luckymarket.user.controller;
 import com.luckymarket.common.ApiResponseWrapper;
 import com.luckymarket.user.dto.SignupRequestDto;
 import com.luckymarket.user.exception.SignupException;
-import com.luckymarket.user.service.SignupService;
+import com.luckymarket.user.service.signup.SignupService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;

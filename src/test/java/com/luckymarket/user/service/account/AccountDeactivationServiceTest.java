@@ -1,4 +1,4 @@
-package com.luckymarket.user.service;
+package com.luckymarket.user.service.account;
 
 import com.luckymarket.auth.service.redis.RedisService;
 import com.luckymarket.user.domain.Member;

@@ -1,4 +1,4 @@
-package com.luckymarket.user.service;
+package com.luckymarket.user.validator;
 
 import com.luckymarket.user.dto.PhoneNumberUpdateDto;
 import com.luckymarket.user.exception.UserErrorCode;
