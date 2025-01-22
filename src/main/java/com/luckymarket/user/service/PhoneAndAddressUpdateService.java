@@ -39,6 +39,14 @@ public class PhoneAndAddressUpdateService {
     }
 
     public Member updatePhoneNumberAndAddress(Long userId, PhoneNumberUpdateDto phoneDto, AddressUpdateDto addressDto) {
-        return null;
+        PhoneNumberValidator.validate(phoneDto);
+        AddressValidator.validate(addressDto);
+
+        Member member = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
+
+        member.setPhoneNumber(phoneDto.getPhoneNumber());
+        member.setAddress(addressDto.getAddress());
+        return userRepository.save(member);
     }
 }
