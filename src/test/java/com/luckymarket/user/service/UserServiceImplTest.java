@@ -1,10 +1,7 @@
 package com.luckymarket.user.service;
 
 import com.luckymarket.user.domain.Member;
-import com.luckymarket.user.dto.AddressUpdateDto;
-import com.luckymarket.user.dto.NameUpdateDto;
-import com.luckymarket.user.dto.PasswordUpdateDto;
-import com.luckymarket.user.dto.PhoneNumberUpdateDto;
+import com.luckymarket.user.dto.*;
 import com.luckymarket.user.repository.UserRepository;
 import com.luckymarket.user.service.account.AccountDeactivationService;
 import com.luckymarket.user.service.password.PasswordChangeService;
@@ -96,19 +93,16 @@ class UserServiceImplTest {
     @Test
     void shouldCallPhoneAndAddressUpdateServiceWhenUpdatePhoneNumberAndAddress() {
         // given
-        PhoneNumberUpdateDto newPhoneDto = new PhoneNumberUpdateDto();
-        newPhoneDto.setPhoneNumber("1234567890");
-
-        AddressUpdateDto newAddressDto = new AddressUpdateDto();
-        newAddressDto.setAddress("newAddress");
+        PhoneNumberAndAddressUpdateDto phoneAndAddressDto = new PhoneNumberAndAddressUpdateDto();
+        phoneAndAddressDto.setPhoneNumber("1234567890");
+        phoneAndAddressDto.setAddress("newAddress");
 
         // when
-        userService.updatePhoneNumberAndAddress(1L, newPhoneDto, newAddressDto);
+        userService.updatePhoneNumberAndAddress(1L, phoneAndAddressDto);
 
         // then
-        verify(phoneAndAddressUpdateService, times(1)).updatePhoneNumberAndAddress(1L, newPhoneDto, newAddressDto);
+        verify(phoneAndAddressUpdateService, times(1)).updatePhoneNumberAndAddress(1L, phoneAndAddressDto);
     }
-
 
     @DisplayName("비밀번호 변경 서비스가 호출되는지 확인하는 테스트")
     @Test

@@ -2,6 +2,7 @@ package com.luckymarket.user.service.phoneAndAddress;
 
 import com.luckymarket.user.domain.Member;
 import com.luckymarket.user.dto.AddressUpdateDto;
+import com.luckymarket.user.dto.PhoneNumberAndAddressUpdateDto;
 import com.luckymarket.user.dto.PhoneNumberUpdateDto;
 import com.luckymarket.user.exception.UserErrorCode;
 import com.luckymarket.user.exception.UserException;
@@ -109,17 +110,15 @@ class PhoneAndAddressUpdateServiceTest {
     @Test
     void shouldUpdatePhoneNumberAndAddressSuccessfully() {
         // given
-        PhoneNumberUpdateDto newPhoneDto = new PhoneNumberUpdateDto();
-        newPhoneDto.setPhoneNumber("0987654321");
-
-        AddressUpdateDto newAddressDto = new AddressUpdateDto();
-        newAddressDto.setAddress("New Address");
+        PhoneNumberAndAddressUpdateDto phoneAndAddressDto = new PhoneNumberAndAddressUpdateDto();
+        phoneAndAddressDto.setPhoneNumber("0987654321");
+        phoneAndAddressDto.setAddress("New Address");
 
         when(userRepository.findById(1L)).thenReturn(java.util.Optional.of(member));
         when(userRepository.save(member)).thenReturn(member);
 
         // when
-        Member updatedMember = phoneAndAddressUpdateService.updatePhoneNumberAndAddress(1L, newPhoneDto, newAddressDto);
+        Member updatedMember = phoneAndAddressUpdateService.updatePhoneNumberAndAddress(1L, phoneAndAddressDto);
 
         // then
         assertEquals("0987654321", updatedMember.getPhoneNumber());
@@ -130,14 +129,12 @@ class PhoneAndAddressUpdateServiceTest {
     @Test
     void shouldThrowExceptionWhenPhoneNumberAndAddressAreBlank() {
         // given
-        PhoneNumberUpdateDto blankPhoneDto = new PhoneNumberUpdateDto();
-        blankPhoneDto.setPhoneNumber(null);
-
-        AddressUpdateDto blankAddressDto = new AddressUpdateDto();
-        blankAddressDto.setAddress(null);
+        PhoneNumberAndAddressUpdateDto blankPhoneAndAddressDto = new PhoneNumberAndAddressUpdateDto();
+        blankPhoneAndAddressDto.setPhoneNumber(null);
+        blankPhoneAndAddressDto.setAddress(null);
 
         // when & then
-        UserException exception = assertThrows(UserException.class, () -> phoneAndAddressUpdateService.updatePhoneNumberAndAddress(1L, blankPhoneDto, blankAddressDto));
+        UserException exception = assertThrows(UserException.class, () -> phoneAndAddressUpdateService.updatePhoneNumberAndAddress(1L, blankPhoneAndAddressDto));
         assertEquals(UserErrorCode.PHONE_NUMBER_BLANK.getMessage(), exception.getMessage());
     }
 }
