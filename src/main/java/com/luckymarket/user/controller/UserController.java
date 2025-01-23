@@ -18,6 +18,20 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
     private final UserService userService;
 
+    @GetMapping("/get-user/{userId}")
+    @Operation(
+            summary = "회원 정보 조회",
+            description = "회원의 이름, 전화번호, 주소 등을 조회합니다."
+    )
+    public ApiResponseWrapper<Member> getUser(@PathVariable Long userId) {
+        try {
+            Member member = userService.getUserById(userId);
+            return ApiResponseWrapper.success("회원 정보를 성공적으로 조회했습니다", member);
+        } catch (UserException e) {
+            return ApiResponseWrapper.error(e.getMessage(), HttpStatus.BAD_REQUEST.value());
+        }
+    }
+
     @PatchMapping("/update-password/{userId}")
     @Operation(
             summary = "비밀번호 변경",

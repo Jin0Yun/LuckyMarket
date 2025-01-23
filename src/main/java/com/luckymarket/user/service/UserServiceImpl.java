@@ -32,6 +32,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public Member getUserById(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
+    }
+
+    @Override
     public Member updateName(Long userId, NameUpdateDto nameDto) {
         Member member = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(UserErrorCode.NAME_BLANK));
