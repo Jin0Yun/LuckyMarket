@@ -32,6 +32,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public Member getUserById(Long userId) {
+        return null;
+    }
+
+    @Override
     public Member updateName(Long userId, NameUpdateDto nameDto) {
         Member member = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(UserErrorCode.NAME_BLANK));

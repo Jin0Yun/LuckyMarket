@@ -41,8 +41,26 @@ class UserServiceImplTest {
         member = new Member();
         member.setId(1L);
         member.setUsername("testuser");
-        member.setPassword("oldPassword");
+        member.setPassword("password");
     }
+
+    @DisplayName("회원 정보 조회 테스트")
+    @Test
+    void shouldReturnUserWhenGetUserById() {
+        // given
+        Long userId = 1L;
+        when(userRepository.findById(userId)).thenReturn(java.util.Optional.of(member));
+
+        // when
+        Member foundMember = userService.getUserById(userId);
+
+        // then
+        assertEquals(userId, foundMember.getId());
+        assertEquals("testuser", foundMember.getUsername());
+        assertEquals("password", foundMember.getPassword());
+        verify(userRepository, times(1)).findById(userId);
+    }
+
 
     @DisplayName("이름 변경이 잘 되는지 확인하는 테스트")
     @Test
