@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -71,6 +72,22 @@ public class ProductController {
         try {
             productService.deleteProduct(productId, userId);
             return ApiResponseWrapper.success("상품이 성공적으로 삭제되었습니다", null);
+        } catch (Exception e) {
+            return ApiResponseWrapper.error(e.getMessage(), HttpStatus.BAD_REQUEST.value());
+        }
+    }
+
+    @GetMapping("/search")
+    @Operation(summary = "상품 검색", description = "타이틀, 카테고리, 가격, 상태로 검색합니다.")
+    public ApiResponseWrapper<List<Product>> searchProducts(
+            @RequestParam(required = false) String title,
+            @RequestParam(required = false) String categoryCode,
+            @RequestParam(required = false) BigDecimal priceMin,
+            @RequestParam(required = false) BigDecimal priceMax,
+            @RequestParam(required = false) String status) {
+        try {
+            List<Product> products = productService.searchProducts(title, categoryCode, priceMin, priceMax, status);
+            return ApiResponseWrapper.success("상품 검색 결과를 성공적으로 조회했습니다", products);
         } catch (Exception e) {
             return ApiResponseWrapper.error(e.getMessage(), HttpStatus.BAD_REQUEST.value());
         }
