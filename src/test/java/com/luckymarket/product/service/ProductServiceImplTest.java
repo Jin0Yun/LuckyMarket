@@ -237,4 +237,44 @@ class ProductServiceImplTest {
                 .isInstanceOf(ProductException.class)
                 .hasMessage(ProductErrorCode.PRODUCT_NOT_FOUND.getMessage());
     }
+
+    @DisplayName("상품 삭제가 성공하는지 확인하는 테스트")
+    @Test
+    void shouldDeleteProductSuccessfully() {
+        // given
+        when(userRepository.findById(1L)).thenReturn(Optional.of(member));
+        when(productRepository.findById(1L)).thenReturn(Optional.of(product));
+
+        // when
+        productService.deleteProduct(1L, 1L);
+
+        // then
+        verify(productRepository, times(1)).delete(product);
+    }
+
+    @DisplayName("상품 삭제 시 등록자가 아닌 경우 예외가 발생하는지 확인하는 테스트")
+    @Test
+    void shouldThrowExceptionWhenNotProductOwnerOnDelete() {
+        // given
+        when(userRepository.findById(1L)).thenReturn(Optional.of(member));
+        when(productRepository.findById(1L)).thenReturn(Optional.of(product));
+
+        // when & then
+        assertThatThrownBy(() -> productService.deleteProduct(1L, 2L)) // 다른 userId
+                .isInstanceOf(ProductException.class)
+                .hasMessage(ProductErrorCode.UNAUTHORIZED_PRODUCT_MODIFY.getMessage());
+    }
+
+    @DisplayName("존재하지 않는 상품을 삭제하려 할 때 예외가 발생하는지 확인하는 테스트")
+    @Test
+    void shouldThrowExceptionWhenProductNotFoundOnDelete() {
+        // given
+        when(userRepository.findById(1L)).thenReturn(Optional.of(member));
+        when(productRepository.findById(1L)).thenReturn(Optional.empty());
+
+        // when & then
+        assertThatThrownBy(() -> productService.deleteProduct(1L, 1L))
+                .isInstanceOf(ProductException.class)
+                .hasMessage(ProductErrorCode.PRODUCT_NOT_FOUND.getMessage());
+    }
 }
