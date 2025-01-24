@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/product")
@@ -23,6 +25,28 @@ public class ProductController {
         try {
             Product product = productService.createProduct(productCreateDto, userId);
             return ApiResponseWrapper.success("상품이 성공적으로 등록되었습니다", product);
+        } catch (Exception e) {
+            return ApiResponseWrapper.error(e.getMessage(), HttpStatus.BAD_REQUEST.value());
+        }
+    }
+
+    @GetMapping("/{productId}")
+    @Operation(summary = "상품 상세 조회", description = "상품의 상세 정보를 조회합니다.")
+    public ApiResponseWrapper<Product> getProductById(@PathVariable Long productId) {
+        try {
+            Product product = productService.getProductById(productId);
+            return ApiResponseWrapper.success("상품을 성공적으로 조회했습니다", product);
+        } catch (Exception e) {
+            return ApiResponseWrapper.error(e.getMessage(), HttpStatus.NOT_FOUND.value());
+        }
+    }
+
+    @GetMapping
+    @Operation(summary = "상품 목록 조회", description = "상품 목록을 조회합니다.")
+    public ApiResponseWrapper<List<Product>> getAllProducts() {
+        try {
+            List<Product> products = productService.getAllProducts();
+            return ApiResponseWrapper.success("상품 목록을 성공적으로 조회했습니다", products);
         } catch (Exception e) {
             return ApiResponseWrapper.error(e.getMessage(), HttpStatus.BAD_REQUEST.value());
         }
