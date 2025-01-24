@@ -1,6 +1,8 @@
 package com.luckymarket.product.service;
 
 import com.luckymarket.product.domain.Category;
+import com.luckymarket.product.exception.CategoryErrorCode;
+import com.luckymarket.product.exception.CategoryException;
 import com.luckymarket.product.repository.CategoryRepository;
 import org.springframework.stereotype.Service;
 
@@ -17,21 +19,41 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public List<Category> getCategories() {
-        return categoryRepository.findAll();
+        List<Category> categories = categoryRepository.findAll();
+        if (categories == null || categories.isEmpty()) {
+            throw new CategoryException(CategoryErrorCode.CATEGORY_NOT_FOUND);
+        }
+        return categories;
     }
 
     @Override
     public List<Category> getParentCategories() {
-        return categoryRepository.findByParentIsNull();
+        List<Category> categories = categoryRepository.findByParentIsNull();
+        if (categories == null || categories.isEmpty()) {
+            throw new CategoryException(CategoryErrorCode.PARENT_CATEGORY_NOT_FOUND);
+        }
+        return categories;
     }
 
     @Override
     public List<Category> getSubCategories(Long parentId) {
-        return categoryRepository.findByParent(parentId);
+        boolean parentExists = categoryRepository.existsById(parentId);
+        if (!parentExists) {
+            throw new CategoryException(CategoryErrorCode.PARENT_CATEGORY_NOT_FOUND);
+        }
+        List<Category> subCategories = categoryRepository.findByParent(parentId);
+        if (subCategories == null || subCategories.isEmpty()) {
+            throw new CategoryException(CategoryErrorCode.NO_SUBCATEGORY_FOUND);
+        }
+
+        return subCategories;
     }
 
     @Override
-    public Optional<Category> getCategoryByCode(String code) {
-        return categoryRepository.findByCode(code);
+    public Category getCategoryByCode(String code) {
+        Category category = Optional.ofNullable(categoryRepository.findByCode(code))
+                .orElseThrow(() -> new CategoryException(CategoryErrorCode.CATEGORY_CODE_NOT_FOUND));
+
+        return category;
     }
 }
