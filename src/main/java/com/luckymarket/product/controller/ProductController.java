@@ -51,4 +51,17 @@ public class ProductController {
             return ApiResponseWrapper.error(e.getMessage(), HttpStatus.BAD_REQUEST.value());
         }
     }
+
+    @PutMapping("/{productId}")
+    @Operation(summary = "상품 수정", description = "상품의 정보를 수정합니다.")
+    public ApiResponseWrapper<Product> updateProduct(@PathVariable Long productId,
+                                                     @RequestBody ProductCreateDto productCreateDto,
+                                                     @RequestHeader("userId") Long userId) {
+        try {
+            Product updatedProduct = productService.updateProduct(productId, productCreateDto, userId);
+            return ApiResponseWrapper.success("상품이 성공적으로 수정되었습니다", updatedProduct);
+        } catch (Exception e) {
+            return ApiResponseWrapper.error(e.getMessage(), HttpStatus.BAD_REQUEST.value());
+        }
+    }
 }
