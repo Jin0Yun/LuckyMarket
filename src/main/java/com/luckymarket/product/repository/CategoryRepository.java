@@ -8,5 +8,5 @@ import java.util.List;
 public interface CategoryRepository extends JpaRepository<Category, Long> {
     List<Category> findByParent(Long parentId);
     List<Category> findByParentIsNull();
-    Category findByCode(String code);
+    Category findByCode(String categoryCode);
 }
