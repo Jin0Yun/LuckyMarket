@@ -21,6 +21,7 @@ import org.mockito.MockitoAnnotations;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
@@ -42,6 +43,7 @@ class ProductServiceImplTest {
     private ProductCreateDto validProductCreateDto;
     private Member member;
     private Category category;
+    private Product product;
 
     @BeforeEach
     void setUp() {
@@ -63,6 +65,19 @@ class ProductServiceImplTest {
         category = new Category();
         category.setCode("A000");
         category.setName("과일");
+
+        product = Product.builder()
+                .id(1L)
+                .title("신선한 사과")
+                .description("100% 유기농 사과")
+                .price(BigDecimal.valueOf(5000))
+                .category(category)
+                .status(ProductStatus.ONGOING)
+                .maxParticipants(100)
+                .endDate(LocalDate.of(2025, 3, 10))
+                .imageUrl("image-url")
+                .member(member)
+                .build();
     }
 
     @DisplayName("상품 등록이 성공하는지 확인하는 테스트")
@@ -146,5 +161,33 @@ class ProductServiceImplTest {
         assertThatThrownBy(() -> productService.createProduct(validProductCreateDto, 1L))
                 .isInstanceOf(ProductException.class)
                 .hasMessage(ProductErrorCode.DATE_INVALID.getMessage());
+    }
+
+    @DisplayName("상품이 조회되는지 확인하는 테스트")
+    @Test
+    void shouldGetProductByIdSuccessfully() {
+        // given
+        when(productRepository.findById(1L)).thenReturn(Optional.of(product));
+
+        // when
+        Product foundProduct = productService.getProductById(1L);
+
+        // then
+        assertThat(foundProduct).isNotNull();
+        assertThat(foundProduct.getId()).isEqualTo(1L);
+    }
+
+    @DisplayName("전체 상품 목록이 조회되는지 확인하는 테스트")
+    @Test
+    void shouldGetAllProductsSuccessfully() {
+        // given
+        when(productRepository.findAll()).thenReturn(List.of(product));
+
+        // when
+        List<Product> products = productService.getAllProducts();
+
+        // then
+        assertThat(products).isNotEmpty();
+        assertThat(products).contains(product);
     }
 }
