@@ -190,4 +190,51 @@ class ProductServiceImplTest {
         assertThat(products).isNotEmpty();
         assertThat(products).contains(product);
     }
+
+    @DisplayName("상품 수정이 성공하는지 확인하는 테스트")
+    @Test
+    void shouldUpdateProductSuccessfully() {
+        // given
+        when(userRepository.findById(1L)).thenReturn(Optional.of(member));
+        when(categoryRepository.findByCode("A000")).thenReturn(category);
+        when(productRepository.findById(1L)).thenReturn(Optional.of(product));
+        when(productRepository.save(any(Product.class))).thenReturn(product);
+
+        // when
+        validProductCreateDto.setTitle("변경된 사과");
+        Product updatedProduct = productService.updateProduct(1L, validProductCreateDto, 1L);
+
+        // then
+        assertThat(updatedProduct).isNotNull();
+        assertThat(updatedProduct.getTitle()).isEqualTo("변경된 사과");
+        verify(productRepository, times(1)).save(any(Product.class));
+    }
+
+    @DisplayName("상품 수정 시 등록자가 아닌 경우 예외가 발생하는지 확인하는 테스트")
+    @Test
+    void shouldThrowExceptionWhenNotProductOwner() {
+        // given
+        when(userRepository.findById(1L)).thenReturn(Optional.of(member));
+        when(categoryRepository.findByCode("A000")).thenReturn(category);
+        when(productRepository.findById(1L)).thenReturn(Optional.of(product));
+
+        // when & then
+        assertThatThrownBy(() -> productService.updateProduct(1L, validProductCreateDto, 2L)) // 다른 userId
+                .isInstanceOf(ProductException.class)
+                .hasMessage(ProductErrorCode.UNAUTHORIZED_PRODUCT_MODIFY.getMessage());
+    }
+
+    @DisplayName("존재하지 않는 상품을 수정하려 할 때 예외가 발생하는지 확인하는 테스트")
+    @Test
+    void shouldThrowExceptionWhenProductNotFound() {
+        // given
+        when(userRepository.findById(1L)).thenReturn(Optional.of(member));
+        when(categoryRepository.findByCode("A000")).thenReturn(category);
+        when(productRepository.findById(1L)).thenReturn(Optional.empty());
+
+        // when & then
+        assertThatThrownBy(() -> productService.updateProduct(1L, validProductCreateDto, 1L))
+                .isInstanceOf(ProductException.class)
+                .hasMessage(ProductErrorCode.PRODUCT_NOT_FOUND.getMessage());
+    }
 }
