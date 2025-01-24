@@ -17,21 +17,21 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public List<Category> getCategories() {
-        return null;
+        return categoryRepository.findAll();
     }
 
     @Override
     public List<Category> getParentCategories() {
-        return null;
+        return categoryRepository.findByParentIsNull();
     }
 
     @Override
     public List<Category> getSubCategories(Long parentId) {
-        return null;
+        return categoryRepository.findByParent(parentId);
     }
 
     @Override
     public Optional<Category> getCategoryByCode(String code) {
-        return null;
+        return categoryRepository.findByCode(code);
     }
 }
