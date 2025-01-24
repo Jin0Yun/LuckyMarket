@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -262,7 +263,7 @@ class ProductServiceImplTest {
         // when & then
         assertThatThrownBy(() -> productService.deleteProduct(1L, 2L)) // 다른 userId
                 .isInstanceOf(ProductException.class)
-                .hasMessage(ProductErrorCode.UNAUTHORIZED_PRODUCT_MODIFY.getMessage());
+                .hasMessage(ProductErrorCode.UNAUTHORIZED_PRODUCT_DELETE.getMessage());
     }
 
     @DisplayName("존재하지 않는 상품을 삭제하려 할 때 예외가 발생하는지 확인하는 테스트")
@@ -276,5 +277,30 @@ class ProductServiceImplTest {
         assertThatThrownBy(() -> productService.deleteProduct(1L, 1L))
                 .isInstanceOf(ProductException.class)
                 .hasMessage(ProductErrorCode.PRODUCT_NOT_FOUND.getMessage());
+    }
+
+    @DisplayName("상품 검색이 성공하는지 확인하는 테스트")
+    @Test
+    void shouldSearchProductSuccessfully() {
+        // given
+        when(productRepository.findAll(any(Specification.class))).thenReturn(List.of(product));
+
+        // when
+        List<Product> searchedProducts = productService.searchProducts("사과", "A000", BigDecimal.valueOf(5000), BigDecimal.valueOf(10000), "ONGOING");
+
+        // then
+        assertThat(searchedProducts).contains(product);
+    }
+
+    @DisplayName("검색 결과가 없을 때 예외가 발생하는지 확인하는 테스트")
+    @Test
+    void shouldThrowExceptionWhenNoSearchResults() {
+        // given
+        when(productRepository.findAll(any(Specification.class))).thenReturn(List.of());
+
+        // when & then
+        assertThatThrownBy(() -> productService.searchProducts("없는상품", "A000", BigDecimal.valueOf(5000), BigDecimal.valueOf(10000), "ONGOING"))
+                .isInstanceOf(ProductException.class)
+                .hasMessage(ProductErrorCode.NO_SEARCH_RESULTS.getMessage());
     }
 }
