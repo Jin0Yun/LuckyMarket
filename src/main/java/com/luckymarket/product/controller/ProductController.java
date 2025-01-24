@@ -64,4 +64,15 @@ public class ProductController {
             return ApiResponseWrapper.error(e.getMessage(), HttpStatus.BAD_REQUEST.value());
         }
     }
+
+    @DeleteMapping("/{productId}")
+    @Operation(summary = "상품 삭제", description = "상품을 삭제합니다.")
+    public ApiResponseWrapper<Void> deleteProduct(@PathVariable Long productId, @RequestParam Long userId) {
+        try {
+            productService.deleteProduct(productId, userId);
+            return ApiResponseWrapper.success("상품이 성공적으로 삭제되었습니다", null);
+        } catch (Exception e) {
+            return ApiResponseWrapper.error(e.getMessage(), HttpStatus.BAD_REQUEST.value());
+        }
+    }
 }
