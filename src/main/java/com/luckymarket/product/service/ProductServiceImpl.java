@@ -2,17 +2,20 @@ package com.luckymarket.product.service;
 
 import com.luckymarket.product.domain.Category;
 import com.luckymarket.product.domain.Product;
+import com.luckymarket.product.domain.ProductStatus;
 import com.luckymarket.product.dto.ProductCreateDto;
 import com.luckymarket.product.exception.ProductErrorCode;
 import com.luckymarket.product.exception.ProductException;
 import com.luckymarket.product.mapper.ProductMapper;
 import com.luckymarket.product.repository.CategoryRepository;
 import com.luckymarket.product.repository.ProductRepository;
+import com.luckymarket.product.repository.ProductSpecification;
 import com.luckymarket.user.domain.Member;
 import com.luckymarket.user.exception.UserErrorCode;
 import com.luckymarket.user.exception.UserException;
 import com.luckymarket.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -92,10 +95,26 @@ public class ProductServiceImpl implements ProductService {
                 .orElseThrow(() -> new ProductException(ProductErrorCode.PRODUCT_NOT_FOUND));
 
         if (!product.getMember().getId().equals(userId)) {
-            throw new ProductException(ProductErrorCode.UNAUTHORIZED_PRODUCT_MODIFY);
+            throw new ProductException(ProductErrorCode.UNAUTHORIZED_PRODUCT_DELETE);
         }
 
         productRepository.delete(product);
+    }
+
+    @Override
+    public List<Product> searchProducts(String title, String categoryCode, BigDecimal priceMin, BigDecimal priceMax, String status) {
+        Specification<Product> spec = Specification.where(ProductSpecification.hasTitle(title))
+                .and(ProductSpecification.hasCategoryCode(categoryCode))
+                .and(ProductSpecification.hasPriceBetween(priceMin, priceMax))
+                .and(ProductSpecification.hasStatus(status != null ? ProductStatus.valueOf(status) : null));
+
+        List<Product> products = productRepository.findAll(spec);
+
+        if (products.isEmpty()) {
+            throw new ProductException(ProductErrorCode.NO_SEARCH_RESULTS);
+        }
+
+        return products;
     }
 
     private void validateProductData(ProductCreateDto productCreateDto) {
