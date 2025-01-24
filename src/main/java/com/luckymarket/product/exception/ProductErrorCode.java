@@ -12,7 +12,9 @@ public enum ProductErrorCode {
     DATE_INVALID("유효하지 않은 종료일입니다."),
     PRODUCT_ALREADY_EXISTS("이미 존재하는 상품입니다."),
     PRODUCT_NOT_FOUND("상품을 찾을 수 없습니다."),
-    UNAUTHORIZED_PRODUCT_MODIFY("상품 수정 권한이 없습니다.");
+    UNAUTHORIZED_PRODUCT_MODIFY("상품 수정 권한이 없습니다."),
+    UNAUTHORIZED_PRODUCT_DELETE("상품 삭제 권한이 없습니다."),
+    NO_SEARCH_RESULTS("검색된 결과가 없습니다.");
 
     private final String message;
 
