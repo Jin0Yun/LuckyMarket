@@ -1,9 +1,13 @@
 package com.luckymarket.user.domain;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.luckymarket.product.domain.Product;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -44,6 +48,10 @@ public class Member {
 
     @Column(nullable = true)
     private LocalDateTime lastLogin;
+
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<Product> products = new ArrayList<>();
 
     @PrePersist
     public void prePersist() {
