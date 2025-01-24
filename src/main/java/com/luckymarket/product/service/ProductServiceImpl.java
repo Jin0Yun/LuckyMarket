@@ -60,6 +60,33 @@ public class ProductServiceImpl implements ProductService {
         return productRepository.findAll();
     }
 
+    @Override
+    public Product updateProduct(Long productId, ProductCreateDto productCreateDto, Long userId) {
+        Product existingProduct = productRepository.findById(productId)
+                .orElseThrow(() -> new ProductException(ProductErrorCode.PRODUCT_NOT_FOUND));
+
+        if (!existingProduct.getMember().getId().equals(userId)) {
+            throw new ProductException(ProductErrorCode.UNAUTHORIZED_PRODUCT_MODIFY);
+        }
+
+        Category category = categoryRepository.findByCode(productCreateDto.getCategoryCode());
+        if (category == null) {
+            throw new ProductException(ProductErrorCode.CATEGORY_NOT_FOUND);
+        }
+
+        existingProduct.setTitle(productCreateDto.getTitle());
+        existingProduct.setDescription(productCreateDto.getDescription());
+        existingProduct.setPrice(productCreateDto.getPrice());
+        existingProduct.setCategory(category);
+        existingProduct.setStatus(productCreateDto.getStatus());
+        existingProduct.setMaxParticipants(productCreateDto.getMaxParticipants());
+        existingProduct.setEndDate(productCreateDto.getEndDate());
+        existingProduct.setImageUrl(productCreateDto.getImageUrl());
+
+        return productRepository.save(existingProduct);
+    }
+
+
     private void validateProductData(ProductCreateDto productCreateDto) {
         if (productCreateDto.getTitle() == null || productCreateDto.getTitle().isEmpty()) {
             throw new ProductException(ProductErrorCode.TITLE_BLANK);
