@@ -86,6 +86,17 @@ public class ProductServiceImpl implements ProductService {
         return productRepository.save(existingProduct);
     }
 
+    @Override
+    public void deleteProduct(Long productId, Long userId) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ProductException(ProductErrorCode.PRODUCT_NOT_FOUND));
+
+        if (!product.getMember().getId().equals(userId)) {
+            throw new ProductException(ProductErrorCode.UNAUTHORIZED_PRODUCT_MODIFY);
+        }
+
+        productRepository.delete(product);
+    }
 
     private void validateProductData(ProductCreateDto productCreateDto) {
         if (productCreateDto.getTitle() == null || productCreateDto.getTitle().isEmpty()) {
