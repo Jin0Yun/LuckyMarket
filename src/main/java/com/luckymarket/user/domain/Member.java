@@ -50,6 +50,7 @@ public class Member {
     private LocalDateTime lastLogin;
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<Product> products = new ArrayList<>();
 
     @PrePersist
