@@ -23,6 +23,9 @@ jobs:
           distribution: temurin
           java-version: 17
 
+      - name: application.properties 파일 디렉토리 생성
+        run: mkdir -p ./src/main/resources
+
       - name: application.properties 파일 생성
         run: |
           echo "${{ secrets.APPLICATION_PROPERTIES }}" > ./src/main/resources/application.properties
