@@ -1,11 +1,12 @@
 package com.luckymarket.user.service;
 
+import com.luckymarket.auth.service.redis.RedisService;
 import com.luckymarket.user.domain.Member;
+import com.luckymarket.user.domain.Status;
 import com.luckymarket.user.dto.*;
+import com.luckymarket.user.exception.UserErrorCode;
+import com.luckymarket.user.exception.UserException;
 import com.luckymarket.user.repository.UserRepository;
-import com.luckymarket.user.service.account.AccountDeactivationService;
-import com.luckymarket.user.service.password.PasswordChangeService;
-import com.luckymarket.user.service.phoneAndAddress.PhoneAndAddressUpdateService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -13,7 +14,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 class UserServiceImplTest {
@@ -21,13 +25,13 @@ class UserServiceImplTest {
     private UserRepository userRepository;
 
     @Mock
-    private PhoneAndAddressUpdateService phoneAndAddressUpdateService;
+    private MemberValidationService memberValidationService;
 
     @Mock
-    private PasswordChangeService passwordChangeService;
+    private PasswordService passwordService;
 
     @Mock
-    private AccountDeactivationService accountDeactivationService;
+    private RedisService redisService;
 
     @InjectMocks
     private UserServiceImpl userService;
@@ -38,114 +42,134 @@ class UserServiceImplTest {
     void setUp() {
         MockitoAnnotations.openMocks(this);
 
+        // given
         member = new Member();
         member.setId(1L);
         member.setUsername("testuser");
-        member.setPassword("password");
+        member.setPassword("Password123!");
+        member.setPhoneNumber("01012345678");
+        member.setAddress("서울시 강남구");
+        member.setStatus(Status.ACTIVE);
     }
 
-    @DisplayName("회원 정보 조회 테스트")
+    @DisplayName("존재하는 회원 ID로 회원 정보를 조회하면, 해당 회원 정보를 반환한다.")
     @Test
-    void shouldReturnUserWhenGetUserById() {
-        // given
-        Long userId = 1L;
-        when(userRepository.findById(userId)).thenReturn(java.util.Optional.of(member));
-
+    void shouldReturnMember_WhenUserExists() {
         // when
-        Member foundMember = userService.getUserById(userId);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(member));
+        Member foundMember = userService.getUserById(1L);
 
         // then
-        assertEquals(userId, foundMember.getId());
-        assertEquals("testuser", foundMember.getUsername());
-        assertEquals("password", foundMember.getPassword());
-        verify(userRepository, times(1)).findById(userId);
+        assertThat(foundMember).isEqualTo(member);
     }
 
-
-    @DisplayName("이름 변경이 잘 되는지 확인하는 테스트")
+    @DisplayName("존재하지 않는 회원 ID로 회원 정보를 조회하면, 예외를 발생시킨다.")
     @Test
-    void shouldUpdateNameSuccessfully() {
+    void shouldThrowUserNotFoundException_WhenUserDoesNotExist() {
         // given
-        NameUpdateDto nameUpdateDto = new NameUpdateDto();
-        nameUpdateDto.setNewName("newName");
-        when(userRepository.findById(1L)).thenReturn(java.util.Optional.of(member));
+        Long userId = 999L;
+
+        // when
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        //  then
+        UserException exception = assertThrows(UserException.class, () -> userService.getUserById(999L));
+        assertThat(exception.getMessage()).isEqualTo(UserErrorCode.USER_NOT_FOUND.getMessage());
+    }
+
+    @DisplayName("회원 이름을 변경하면, 변경된 이름으로 저장된다.")
+    @Test
+    void shouldUpdateMemberName_WhenNameIsValid() {
+        // given
+        NameUpdateDto dto = new NameUpdateDto();
+        dto.setNewName("newName");
+
+        // when
+        when(userRepository.findById(1L)).thenReturn(Optional.of(member));
         when(userRepository.save(member)).thenReturn(member);
-
-        // when
-        Member updatedMember = userService.updateName(1L, nameUpdateDto);
+        Member updatedMember = userService.updateName(1L, dto);
 
         // then
-        assertEquals("newName", updatedMember.getUsername());
+        assertThat(updatedMember.getUsername()).isEqualTo("newName");
+    }
+
+    @DisplayName("비밀번호를 변경하면, 변경된 비밀번호로 저장된다.")
+    @Test
+    void shouldUpdatePassword_WhenPasswordIsValid() {
+        // given
+        PasswordUpdateDto dto = new PasswordUpdateDto();
+        dto.setPassword("NewPassword123!");
+
+        // when
+        when(userRepository.findById(1L)).thenReturn(Optional.of(member));
+        doNothing().when(memberValidationService).validateSignupFields(member);
+        when(passwordService.encodePassword(dto.getPassword())).thenReturn("EncodedNewPassword123!");
+        when(userRepository.save(member)).thenReturn(member);
+        Member updatedMember = userService.changePassword(1L, dto);
+
+        // then
+        assertThat(updatedMember.getPassword()).isEqualTo("EncodedNewPassword123!");
         verify(userRepository, times(1)).save(member);
     }
 
-    @DisplayName("전화번호 업데이트 서비스가 호출되는지 확인하는 테스트")
+    @DisplayName("회원 전화번호를 변경하면, 변경된 전화번호로 저장된다.")
     @Test
-    void shouldCallPhoneAndAddressUpdateServiceWhenUpdatePhoneNumber() {
+    void shouldUpdateMemberPhoneNumber_WhenPhoneNumberIsValid() {
         // given
-        PhoneNumberUpdateDto newPhoneDto = new PhoneNumberUpdateDto();
-        newPhoneDto.setPhoneNumber("1234567890");
+        PhoneNumberUpdateDto dto = new PhoneNumberUpdateDto();
+        dto.setPhoneNumber("01098765432");
 
         // when
-        userService.updatePhoneNumber(1L, newPhoneDto);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(member));
+        doNothing().when(memberValidationService).validatePhoneNumber(dto.getPhoneNumber());
+        when(userRepository.save(member)).thenReturn(member);
+        Member updatedMember = userService.updatePhoneNumber(1L, dto);
 
         // then
-        verify(phoneAndAddressUpdateService, times(1)).updatePhoneNumber(1L, newPhoneDto);
+        assertThat(updatedMember.getPhoneNumber()).isEqualTo("01098765432");
     }
 
-    @DisplayName("주소 업데이트 서비스가 호출되는지 확인하는 테스트")
+    @DisplayName("회원 주소를 변경하면, 변경된 주소로 저장된다.")
     @Test
-    void shouldCallPhoneAndAddressUpdateServiceWhenUpdateAddress() {
+    void shouldUpdateMemberAddress_WhenAddressIsValid() {
         // given
-        AddressUpdateDto newAddressDto = new AddressUpdateDto();
-        newAddressDto.setAddress("newAddress");
+        AddressUpdateDto dto = new AddressUpdateDto();
+        dto.setAddress("서울시 강북구");
 
         // when
-        userService.updateAddress(1L, newAddressDto);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(member));
+        doNothing().when(memberValidationService).validateAddress(dto.getAddress());
+        when(userRepository.save(member)).thenReturn(member);
+        Member updatedMember = userService.updateAddress(1L, dto);
 
         // then
-        verify(phoneAndAddressUpdateService, times(1)).updateAddress(1L, newAddressDto);
+        assertThat(updatedMember.getAddress()).isEqualTo("서울시 강북구");
     }
 
-    @DisplayName("전화번호와 주소 업데이트 서비스가 호출되는지 확인하는 테스트")
+    @DisplayName("회원 탈퇴 요청 시, 회원 상태가 'DELETED'로 변경된다.")
     @Test
-    void shouldCallPhoneAndAddressUpdateServiceWhenUpdatePhoneNumberAndAddress() {
-        // given
-        PhoneNumberAndAddressUpdateDto phoneAndAddressDto = new PhoneNumberAndAddressUpdateDto();
-        phoneAndAddressDto.setPhoneNumber("1234567890");
-        phoneAndAddressDto.setAddress("newAddress");
-
-        // when
-        userService.updatePhoneNumberAndAddress(1L, phoneAndAddressDto);
-
-        // then
-        verify(phoneAndAddressUpdateService, times(1)).updatePhoneNumberAndAddress(1L, phoneAndAddressDto);
-    }
-
-    @DisplayName("비밀번호 변경 서비스가 호출되는지 확인하는 테스트")
-    @Test
-    void shouldCallPasswordChangeServiceWhenChangePassword() {
-        // given
-        PasswordUpdateDto passwordDto = new PasswordUpdateDto();
-        passwordDto.setPassword("newPassword123!");
-
-        // when
-        userService.changePassword(1L, passwordDto);
-
-        // then
-        verify(passwordChangeService, times(1)).changePassword(1L, passwordDto);
-    }
-
-    @DisplayName("회원 탈퇴 서비스가 호출되는지 확인하는 테스트")
-    @Test
-    void shouldCallAccountDeactivationServiceWhenDeleteAccount() {
+    void shouldUpdateStatusToDeleted_WhenUserIsActive() {
         // given
         Long userId = 1L;
+        when(userRepository.findById(userId)).thenReturn(Optional.of(member));
 
         // when
         userService.deleteAccount(userId);
 
         // then
-        verify(accountDeactivationService, times(1)).deleteAccount(userId);
+        assertThat(member.getStatus()).isEqualTo(Status.DELETED);
+    }
+
+    @DisplayName("이미 탈퇴한 회원을 탈퇴 처리하려고 하면, 예외를 발생시킨다.")
+    @Test
+    void shouldThrowUserAlreadyDeletedException_WhenUserIsAlreadyDeleted() {
+        // given
+        Long userId = 1L;
+        member.setStatus(Status.DELETED);
+        when(userRepository.findById(userId)).thenReturn(Optional.of(member));
+
+        // then
+        UserException exception = assertThrows(UserException.class, () -> userService.deleteAccount(1L));
+        assertThat(exception.getMessage()).isEqualTo(UserErrorCode.USER_ALREADY_DELETED.getMessage());
     }
 }

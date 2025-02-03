@@ -73,7 +73,7 @@ public class UserServiceImpl implements UserService {
     public Member changePassword(Long userId, PasswordUpdateDto passwordDto) {
         Member member = getUserById(userId);
         memberValidationService.validateSignupFields(member);
-        String encodedPassword = passwordService.encodePassword(member.getPassword());
+        String encodedPassword = passwordService.encodePassword(passwordDto.getPassword());
         member.setPassword(encodedPassword);
         return userRepository.save(member);
     }
