@@ -3,6 +3,7 @@ package com.luckymarket.user.service.signup;
 import com.luckymarket.user.domain.Member;
 import com.luckymarket.user.dto.SignupRequestDto;
 import com.luckymarket.user.repository.UserRepository;
+import com.luckymarket.user.service.MemberValidationService;
 import com.luckymarket.user.service.PasswordService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -21,6 +22,9 @@ class SignupServiceImplTest {
 
     @Mock
     private PasswordService passwordService;
+
+    @Mock
+    private MemberValidationService memberValidationService;
 
     @InjectMocks
     private SignupServiceImpl signupService;
@@ -44,6 +48,7 @@ class SignupServiceImplTest {
         // Given
         when(passwordService.encodePassword(signupRequestDto.getPassword())).thenReturn("encodedPassword");
         when(userRepository.save(any(Member.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        doNothing().when(memberValidationService).validateSignupFields(any(Member.class));
 
         // When
         Member member = signupService.signup(signupRequestDto);
