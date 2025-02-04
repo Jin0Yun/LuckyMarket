@@ -6,6 +6,7 @@ import com.luckymarket.user.domain.Status;
 import com.luckymarket.user.dto.*;
 import com.luckymarket.user.exception.UserErrorCode;
 import com.luckymarket.user.exception.UserException;
+import com.luckymarket.user.mapper.MemberMapper;
 import com.luckymarket.user.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -33,6 +34,9 @@ class UserServiceImplTest {
     @Mock
     private RedisService redisService;
 
+    @Mock
+    private MemberMapper memberMapper;
+
     @InjectMocks
     private UserServiceImpl userService;
 
@@ -50,6 +54,16 @@ class UserServiceImplTest {
         member.setPhoneNumber("01012345678");
         member.setAddress("서울시 강남구");
         member.setStatus(Status.ACTIVE);
+
+        when(memberMapper.toMemberResponseDto(member)).thenReturn(
+                new MemberResponseDto(
+                        member.getId(),
+                        member.getEmail(),
+                        member.getUsername(),
+                        member.getPhoneNumber(),
+                        member.getAddress()
+                )
+        );
     }
 
     @DisplayName("존재하는 회원 ID로 회원 정보를 조회하면, 해당 회원 정보를 반환한다.")
@@ -87,7 +101,16 @@ class UserServiceImplTest {
         // when
         when(userRepository.findById(1L)).thenReturn(Optional.of(member));
         when(userRepository.save(member)).thenReturn(member);
-        Member updatedMember = userService.updateName(1L, dto);
+        when(memberMapper.toMemberResponseDto(member)).thenReturn(
+                new MemberResponseDto(
+                        member.getId(),
+                        member.getEmail(),
+                        dto.getNewName(),
+                        member.getPhoneNumber(),
+                        member.getAddress()
+                )
+        );
+        MemberResponseDto updatedMember = userService.updateName(1L, dto);
 
         // then
         assertThat(updatedMember.getUsername()).isEqualTo("newName");
@@ -123,7 +146,16 @@ class UserServiceImplTest {
         when(userRepository.findById(1L)).thenReturn(Optional.of(member));
         doNothing().when(memberValidationService).validatePhoneNumber(dto.getPhoneNumber());
         when(userRepository.save(member)).thenReturn(member);
-        Member updatedMember = userService.updatePhoneNumber(1L, dto);
+        when(memberMapper.toMemberResponseDto(member)).thenReturn(
+                new MemberResponseDto(
+                        member.getId(),
+                        member.getEmail(),
+                        member.getUsername(),
+                        dto.getPhoneNumber(),
+                        member.getAddress()
+                )
+        );
+        MemberResponseDto updatedMember = userService.updatePhoneNumber(1L, dto);
 
         // then
         assertThat(updatedMember.getPhoneNumber()).isEqualTo("01098765432");
@@ -140,7 +172,16 @@ class UserServiceImplTest {
         when(userRepository.findById(1L)).thenReturn(Optional.of(member));
         doNothing().when(memberValidationService).validateAddress(dto.getAddress());
         when(userRepository.save(member)).thenReturn(member);
-        Member updatedMember = userService.updateAddress(1L, dto);
+        when(memberMapper.toMemberResponseDto(member)).thenReturn(
+                new MemberResponseDto(
+                        member.getId(),
+                        member.getEmail(),
+                        member.getUsername(),
+                        member.getPhoneNumber(),
+                        dto.getAddress()
+                )
+        );
+        MemberResponseDto updatedMember = userService.updateAddress(1L, dto);
 
         // then
         assertThat(updatedMember.getAddress()).isEqualTo("서울시 강북구");

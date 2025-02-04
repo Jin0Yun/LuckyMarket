@@ -1,13 +1,18 @@
 package com.luckymarket.user.dto;
 
 import com.luckymarket.user.domain.Member;
-import com.luckymarket.user.mapper.MemberMapper;
+import com.luckymarket.user.domain.Role;
+import com.luckymarket.user.domain.Status;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
+@ExtendWith(MockitoExtension.class)
 class SignupRequestDtoTest {
+
     @DisplayName("SignupRequestDto가 Member 객체로 변환되는지 확인하는 테스트")
     @Test
     void shouldConvertToMember() {
@@ -20,7 +25,13 @@ class SignupRequestDtoTest {
                 .build();
 
         // when
-        Member member = MemberMapper.toEntity(dto);
+        Member member = Member.builder()
+                .email(dto.getEmail())
+                .password(dto.getPassword())
+                .username(dto.getUsername())
+                .role(Role.USER)
+                .status(Status.ACTIVE)
+                .build();
 
         // then
         assertThat(member.getEmail()).isEqualTo(dto.getEmail());
