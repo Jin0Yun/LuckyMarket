@@ -8,9 +8,11 @@ import com.luckymarket.user.domain.exception.UserErrorCode;
 import com.luckymarket.user.domain.exception.UserException;
 import com.luckymarket.user.adapter.mapper.MemberMapper;
 import com.luckymarket.user.domain.repository.UserRepository;
+import com.luckymarket.user.usecase.service.MemberValidationService;
 import com.luckymarket.user.usecase.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -36,64 +38,68 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Member getUserById(Long userId) {
+        memberValidationService.validateUser(userId);
         return userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
     }
 
     @Override
+    @Transactional(readOnly = true)
     public MemberResponseDto getUser(Long userId) {
         Member member = getUserById(userId);
         return memberMapper.toMemberResponseDto(member);
     }
 
     @Override
-    public MemberResponseDto updateName(Long userId, NameUpdateDto nameDto) {
+    @Transactional
+    public MemberResponseDto updateName(Long userId, NameUpdateDto dto) {
         Member member = getUserById(userId);
-        member.setUsername(nameDto.getNewName());
-        userRepository.save(member);
+        member.setUsername(dto.getNewName());
         return memberMapper.toMemberResponseDto(member);
     }
 
     @Override
-    public MemberResponseDto updatePhoneNumber(Long userId, PhoneNumberUpdateDto phoneDto) {
+    @Transactional
+    public MemberResponseDto updatePhoneNumber(Long userId, PhoneNumberUpdateDto dto) {
         Member member = getUserById(userId);
-        memberValidationService.validatePhoneNumber(phoneDto.getPhoneNumber());
-        member.setPhoneNumber(phoneDto.getPhoneNumber());
-        userRepository.save(member);
+        memberValidationService.validatePhoneNumber(dto.getPhoneNumber());
+        member.setPhoneNumber(dto.getPhoneNumber());
         return memberMapper.toMemberResponseDto(member);
     }
 
     @Override
-    public MemberResponseDto updateAddress(Long userId, AddressUpdateDto addressDto) {
+    @Transactional
+    public MemberResponseDto updateAddress(Long userId, AddressUpdateDto dto) {
         Member member = getUserById(userId);
-        memberValidationService.validateAddress(addressDto.getAddress());
-        member.setAddress(addressDto.getAddress());
-        userRepository.save(member);
+        memberValidationService.validateAddress(dto.getAddress());
+        member.setAddress(dto.getAddress());
         return memberMapper.toMemberResponseDto(member);
     }
 
     @Override
+    @Transactional
     public MemberResponseDto updatePhoneNumberAndAddress(Long userId, PhoneNumberAndAddressUpdateDto dto) {
         Member member = getUserById(userId);
         memberValidationService.validateAddress(dto.getAddress());
         memberValidationService.validatePhoneNumber(dto.getPhoneNumber());
         member.setPhoneNumber(dto.getPhoneNumber());
         member.setAddress(dto.getAddress());
-        userRepository.save(member);
         return memberMapper.toMemberResponseDto(member);
     }
 
     @Override
-    public void changePassword(Long userId, PasswordUpdateDto passwordDto) {
+    @Transactional
+    public void changePassword(Long userId, PasswordUpdateDto dto) {
         Member member = getUserById(userId);
-        memberValidationService.validatePassword(member.getPassword());
-        String encodedPassword = passwordService.encodePassword(passwordDto.getPassword());
+        memberValidationService.validatePassword(dto.getPassword());
+        String encodedPassword = passwordService.encodePassword(dto.getPassword());
         member.setPassword(encodedPassword);
-        userRepository.save(member);
     }
 
     @Override
+    @Transactional
     public void deleteAccount(Long userId) {
         Member member = getUserById(userId);
         if (member.getStatus() == Status.DELETED) {
@@ -101,6 +107,5 @@ public class UserServiceImpl implements UserService {
         }
         redisService.deleteRefreshToken(userId);
         member.setStatus(Status.DELETED);
-        userRepository.save(member);
     }
 }
