@@ -1,0 +1,31 @@
+package com.luckymarket.user.domain.exception;
+
+public enum UserErrorCode {
+    NAME_BLANK("이름은 필수 입력값입니다."),
+    PHONE_NUMBER_BLANK("전화번호는 필수 입력값입니다."),
+    INVALID_PHONE_NUMBER("유효하지 않은 전화번호 형식입니다."),
+    INVALID_PHONE_NUMBER_FORMAT("전화번호 형식이 잘못되었습니다."),
+    ADDRESS_BLANK("주소는 필수 입력값입니다."),
+    USER_NOT_FOUND("사용자를 찾을 수 없습니다."),
+    USER_ALREADY_DELETED("이 사용자는 이미 탈퇴한 상태입니다."),
+
+    PASSWORD_TOO_SHORT("비밀번호는 8자 이상이어야 합니다."),
+    PASSWORD_MISSING_SPECIAL_CHAR("비밀번호에는 특수문자가 포함되어야 합니다."),
+    PASSWORD_MISSING_LOWERCASE("비밀번호에는 소문자가 포함되어야 합니다."),
+    PASSWORD_MISSING_UPPERCASE("비밀번호에는 대문자가 포함되어야 합니다."),
+    PASSWORD_BLANK("비밀번호는 필수 항목입니다."),
+
+    EMAIL_ALREADY_USED("이미 사용 중인 이메일입니다."),
+    INVALID_EMAIL_FORMAT("잘못된 이메일 형식입니다."),
+    EMAIL_BLANK("이메일은 필수 항목입니다.");
+
+    private final String message;
+
+    UserErrorCode(String message) {
+        this.message = message;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+}

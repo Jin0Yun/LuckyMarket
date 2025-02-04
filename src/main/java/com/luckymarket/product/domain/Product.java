@@ -1,7 +1,7 @@
 package com.luckymarket.product.domain;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.luckymarket.user.domain.Member;
+import com.luckymarket.user.domain.model.Member;
 import jakarta.persistence.*;
 import lombok.*;
 

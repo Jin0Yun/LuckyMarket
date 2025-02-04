@@ -1,7 +1,7 @@
 package com.luckymarket.common.exception;
 
 import com.luckymarket.common.ApiResponseWrapper;
-import com.luckymarket.user.exception.UserException;
+import com.luckymarket.user.domain.exception.UserException;
 import io.swagger.v3.oas.annotations.Hidden;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
