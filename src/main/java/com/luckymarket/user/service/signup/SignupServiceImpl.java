@@ -1,6 +1,7 @@
 package com.luckymarket.user.service.signup;
 
 import com.luckymarket.user.domain.Member;
+
 import com.luckymarket.user.dto.SignupRequestDto;
 import com.luckymarket.user.mapper.MemberMapper;
 import com.luckymarket.user.repository.UserRepository;
@@ -31,13 +32,17 @@ public class SignupServiceImpl implements SignupService {
 
     @Override
     public Member signup(SignupRequestDto signupRequestDto) {
-        Member member = memberMapper.toEntity(signupRequestDto);
-        memberValidationService.validateSignupFields(member);
+        memberValidationService.validateSignupFields(signupRequestDto);
+        String encodedPassword = passwordService.encodePassword(signupRequestDto.getPassword());
 
-        String encodedPassword = passwordService.encodePassword(member.getPassword());
-        member.setPassword(encodedPassword);
+        SignupRequestDto encodedDto = SignupRequestDto.builder()
+                .email(signupRequestDto.getEmail())
+                .password(encodedPassword)
+                .username(signupRequestDto.getUsername())
+                .build();
 
-        userRepository.save(member);
-        return member;
+        Member member = memberMapper.toEntity(encodedDto);
+
+        return userRepository.save(member);
     }
 }
