@@ -5,6 +5,7 @@ import com.luckymarket.user.domain.model.Member;
 import com.luckymarket.user.usecase.dto.SignupRequestDto;
 import com.luckymarket.user.adapter.mapper.MemberMapper;
 import com.luckymarket.user.domain.repository.UserRepository;
+import com.luckymarket.user.usecase.service.MemberValidationService;
 import com.luckymarket.user.usecase.service.SignupService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
