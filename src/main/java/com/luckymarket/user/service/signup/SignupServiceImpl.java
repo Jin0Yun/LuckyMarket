@@ -14,21 +14,24 @@ public class SignupServiceImpl implements SignupService {
     private final UserRepository userRepository;
     private final MemberValidationService memberValidationService;
     private final PasswordService passwordService;
+    private final MemberMapper memberMapper;
 
     @Autowired
     public SignupServiceImpl(
             UserRepository userRepository,
             MemberValidationService memberValidator,
-            PasswordService passwordService
+            PasswordService passwordService,
+            MemberMapper memberMapper
     ) {
         this.userRepository = userRepository;
         this.memberValidationService = memberValidator;
         this.passwordService = passwordService;
+        this.memberMapper = memberMapper;
     }
 
     @Override
     public Member signup(SignupRequestDto signupRequestDto) {
-        Member member = MemberMapper.toEntity(signupRequestDto);
+        Member member = memberMapper.toEntity(signupRequestDto);
         memberValidationService.validateSignupFields(member);
 
         String encodedPassword = passwordService.encodePassword(member.getPassword());
