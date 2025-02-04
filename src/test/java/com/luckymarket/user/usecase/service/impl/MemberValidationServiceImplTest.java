@@ -1,9 +1,6 @@
 package com.luckymarket.user.usecase.service.impl;
 
-import com.luckymarket.user.usecase.validator.AddressValidationRule;
-import com.luckymarket.user.usecase.validator.EmailValidationRule;
-import com.luckymarket.user.usecase.validator.PasswordValidationRule;
-import com.luckymarket.user.usecase.validator.PhoneNumberValidationRule;
+import com.luckymarket.user.usecase.validator.*;
 import com.luckymarket.user.domain.exception.UserErrorCode;
 import com.luckymarket.user.domain.exception.UserException;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,7 +14,10 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
-class MemberValidationServiceTest {
+class MemberValidationServiceImplTest {
+    @Mock
+    private UserValidationRule userValidationRule;
+
     @Mock
     private PhoneNumberValidationRule phoneNumberValidationRule;
 
@@ -31,11 +31,38 @@ class MemberValidationServiceTest {
     private AddressValidationRule addressValidationRule;
 
     @InjectMocks
-    private MemberValidationService memberValidationService;
+    private MemberValidationServiceImpl memberValidationServiceImpl;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+    }
+
+    @DisplayName("유효한 사용자 ID를 검증하면, 예외가 발생하지 않는다.")
+    @Test
+    void shouldNotThrowException_WhenUserIdIsValid() {
+        // given
+        Long validUserId = 1L;
+        doNothing().when(userValidationRule).validate(validUserId);
+
+        // when
+        memberValidationServiceImpl.validateUser(validUserId);
+
+        // then
+        verify(userValidationRule, times(1)).validate(validUserId);
+    }
+
+    @DisplayName("유효하지 않은 사용자 ID를 검증하면, 예외가 발생한다.")
+    @Test
+    void shouldThrowException_WhenUserIdIsInvalid() {
+        // given
+        Long invalidUserId = 999L;
+        doThrow(new UserException(UserErrorCode.UNAUTHORIZED_ACCESS))
+                .when(userValidationRule).validate(invalidUserId);
+
+        // when & then
+        UserException exception = assertThrows(UserException.class, () -> memberValidationServiceImpl.validateUser(invalidUserId));
+        assertThat(exception.getMessage()).isEqualTo(UserErrorCode.UNAUTHORIZED_ACCESS.getMessage());
     }
 
     @DisplayName("유효한 이메일을 검증하면, 예외가 발생하지 않는다.")
@@ -46,7 +73,7 @@ class MemberValidationServiceTest {
         doNothing().when(emailValidationRule).validate(validEmail);
 
         // when
-        memberValidationService.validateEmail(validEmail);
+        memberValidationServiceImpl.validateEmail(validEmail);
 
         // then
         verify(emailValidationRule, times(1)).validate(validEmail);
@@ -61,7 +88,7 @@ class MemberValidationServiceTest {
                 .when(emailValidationRule).validate(invalidEmail);
 
         // when & then
-        UserException exception = assertThrows(UserException.class, () -> memberValidationService.validateEmail(invalidEmail));
+        UserException exception = assertThrows(UserException.class, () -> memberValidationServiceImpl.validateEmail(invalidEmail));
         assertThat(exception.getMessage()).isEqualTo(UserErrorCode.INVALID_EMAIL_FORMAT.getMessage());
     }
 
@@ -73,7 +100,7 @@ class MemberValidationServiceTest {
         doNothing().when(passwordValidationRule).validate(validPassword);
 
         // when
-        memberValidationService.validatePassword(validPassword);
+        memberValidationServiceImpl.validatePassword(validPassword);
 
         // then
         verify(passwordValidationRule, times(1)).validate(validPassword);
@@ -88,7 +115,7 @@ class MemberValidationServiceTest {
                 .when(passwordValidationRule).validate(invalidPassword);
 
         // when & then
-        UserException exception = assertThrows(UserException.class, () -> memberValidationService.validatePassword(invalidPassword));
+        UserException exception = assertThrows(UserException.class, () -> memberValidationServiceImpl.validatePassword(invalidPassword));
         assertThat(exception.getMessage()).isEqualTo(UserErrorCode.PASSWORD_TOO_SHORT.getMessage());
     }
 
@@ -101,7 +128,7 @@ class MemberValidationServiceTest {
                 .when(passwordValidationRule).validate(invalidPassword);
 
         // when & then
-        UserException exception = assertThrows(UserException.class, () -> memberValidationService.validatePassword(invalidPassword));
+        UserException exception = assertThrows(UserException.class, () -> memberValidationServiceImpl.validatePassword(invalidPassword));
         assertThat(exception.getMessage()).isEqualTo(UserErrorCode.PASSWORD_MISSING_SPECIAL_CHAR.getMessage());
     }
 
@@ -114,7 +141,7 @@ class MemberValidationServiceTest {
                 .when(passwordValidationRule).validate(invalidPassword);
 
         // when & then
-        UserException exception = assertThrows(UserException.class, () -> memberValidationService.validatePassword(invalidPassword));
+        UserException exception = assertThrows(UserException.class, () -> memberValidationServiceImpl.validatePassword(invalidPassword));
         assertThat(exception.getMessage()).isEqualTo(UserErrorCode.PASSWORD_MISSING_UPPERCASE.getMessage());
     }
 
@@ -127,7 +154,7 @@ class MemberValidationServiceTest {
                 .when(passwordValidationRule).validate(invalidPassword);
 
         // when & then
-        UserException exception = assertThrows(UserException.class, () -> memberValidationService.validatePassword(invalidPassword));
+        UserException exception = assertThrows(UserException.class, () -> memberValidationServiceImpl.validatePassword(invalidPassword));
         assertThat(exception.getMessage()).isEqualTo(UserErrorCode.PASSWORD_MISSING_LOWERCASE.getMessage());
     }
 
@@ -139,7 +166,7 @@ class MemberValidationServiceTest {
         doNothing().when(phoneNumberValidationRule).validate(validPhoneNumber);
 
         // when
-        memberValidationService.validatePhoneNumber(validPhoneNumber);
+        memberValidationServiceImpl.validatePhoneNumber(validPhoneNumber);
 
         // then
         verify(phoneNumberValidationRule, times(1)).validate(validPhoneNumber);
@@ -154,7 +181,7 @@ class MemberValidationServiceTest {
                 .when(phoneNumberValidationRule).validate(invalidPhoneNumber);
 
         // when & then
-        UserException exception = assertThrows(UserException.class, () -> memberValidationService.validatePhoneNumber(invalidPhoneNumber));
+        UserException exception = assertThrows(UserException.class, () -> memberValidationServiceImpl.validatePhoneNumber(invalidPhoneNumber));
         assertThat(exception.getMessage()).isEqualTo(UserErrorCode.INVALID_PHONE_NUMBER_FORMAT.getMessage());
     }
 
@@ -167,7 +194,7 @@ class MemberValidationServiceTest {
                 .when(phoneNumberValidationRule).validate(invalidPhoneNumber);
 
         // when & then
-        UserException exception = assertThrows(UserException.class, () -> memberValidationService.validatePhoneNumber(invalidPhoneNumber));
+        UserException exception = assertThrows(UserException.class, () -> memberValidationServiceImpl.validatePhoneNumber(invalidPhoneNumber));
         assertThat(exception.getMessage()).isEqualTo(UserErrorCode.PHONE_NUMBER_BLANK.getMessage());
     }
 
@@ -179,7 +206,7 @@ class MemberValidationServiceTest {
         doNothing().when(addressValidationRule).validate(validAddress);
 
         // when
-        memberValidationService.validateAddress(validAddress);
+        memberValidationServiceImpl.validateAddress(validAddress);
 
         // then
         verify(addressValidationRule, times(1)).validate(validAddress);
@@ -194,7 +221,7 @@ class MemberValidationServiceTest {
                 .when(addressValidationRule).validate(invalidAddress);
 
         // when & then
-        UserException exception = assertThrows(UserException.class, () -> memberValidationService.validateAddress(invalidAddress));
+        UserException exception = assertThrows(UserException.class, () -> memberValidationServiceImpl.validateAddress(invalidAddress));
         assertThat(exception.getMessage()).isEqualTo(UserErrorCode.ADDRESS_BLANK.getMessage());
     }
 }
