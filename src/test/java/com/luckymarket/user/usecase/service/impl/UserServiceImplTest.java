@@ -8,6 +8,7 @@ import com.luckymarket.user.domain.exception.UserErrorCode;
 import com.luckymarket.user.domain.exception.UserException;
 import com.luckymarket.user.adapter.mapper.MemberMapper;
 import com.luckymarket.user.domain.repository.UserRepository;
+import com.luckymarket.user.usecase.service.MemberValidationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -75,6 +76,7 @@ class UserServiceImplTest {
 
         // then
         assertThat(foundMember).isEqualTo(member);
+        verify(memberValidationService, times(1)).validateUser(1L);
     }
 
     @DisplayName("존재하지 않는 회원 ID로 회원 정보를 조회하면, 예외를 발생시킨다.")
@@ -114,6 +116,7 @@ class UserServiceImplTest {
 
         // then
         assertThat(updatedMember.getUsername()).isEqualTo("newName");
+        verify(memberValidationService, times(1)).validateUser(1L);
     }
 
     @DisplayName("비밀번호를 변경하면, 변경된 비밀번호로 저장된다.")
@@ -132,6 +135,7 @@ class UserServiceImplTest {
 
         // then
         assertThat(member.getPassword()).isEqualTo("EncodedNewPassword123!");
+        verify(memberValidationService, times(1)).validateUser(1L);
     }
 
     @DisplayName("회원 전화번호를 변경하면, 변경된 전화번호로 저장된다.")
@@ -158,6 +162,7 @@ class UserServiceImplTest {
 
         // then
         assertThat(updatedMember.getPhoneNumber()).isEqualTo("01098765432");
+        verify(memberValidationService, times(1)).validateUser(1L);
     }
 
     @DisplayName("회원 주소를 변경하면, 변경된 주소로 저장된다.")
@@ -184,6 +189,7 @@ class UserServiceImplTest {
 
         // then
         assertThat(updatedMember.getAddress()).isEqualTo("서울시 강북구");
+        verify(memberValidationService, times(1)).validateUser(1L);
     }
 
     @DisplayName("회원 탈퇴 요청 시, 회원 상태가 'DELETED'로 변경된다.")
@@ -198,6 +204,7 @@ class UserServiceImplTest {
 
         // then
         assertThat(member.getStatus()).isEqualTo(Status.DELETED);
+        verify(memberValidationService, times(1)).validateUser(userId);
     }
 
     @DisplayName("이미 탈퇴한 회원을 탈퇴 처리하려고 하면, 예외를 발생시킨다.")
