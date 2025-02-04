@@ -128,11 +128,10 @@ class UserServiceImplTest {
         doNothing().when(memberValidationService).validateSignupFields(member);
         when(passwordService.encodePassword(dto.getPassword())).thenReturn("EncodedNewPassword123!");
         when(userRepository.save(member)).thenReturn(member);
-        Member updatedMember = userService.changePassword(1L, dto);
+        userService.changePassword(1L, dto);
 
         // then
-        assertThat(updatedMember.getPassword()).isEqualTo("EncodedNewPassword123!");
-        verify(userRepository, times(1)).save(member);
+        assertThat(member.getPassword()).isEqualTo("EncodedNewPassword123!");
     }
 
     @DisplayName("회원 전화번호를 변경하면, 변경된 전화번호로 저장된다.")
