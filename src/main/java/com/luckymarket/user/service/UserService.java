@@ -5,10 +5,11 @@ import com.luckymarket.user.dto.*;
 
 public interface UserService {
     Member getUserById(Long userId);
-    Member updateName(Long userId, NameUpdateDto nameDto);
-    Member updatePhoneNumber(Long userId, PhoneNumberUpdateDto phoneDto);
-    Member updateAddress(Long userId, AddressUpdateDto addressDto);
-    Member updatePhoneNumberAndAddress(Long userId, PhoneNumberAndAddressUpdateDto dto);
+    MemberResponseDto getUser(Long userId);
+    MemberResponseDto updateName(Long userId, NameUpdateDto nameDto);
+    MemberResponseDto updatePhoneNumber(Long userId, PhoneNumberUpdateDto phoneDto);
+    MemberResponseDto updateAddress(Long userId, AddressUpdateDto addressDto);
+    MemberResponseDto updatePhoneNumberAndAddress(Long userId, PhoneNumberAndAddressUpdateDto dto);
     Member changePassword(Long userId, PasswordUpdateDto passwordDto);
     void deleteAccount(Long userId);
 }
