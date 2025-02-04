@@ -8,6 +8,7 @@ public enum UserErrorCode {
     ADDRESS_BLANK("주소는 필수 입력값입니다."),
     USER_NOT_FOUND("사용자를 찾을 수 없습니다."),
     USER_ALREADY_DELETED("이 사용자는 이미 탈퇴한 상태입니다."),
+    UNAUTHORIZED_ACCESS("사용자가 접근 권한이 없습니다."),
 
     PASSWORD_TOO_SHORT("비밀번호는 8자 이상이어야 합니다."),
     PASSWORD_MISSING_SPECIAL_CHAR("비밀번호에는 특수문자가 포함되어야 합니다."),
