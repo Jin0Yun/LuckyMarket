@@ -6,6 +6,7 @@ import com.luckymarket.user.domain.model.Status;
 import com.luckymarket.user.usecase.dto.SignupRequestDto;
 import com.luckymarket.user.adapter.mapper.MemberMapper;
 import com.luckymarket.user.domain.repository.UserRepository;
+import com.luckymarket.user.usecase.service.MemberValidationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
