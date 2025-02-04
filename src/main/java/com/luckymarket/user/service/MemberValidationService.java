@@ -1,6 +1,6 @@
 package com.luckymarket.user.service;
 
-import com.luckymarket.user.domain.Member;
+import com.luckymarket.user.dto.SignupRequestDto;
 import com.luckymarket.user.validator.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,9 +25,9 @@ public class MemberValidationService {
         this.addressValidationRule = addressValidator;
     }
 
-    public void validateSignupFields(Member member) {
-        validateEmail(member.getEmail());
-        validatePassword(member.getPassword());
+    public void validateSignupFields(SignupRequestDto dto) {
+        validateEmail(dto.getEmail());
+        validatePassword(dto.getPassword());
     }
 
     public void validateEmail(String email) {
