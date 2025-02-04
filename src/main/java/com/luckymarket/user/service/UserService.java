@@ -10,6 +10,6 @@ public interface UserService {
     MemberResponseDto updatePhoneNumber(Long userId, PhoneNumberUpdateDto phoneDto);
     MemberResponseDto updateAddress(Long userId, AddressUpdateDto addressDto);
     MemberResponseDto updatePhoneNumberAndAddress(Long userId, PhoneNumberAndAddressUpdateDto dto);
-    Member changePassword(Long userId, PasswordUpdateDto passwordDto);
+    void changePassword(Long userId, PasswordUpdateDto passwordDto);
     void deleteAccount(Long userId);
 }

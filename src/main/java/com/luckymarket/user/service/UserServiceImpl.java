@@ -84,12 +84,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Member changePassword(Long userId, PasswordUpdateDto passwordDto) {
+    public void changePassword(Long userId, PasswordUpdateDto passwordDto) {
         Member member = getUserById(userId);
         memberValidationService.validateSignupFields(member);
         String encodedPassword = passwordService.encodePassword(passwordDto.getPassword());
         member.setPassword(encodedPassword);
-        return userRepository.save(member);
+        userRepository.save(member);
     }
 
     @Override
