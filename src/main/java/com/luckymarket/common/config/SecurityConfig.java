@@ -28,7 +28,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         String[] publicUrls = {
-                "/api/member/signup",
+                "/api/user/signup",
                 "/api/auth/login",
                 "/api/categories",
                 "/api/categories/subcategories/{parentId}",
