@@ -125,7 +125,7 @@ class UserServiceImplTest {
 
         // when
         when(userRepository.findById(1L)).thenReturn(Optional.of(member));
-        doNothing().when(memberValidationService).validateSignupFields(member);
+        doNothing().when(memberValidationService).validatePassword(member.getPassword());
         when(passwordService.encodePassword(dto.getPassword())).thenReturn("EncodedNewPassword123!");
         when(userRepository.save(member)).thenReturn(member);
         userService.changePassword(1L, dto);

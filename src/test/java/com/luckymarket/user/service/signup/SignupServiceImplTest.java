@@ -1,7 +1,10 @@
 package com.luckymarket.user.service.signup;
 
 import com.luckymarket.user.domain.Member;
+import com.luckymarket.user.domain.Role;
+import com.luckymarket.user.domain.Status;
 import com.luckymarket.user.dto.SignupRequestDto;
+import com.luckymarket.user.mapper.MemberMapper;
 import com.luckymarket.user.repository.UserRepository;
 import com.luckymarket.user.service.MemberValidationService;
 import com.luckymarket.user.service.PasswordService;
@@ -12,8 +15,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.Mockito.*;
 
 class SignupServiceImplTest {
@@ -26,10 +28,15 @@ class SignupServiceImplTest {
     @Mock
     private MemberValidationService memberValidationService;
 
+    @Mock
+    private MemberMapper memberMapper;
+
     @InjectMocks
     private SignupServiceImpl signupService;
 
     private SignupRequestDto signupRequestDto;
+    private Member member;
+    private final String encodedPassword = "encodedPassword123!";
 
     @BeforeEach
     void setUp() {
@@ -40,37 +47,32 @@ class SignupServiceImplTest {
                 .password("ValidPassword123!")
                 .username("testUser")
                 .build();
+
+        member = Member.builder()
+                .email(signupRequestDto.getEmail())
+                .password(encodedPassword)
+                .username(signupRequestDto.getUsername())
+                .role(Role.USER)
+                .status(Status.ACTIVE)
+                .build();
     }
 
-    @DisplayName("정상적인 회원가입 요청 시, 회원가입이 성공적으로 완료된다.")
-    @Test
-    void shouldSignupSuccessfully_WhenRequestIsValid() {
-        // Given
-        when(passwordService.encodePassword(signupRequestDto.getPassword())).thenReturn("encodedPassword");
-        when(userRepository.save(any(Member.class))).thenAnswer(invocation -> invocation.getArgument(0));
-        doNothing().when(memberValidationService).validateSignupFields(any(Member.class));
-
-        // When
-        Member member = signupService.signup(signupRequestDto);
-
-        // Then
-        assertNotNull(member);
-        verify(userRepository, times(1)).save(any(Member.class));
-    }
-
-    @DisplayName("회원 정보가 정상적으로 저장된다.")
+    @DisplayName("정상적인 회원가입 요청 시, 회원 정보가 정상적으로 저장된다.")
     @Test
     void shouldSaveMember_WhenSignupIsSuccessful() {
         // Given
-        when(passwordService.encodePassword(signupRequestDto.getPassword())).thenReturn("encodedPassword");
-        when(userRepository.save(any(Member.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        doNothing().when(memberValidationService).validateSignupFields(signupRequestDto);
+        when(passwordService.encodePassword(signupRequestDto.getPassword())).thenReturn(encodedPassword);
+        when(memberMapper.toEntity(any(SignupRequestDto.class))).thenReturn(member);
+        when(userRepository.save(any(Member.class))).thenReturn(member);
 
         // When
-        Member member = signupService.signup(signupRequestDto);
+        Member savedMember = signupService.signup(signupRequestDto);
 
         // Then
-        assertEquals("test@test.com", member.getEmail());
-        assertEquals("encodedPassword", member.getPassword());
-        assertEquals("testUser", member.getUsername());
+        assertThat(savedMember).isNotNull();
+        assertThat(savedMember.getEmail()).isEqualTo(signupRequestDto.getEmail());
+        assertThat(savedMember.getUsername()).isEqualTo(signupRequestDto.getUsername());
+        assertThat(savedMember.getPassword()).isEqualTo(encodedPassword);
     }
 }
