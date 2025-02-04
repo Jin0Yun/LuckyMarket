@@ -2,7 +2,6 @@ package com.luckymarket.user.adapter.controller;
 
 import com.luckymarket.common.ApiResponseWrapper;
 import com.luckymarket.user.usecase.dto.*;
-import com.luckymarket.user.dto.*;
 import com.luckymarket.user.usecase.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

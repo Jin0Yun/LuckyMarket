@@ -2,7 +2,6 @@ package com.luckymarket.user.usecase.service;
 
 import com.luckymarket.user.usecase.dto.*;
 import com.luckymarket.user.domain.model.Member;
-import com.luckymarket.user.dto.*;
 
 public interface UserService {
     Member getUserById(Long userId);
