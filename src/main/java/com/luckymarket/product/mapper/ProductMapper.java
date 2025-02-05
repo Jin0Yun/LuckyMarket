@@ -3,7 +3,7 @@ package com.luckymarket.product.mapper;
 import com.luckymarket.product.domain.Category;
 import com.luckymarket.product.domain.Product;
 import com.luckymarket.product.dto.ProductCreateDto;
-import com.luckymarket.user.domain.Member;
+import com.luckymarket.user.domain.model.Member;
 
 public class ProductMapper {
     public static Product toEntity(ProductCreateDto dto, Member member, Category category) {

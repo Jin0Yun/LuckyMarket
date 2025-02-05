@@ -27,14 +27,22 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        String[] publicUrls = {
+                "/api/user/signup",
+                "/api/auth/login",
+                "/api/categories",
+                "/api/categories/subcategories/{parentId}",
+                "/api/categories/parents",
+                "/api/categories/code/{code}",
+                "/api/product",
+                "/api/product/search",
+                "/swagger-ui/**",
+                "/v3/api-docs/**"
+        };
+
         http.csrf().disable()
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "/api/member/signup",
-                                "/api/auth/login",
-                                "/swagger-ui/**",
-                                "/v3/api-docs/**"
-                        ).permitAll()
+                        .requestMatchers(publicUrls).permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
