@@ -9,6 +9,7 @@ import com.luckymarket.user.usecase.service.MemberValidationService;
 import com.luckymarket.user.usecase.service.SignupService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class SignupServiceImpl implements SignupService {
@@ -31,6 +32,7 @@ public class SignupServiceImpl implements SignupService {
     }
 
     @Override
+    @Transactional
     public Member signup(SignupRequestDto signupRequestDto) {
         memberValidationService.validateSignupFields(signupRequestDto);
         String encodedPassword = passwordService.encodePassword(signupRequestDto.getPassword());
