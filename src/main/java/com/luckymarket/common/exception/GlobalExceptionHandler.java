@@ -1,5 +1,6 @@
 package com.luckymarket.common.exception;
 
+import com.luckymarket.auth.exception.AuthException;
 import com.luckymarket.common.ApiResponseWrapper;
 import com.luckymarket.user.domain.exception.UserException;
 import io.swagger.v3.oas.annotations.Hidden;
@@ -15,6 +16,12 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ApiResponseWrapper<String> handleUserException(UserException e) {
         return ApiResponseWrapper.error(e.getMessage(), HttpStatus.BAD_REQUEST.value());
+    }
+
+    @ExceptionHandler(AuthException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ApiResponseWrapper<String> handleAuthException(AuthException ex) {
+        return ApiResponseWrapper.error(ex.getMessage(), HttpStatus.UNAUTHORIZED.value());
     }
 
     @ExceptionHandler(Exception.class)
