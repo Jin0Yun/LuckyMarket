@@ -1,6 +1,7 @@
 package com.luckymarket.auth.service.login;
 
-import com.luckymarket.auth.dto.TokenResponseDto;
+import com.luckymarket.auth.dto.LoginRequestDto;
+import com.luckymarket.auth.dto.LoginResponseDto;
 import com.luckymarket.auth.exception.AuthErrorCode;
 import com.luckymarket.auth.exception.AuthException;
 import com.luckymarket.auth.security.JwtTokenProvider;
@@ -56,11 +57,12 @@ class LoginServiceTest {
         // given
         String email = "nonexistent@example.com";
         String password = "password";
+        LoginRequestDto loginRequestDto = new LoginRequestDto(email, password);
 
         when(userRepository.findByEmail(email)).thenReturn(null);
 
         // when & then
-        assertThrows(AuthException.class, () -> loginService.login(email, password));
+        assertThrows(AuthException.class, () -> loginService.login(loginRequestDto));
     }
 
     @DisplayName("이메일이 빈 값일 경우 로그인 시 예외를 반환하는지 테스트")
@@ -69,9 +71,10 @@ class LoginServiceTest {
         // given
         String blankEmail = "";
         String validPassword = "Password123!";
+        LoginRequestDto loginRequestDto = new LoginRequestDto(blankEmail, validPassword);
 
         // when & then
-        assertThrows(AuthException.class, () -> loginService.login(blankEmail, validPassword));  // 이메일 빈 값 예외
+        assertThrows(AuthException.class, () -> loginService.login(loginRequestDto));
     }
 
     @DisplayName("이메일 형식이 잘못된 경우 로그인 시 예외를 던지는지 테스트")
@@ -80,9 +83,10 @@ class LoginServiceTest {
         // given
         String invalidEmail = "invalid-email";
         String validPassword = "Password123!";
+        LoginRequestDto loginRequestDto = new LoginRequestDto(invalidEmail, validPassword);
 
         // when & then
-        assertThrows(AuthException.class, () -> loginService.login(invalidEmail, validPassword));  // 잘못된 이메일 형식 예외
+        assertThrows(AuthException.class, () -> loginService.login(loginRequestDto));
     }
 
     @DisplayName("비밀번호가 빈 값일 경우 로그인 시 예외를 반환하는지 테스트")
@@ -91,9 +95,10 @@ class LoginServiceTest {
         // given
         String validEmail = "luckymarket@gmail.com";
         String blankPassword = "";
+        LoginRequestDto loginRequestDto = new LoginRequestDto(validEmail, blankPassword);
 
         // when & then
-        assertThrows(AuthException.class, () -> loginService.login(validEmail, blankPassword));  // 비밀번호 빈 값 예외
+        assertThrows(AuthException.class, () -> loginService.login(loginRequestDto));
     }
 
     @DisplayName("잘못된 비밀번호로 로그인 시 예외를 반환하는지 테스트")
@@ -102,12 +107,13 @@ class LoginServiceTest {
         // given
         String email = "luckymarket@gmail.com";
         String password = "wrongPassword";
+        LoginRequestDto loginRequestDto = new LoginRequestDto(email, password);
 
         when(userRepository.findByEmail(email)).thenReturn(mockMember);
         when(passwordEncoder.matches(password, mockMember.getPassword())).thenReturn(false);
 
         // when & then
-        AuthException exception = assertThrows(AuthException.class, () -> loginService.login(email, password));
+        AuthException exception = assertThrows(AuthException.class, () -> loginService.login(loginRequestDto));
         assertThat(exception.getMessage()).isEqualTo(AuthErrorCode.PASSWORD_MISMATCH.getMessage());
     }
 
@@ -117,15 +123,18 @@ class LoginServiceTest {
         // given
         String email = "luckymarket@gmail.com";
         String password = "password";
+        LoginRequestDto loginRequestDto = new LoginRequestDto(email, password);
 
         when(userRepository.findByEmail(email)).thenReturn(mockMember);
         when(passwordEncoder.matches(password, mockMember.getPassword())).thenReturn(true);
         when(jwtTokenProvider.createAccessToken(mockMember.getId())).thenReturn("mockAccessToken");
+        when(jwtTokenProvider.createRefreshToken(mockMember.getId())).thenReturn("mockRefreshToken");
 
         // when
-        TokenResponseDto result = loginService.login(email, password);
+        LoginResponseDto result = loginService.login(loginRequestDto);
 
         // then
-        assertThat(result.getAccessToken()).isEqualTo("Bearer mockAccessToken");
+        assertThat(result.getAccessToken()).isEqualTo("mockAccessToken");
+        assertThat(result.getRefreshToken()).isEqualTo("mockRefreshToken");
     }
 }

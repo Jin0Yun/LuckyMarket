@@ -1,5 +1,7 @@
 package com.luckymarket.auth.service;
 
+import com.luckymarket.auth.dto.LoginRequestDto;
+import com.luckymarket.auth.dto.LoginResponseDto;
 import com.luckymarket.auth.dto.TokenResponseDto;
 import com.luckymarket.auth.service.login.LoginService;
 import com.luckymarket.auth.service.logout.LogoutService;
@@ -37,15 +39,15 @@ class AuthServiceImplTest {
         // given
         String email = "test@gmail.com";
         String password = "password";
-        Long userId = 12345L;
-        TokenResponseDto mockToken = new TokenResponseDto(userId, "mockAccessToken");
-        when(loginService.login(email, password)).thenReturn(mockToken);
+        LoginRequestDto loginRequestDto = new LoginRequestDto(email, password);
+        LoginResponseDto mockToken = new LoginResponseDto("mockAccessToken", "mockRefreshToken");
+        when(loginService.login(loginRequestDto)).thenReturn(mockToken);
 
         // when
-        TokenResponseDto result = authService.login(email, password);
+        LoginResponseDto result = authService.login(loginRequestDto);
 
         // then
-        verify(loginService, times(1)).login(email, password);
+        verify(loginService, times(1)).login(loginRequestDto);
     }
 
     @DisplayName("로그아웃 메서드가 호출되는지 확인하는 메서드")
@@ -68,7 +70,7 @@ class AuthServiceImplTest {
         String accessToken = "Bearer valid-access-token";
         Long userId = 12345L;
 
-        TokenResponseDto mockToken = new TokenResponseDto(userId, "newAccessToken");
+        TokenResponseDto mockToken = new TokenResponseDto("newAccessToken");
         when(tokenService.refreshAccessToken(accessToken)).thenReturn(mockToken);
 
         // when
