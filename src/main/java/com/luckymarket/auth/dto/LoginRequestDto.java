@@ -1,12 +1,13 @@
 package com.luckymarket.auth.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
+@AllArgsConstructor
 public class LoginRequestDto {
     @Schema(description = "사용자 이메일", example = "example@email.com", required = true)
     private String email;
