@@ -1,6 +1,6 @@
 package com.luckymarket.user.usecase.service.impl;
 
-import com.luckymarket.auth.service.redis.RedisService;
+import com.luckymarket.auth.service.RedisService;
 import com.luckymarket.user.usecase.dto.*;
 import com.luckymarket.user.domain.model.Member;
 import com.luckymarket.user.domain.model.Status;
@@ -9,6 +9,7 @@ import com.luckymarket.user.domain.exception.UserException;
 import com.luckymarket.user.adapter.mapper.MemberMapper;
 import com.luckymarket.user.domain.repository.UserRepository;
 import com.luckymarket.user.usecase.service.MemberValidationService;
+import com.luckymarket.user.usecase.service.PasswordService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
