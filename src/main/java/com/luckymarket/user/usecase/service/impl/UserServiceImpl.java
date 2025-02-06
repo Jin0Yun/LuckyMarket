@@ -106,7 +106,7 @@ public class UserServiceImpl implements UserService {
         if (member.getStatus() == Status.DELETED) {
             throw new UserException(UserErrorCode.USER_ALREADY_DELETED);
         }
-        redisService.deleteRefreshToken(userId);
+        redisService.removeRefreshToken(userId);
         member.setStatus(Status.DELETED);
     }
 }
