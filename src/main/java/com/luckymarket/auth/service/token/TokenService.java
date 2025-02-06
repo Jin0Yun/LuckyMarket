@@ -17,22 +17,17 @@ public class TokenService {
         this.redisService = redisService;
     }
 
-    public TokenResponseDto refreshAccessToken(String accessToken) {
-        jwtTokenProvider.validateToken(accessToken);
-
-        Long userId = Long.parseLong(jwtTokenProvider.getSubject(accessToken));
-        String refreshToken = redisService.getRefreshToken(userId)
-                .orElseThrow(() -> new AuthException(AuthErrorCode.INVALID_TOKEN));
-
+    public TokenResponseDto refreshAccessToken(String refreshToken) {
         jwtTokenProvider.validateToken(refreshToken);
 
+        Long userId = Long.parseLong(jwtTokenProvider.getSubject(refreshToken));
+        String redisRefreshToken = redisService.getRefreshToken(userId)
+                .orElseThrow(() -> new AuthException(AuthErrorCode.INVALID_TOKEN));
+
+        if (!redisRefreshToken.equals(refreshToken)) {
+            throw new AuthException(AuthErrorCode.INVALID_TOKEN);
+        }
         String newAccessToken = jwtTokenProvider.createAccessToken(userId);
-        String newRefreshToken = jwtTokenProvider.createRefreshToken(userId);
-
-        redisService.addToBlacklist(accessToken, jwtTokenProvider.getRemainingExpirationTime(accessToken));
-        redisService.deleteRefreshToken(userId);
-        redisService.saveRefreshToken(userId, newRefreshToken, jwtTokenProvider.getRemainingExpirationTime(newRefreshToken));
-
         return new TokenResponseDto(newAccessToken);
     }
 }
