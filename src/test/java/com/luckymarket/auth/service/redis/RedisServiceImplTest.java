@@ -15,6 +15,7 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 class RedisServiceImplTest {
@@ -46,33 +47,31 @@ class RedisServiceImplTest {
     @Test
     void shouldSaveRefreshTokenSuccessfully() {
         // given
-        when(valueOperations.setIfAbsent("refresh:" + userId, refreshToken)).thenReturn(true);
+        when(valueOperations.setIfAbsent("refreshToken-user: " + userId, refreshToken, expiration, TimeUnit.MILLISECONDS)).thenReturn(true);
 
         // when
         redisService.saveRefreshToken(userId, refreshToken, expiration);
 
         // then
-        assertThat(valueOperations.setIfAbsent("refresh:" + userId, refreshToken)).isTrue();
-        assertThat(redisTemplate.expire("refresh:" + userId, expiration, TimeUnit.MILLISECONDS)).isNotNull();
+        verify(valueOperations).setIfAbsent("refreshToken-user: " + userId, refreshToken, expiration, TimeUnit.MILLISECONDS);
     }
 
     @DisplayName("리프레시 토큰 저장 실패 시 예외를 던지는지 테스트")
     @Test
     void shouldThrowExceptionWhenSaveRefreshTokenFails() {
         // given
-        when(valueOperations.setIfAbsent("refresh:" + userId, refreshToken)).thenReturn(false);
+        when(valueOperations.setIfAbsent("refreshToken-user: " + userId, refreshToken)).thenReturn(false);
 
         // when & then
-        assertThatThrownBy(() -> redisService.saveRefreshToken(userId, refreshToken, expiration))
-                .isInstanceOf(RedisException.class)
-                .hasMessage(RedisErrorCode.REFRESH_TOKEN_SAVE_FAILED.getMessage());
+        RedisException exception = assertThrows(RedisException.class, () -> redisService.saveRefreshToken(userId, refreshToken, expiration));
+        assertThat(exception.getMessage()).isEqualTo(RedisErrorCode.REFRESH_TOKEN_SAVE_FAILED.getMessage());
     }
 
     @DisplayName("리프레시 토큰을 Redis에서 조회되는지 테스트")
     @Test
     void shouldGetRefreshTokenSuccessfully() {
         // given
-        when(valueOperations.get("refresh:" + userId)).thenReturn(refreshToken);
+        when(valueOperations.get("refreshToken-user: " + userId)).thenReturn(refreshToken);
 
         // when
         Optional<String> result = redisService.getRefreshToken(userId);
@@ -86,7 +85,7 @@ class RedisServiceImplTest {
     @Test
     void shouldReturnEmptyWhenRefreshTokenNotFound() {
         // given
-        when(valueOperations.get("refresh:" + userId)).thenReturn(null);
+        when(valueOperations.get("refreshToken-user: " + userId)).thenReturn(null);
 
         // when
         Optional<String> result = redisService.getRefreshToken(userId);
@@ -97,105 +96,86 @@ class RedisServiceImplTest {
 
     @DisplayName("리프레시 토큰을 Redis에서 삭제되는지 테스트")
     @Test
-    void shouldDeleteRefreshTokenSuccessfully() {
+    void shouldRemoveRefreshTokenSuccessfully() {
         // given
-        when(redisTemplate.delete("refresh:" + userId)).thenReturn(true);
+        when(redisTemplate.delete("refreshToken-user: " + userId)).thenReturn(true);
 
         // when
-        redisService.deleteRefreshToken(userId);
+        redisService.removeRefreshToken(userId);
 
         // then
-        assertThat(redisTemplate.delete("refresh:" + userId)).isTrue();
+        verify(redisTemplate).delete("refreshToken-user: " + userId);
     }
 
     @DisplayName("리프레시 토큰 삭제 실패 시 예외를 던지는지 테스트")
     @Test
-    void shouldThrowExceptionWhenDeleteRefreshTokenFails() {
+    void shouldThrowExceptionWhenRemoveRefreshTokenFails() {
         // given
-        when(redisTemplate.delete("refresh:" + userId)).thenReturn(false);
+        when(redisTemplate.delete("refreshToken-user: " + userId)).thenReturn(false);
 
         // when & then
-        assertThatThrownBy(() -> redisService.deleteRefreshToken(userId))
-                .isInstanceOf(RedisException.class)
-                .hasMessage(RedisErrorCode.REFRESH_TOKEN_DELETE_FAILED.getMessage());
+        RedisException exception = assertThrows(RedisException.class, () -> redisService.removeRefreshToken(userId));
+        assertThat(exception.getMessage()).isEqualTo(RedisErrorCode.REFRESH_TOKEN_DELETE_FAILED.getMessage());
     }
 
     @DisplayName("블랙리스트에 토큰을 성공적으로 추가하는지 테스트")
     @Test
     void shouldAddToBlacklistSuccessfully() {
         // given
-        doNothing().when(valueOperations).set("blacklist:" + accessToken, "BLACKLISTED", expiration, TimeUnit.MILLISECONDS);
+        when(valueOperations.setIfAbsent(accessToken, "BLACKLISTED", expiration, TimeUnit.MILLISECONDS)).thenReturn(true);
 
         // when
         redisService.addToBlacklist(accessToken, expiration);
 
         // then
-        verify(valueOperations).set("blacklist:" + accessToken, "BLACKLISTED", expiration, TimeUnit.MILLISECONDS);
+        verify(valueOperations).setIfAbsent(accessToken, "BLACKLISTED", expiration, TimeUnit.MILLISECONDS);
     }
 
-    @DisplayName("블랙리스트 토큰 추가 실패 시 예외를 던지는지 테스트")
+    @DisplayName("블랙리스트 토큰 조회 성공 시 true 반환하는지 테스트")
+    @Test
+    void shouldReturnTrueWhenAccessTokenIsBlacklisted() {
+        // given
+        when(redisTemplate.hasKey(accessToken)).thenReturn(true);
+
+        // when
+        boolean result = redisService.isBlacklisted(accessToken);
+
+        // then
+        assertThat(result).isTrue();
+    }
+
+    @DisplayName("블랙리스트 추가 실패 시 예외를 던지는지 테스트")
     @Test
     void shouldThrowExceptionWhenAddToBlacklistFails() {
         // given
-        doThrow(new RuntimeException("Redis error")).when(valueOperations).set("blacklist:" + accessToken, "BLACKLISTED", expiration, TimeUnit.MILLISECONDS);
+        when(valueOperations.setIfAbsent(accessToken, "BLACKLISTED", expiration, TimeUnit.MILLISECONDS)).thenReturn(false);
 
         // when & then
-        assertThatThrownBy(() -> redisService.addToBlacklist(accessToken, expiration))
-                .isInstanceOf(RedisException.class)
-                .hasMessage(RedisErrorCode.BLACKLIST_TOKEN_SAVE_FAILED.getMessage());
+        RedisException exception = assertThrows(RedisException.class, () -> redisService.addToBlacklist(accessToken, expiration));
+        assertThat(exception.getMessage()).isEqualTo(RedisErrorCode.BLACKLIST_TOKEN_SAVE_FAILED.getMessage());
     }
 
-    @DisplayName("블랙리스트에 토큰이 있는지 확인하는지 테스트")
+    @DisplayName("블랙리스트에서 토큰을 삭제하는지 테스트")
     @Test
-    void shouldCheckIfTokenIsBlacklisted() {
+    void shouldRemoveFromBlacklistSuccessfully() {
         // given
-        when(redisTemplate.hasKey("blacklist:" + accessToken)).thenReturn(true);
+        when(redisTemplate.delete(accessToken)).thenReturn(true);
 
         // when
-        boolean result = redisService.isBlacklisted(accessToken);
+        redisService.removeFromBlacklist(accessToken);
 
         // then
-        assertThat(result).isTrue();
+        verify(redisTemplate).delete(accessToken);
     }
 
-    @DisplayName("블랙리스트에 토큰이 없는 경우 확인하는지 테스트")
+    @DisplayName("블랙리스트에서 토큰 삭제 실패 시 예외를 던지는지 테스트")
     @Test
-    void shouldReturnFalseWhenTokenIsNotBlacklisted() {
+    void shouldThrowExceptionWhenRemoveFromBlacklistFails() {
         // given
-        when(redisTemplate.hasKey("blacklist:" + accessToken)).thenReturn(false);
-
-        // when
-        boolean result = redisService.isBlacklisted(accessToken);
-
-        // then
-        assertThat(result).isFalse();
-    }
-
-    @DisplayName("키 존재 여부를 성공적으로 확인하는지 테스트")
-    @Test
-    void shouldCheckIfKeyExists() {
-        // given
-        String key = "sampleKey";
-        when(redisTemplate.hasKey(key)).thenReturn(true);
-
-        // when
-        boolean result = redisService.isKeyExist(key);
-
-        // then
-        assertThat(result).isTrue();
-    }
-
-    @DisplayName("키 존재 여부 확인 실패 시 false를 반환하는지 테스트")
-    @Test
-    void shouldReturnFalseWhenKeyExistCheckFails() {
-        // given
-        String key = "sampleKey";
-        when(redisTemplate.hasKey(key)).thenThrow(new RuntimeException("Redis error"));
+        when(redisTemplate.delete(accessToken)).thenReturn(false);
 
         // when & then
-        boolean result = redisService.isKeyExist(key);
-
-        // then
-        assertThat(result).isFalse();
+        RedisException exception = assertThrows(RedisException.class, () -> redisService.removeFromBlacklist(accessToken));
+        assertThat(exception.getMessage()).isEqualTo(RedisErrorCode.BLACKLIST_TOKEN_DELETE_FAILED.getMessage());
     }
 }
