@@ -4,25 +4,34 @@ import com.luckymarket.auth.dto.LoginResponseDto;
 import com.luckymarket.common.ApiResponseWrapper;
 import com.luckymarket.auth.dto.TokenResponseDto;
 import com.luckymarket.auth.dto.LoginRequestDto;
-import com.luckymarket.auth.exception.AuthException;
 import com.luckymarket.auth.service.AuthService;
+import com.luckymarket.user.usecase.dto.SignupRequestDto;
+import com.luckymarket.auth.service.SignupService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
 @Tag(name = "인증 API", description = "사용자 로그인, 로그아웃, 토큰 갱신 관련 API")
 public class AuthController {
+    private final SignupService signupService;
     private final AuthService authService;
 
     @Autowired
-    public AuthController(AuthService authService) {
+    public AuthController(SignupService signupService, AuthService authService) {
+        this.signupService = signupService;
         this.authService = authService;
     }
+
+    @PostMapping("/signup")
+    @Operation(summary = "회원가입", description = "사용자가 이메일, 비밀번호, 이름으로 회원가입을 요청합니다.")
+    public ApiResponseWrapper<Void> signup(@RequestBody SignupRequestDto signupRequestDto) {
+        signupService.signup(signupRequestDto);
+        return ApiResponseWrapper.success("회원가입 성공", null);
+    }
+
 
     @PostMapping("/login")
     @Operation(

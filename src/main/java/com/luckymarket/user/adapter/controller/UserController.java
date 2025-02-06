@@ -3,7 +3,6 @@ package com.luckymarket.user.adapter.controller;
 import com.luckymarket.auth.security.SecurityContextService;
 import com.luckymarket.common.ApiResponseWrapper;
 import com.luckymarket.user.usecase.dto.*;
-import com.luckymarket.user.usecase.service.SignupService;
 import com.luckymarket.user.usecase.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -13,18 +12,10 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/user")
 @RequiredArgsConstructor
-@Tag(name = "회원 API", description = "회원가입 및 회원 정보 수정, 관리 API")
+@Tag(name = "회원 API", description = "회원 정보 수정, 관리 API")
 public class UserController {
     private final UserService userService;
-    private final SignupService signupService;
     private final SecurityContextService securityContextService;
-
-    @PostMapping("/signup")
-    @Operation(summary = "회원가입", description = "사용자가 이메일, 비밀번호, 이름으로 회원가입을 요청합니다.")
-    public ApiResponseWrapper<String> signup(@RequestBody SignupRequestDto signupRequestDto) {
-        signupService.signup(signupRequestDto);
-        return ApiResponseWrapper.success("회원가입 성공", null);
-    }
 
     @GetMapping("/get-user")
     @Operation(summary = "회원 정보 조회", description = "회원의 이름, 전화번호, 주소 등을 조회합니다.")
