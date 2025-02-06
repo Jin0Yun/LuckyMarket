@@ -1,5 +1,7 @@
 package com.luckymarket.auth.service.login;
 
+import com.luckymarket.auth.dto.LoginRequestDto;
+import com.luckymarket.auth.dto.LoginResponseDto;
 import com.luckymarket.auth.dto.TokenResponseDto;
 import com.luckymarket.auth.exception.AuthErrorCode;
 import com.luckymarket.auth.exception.AuthException;
@@ -29,11 +31,11 @@ public class LoginService {
         this.loginValidator = loginValidator;
     }
 
-    public TokenResponseDto login(String email, String password) {
-        loginValidator.validateEmail(email);
-        loginValidator.validatePassword(password);
+    public LoginResponseDto login(LoginRequestDto loginRequestDto) {
+        loginValidator.validateEmail(loginRequestDto.getEmail());
+        loginValidator.validatePassword(loginRequestDto.getPassword());
 
-        Member member = userRepository.findByEmail(email);
+        Member member = userRepository.findByEmail(loginRequestDto.getEmail());
         if (member == null) {
             throw new AuthException(AuthErrorCode.EMAIL_NOT_FOUND);
         }
@@ -42,7 +44,7 @@ public class LoginService {
             throw new AuthException(AuthErrorCode.USER_ALREADY_DELETED);
         }
 
-        if (!passwordEncoder.matches(password, member.getPassword())) {
+        if (!passwordEncoder.matches(loginRequestDto.getPassword(), member.getPassword())) {
             throw new AuthException(AuthErrorCode.PASSWORD_MISMATCH);
         }
 
@@ -56,7 +58,7 @@ public class LoginService {
         redisService.saveRefreshToken(member.getId(), refreshToken, jwtTokenProvider.getRemainingExpirationTime(refreshToken));
         member.setLastLogin(LocalDateTime.now());
         userRepository.save(member);
-        return new TokenResponseDto(member.getId(), accessToken);
+        return new LoginResponseDto(accessToken, refreshToken);
     }
 }
 

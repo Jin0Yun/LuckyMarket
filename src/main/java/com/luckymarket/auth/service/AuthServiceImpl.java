@@ -1,5 +1,7 @@
 package com.luckymarket.auth.service;
 
+import com.luckymarket.auth.dto.LoginRequestDto;
+import com.luckymarket.auth.dto.LoginResponseDto;
 import com.luckymarket.auth.dto.TokenResponseDto;
 import com.luckymarket.auth.service.login.LoginService;
 import com.luckymarket.auth.service.logout.LogoutService;
@@ -19,8 +21,8 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public TokenResponseDto login(String email, String password) {
-        return loginService.login(email, password);
+    public LoginResponseDto login(LoginRequestDto loginRequestDto) {
+        return loginService.login(loginRequestDto);
     }
 
     @Override

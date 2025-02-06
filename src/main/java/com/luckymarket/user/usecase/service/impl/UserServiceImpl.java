@@ -1,6 +1,6 @@
 package com.luckymarket.user.usecase.service.impl;
 
-import com.luckymarket.auth.service.RedisService;
+import com.luckymarket.auth.service.redis.RedisService;
 import com.luckymarket.user.usecase.dto.*;
 import com.luckymarket.user.domain.model.Member;
 import com.luckymarket.user.domain.model.Status;
