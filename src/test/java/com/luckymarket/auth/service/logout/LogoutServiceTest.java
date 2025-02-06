@@ -48,7 +48,7 @@ class LogoutServiceTest {
 
         // then
         verify(redisService).addToBlacklist(token, jwtTokenProvider.getRemainingExpirationTime(token));
-        verify(redisService).deleteRefreshToken(userId);
+        verify(redisService).removeRefreshToken(userId);
     }
 
     @DisplayName("이미 블랙리스트에 있는 토큰으로 로그아웃 시 예외를 반환하는지 테스트")
