@@ -16,7 +16,7 @@ public class RedisServiceImpl implements RedisService {
 
     @Override
     public void saveRefreshToken(Long userId, String refreshToken, long expirationTime) {
-        redisTemplate.opsForValue().set("user:refreshToken:" + userId, refreshToken, expirationTime, TimeUnit.MILLISECONDS);
+        redisTemplate.opsForValue().setIfAbsent("user:refreshToken:" + userId, refreshToken, expirationTime, TimeUnit.MILLISECONDS);
     }
 
     @Override
@@ -31,7 +31,7 @@ public class RedisServiceImpl implements RedisService {
 
     @Override
     public void addToBlacklist(String accessToken, long expirationTime) {
-        redisTemplate.opsForValue().set(accessToken, "BLACKLISTED", expirationTime, TimeUnit.MILLISECONDS);
+        redisTemplate.opsForValue().setIfAbsent(accessToken, "BLACKLISTED", expirationTime, TimeUnit.MILLISECONDS);
     }
 
     @Override
