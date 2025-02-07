@@ -1,6 +1,5 @@
 package com.luckymarket.user.usecase.service.impl;
 
-import com.luckymarket.user.usecase.dto.SignupRequestDto;
 import com.luckymarket.user.usecase.service.MemberValidationService;
 import com.luckymarket.user.usecase.validator.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,12 +31,6 @@ public class MemberValidationServiceImpl implements MemberValidationService {
     @Override
     public void validateUser(Long userId) {
         userValidationRule.validate(userId);
-    }
-
-    @Override
-    public void validateSignupFields(SignupRequestDto dto) {
-        validateEmail(dto.getEmail());
-        validatePassword(dto.getPassword());
     }
 
     @Override
