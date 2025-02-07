@@ -9,8 +9,10 @@ import com.luckymarket.user.domain.exception.UserException;
 import com.luckymarket.user.adapter.mapper.MemberMapper;
 import com.luckymarket.user.domain.repository.UserRepository;
 import com.luckymarket.user.usecase.service.MemberValidationService;
+import com.luckymarket.user.usecase.service.PasswordService;
 import com.luckymarket.user.usecase.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
