@@ -1,10 +1,10 @@
 package com.luckymarket.auth.service;
 
+import com.luckymarket.auth.validator.AuthValidationService;
 import com.luckymarket.user.domain.model.Member;
 import com.luckymarket.user.usecase.dto.SignupRequestDto;
 import com.luckymarket.user.adapter.mapper.MemberMapper;
 import com.luckymarket.user.domain.repository.UserRepository;
-import com.luckymarket.user.usecase.service.MemberValidationService;
 import com.luckymarket.user.usecase.service.PasswordService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -23,7 +23,7 @@ class SignupServiceImplTest {
     private PasswordService passwordService;
 
     @Mock
-    private MemberValidationService memberValidationService;
+    private AuthValidationService authValidationService;
 
     @Mock
     private MemberMapper memberMapper;
@@ -49,8 +49,8 @@ class SignupServiceImplTest {
     @Test
     void shouldSaveMember_WhenSignupIsSuccessful() {
         // Given
-        doNothing().when(memberValidationService).validateEmail(signupRequestDto.getEmail());
-        doNothing().when(memberValidationService).validatePassword(signupRequestDto.getPassword());
+        doNothing().when(authValidationService).validateEmail(signupRequestDto.getEmail());
+        doNothing().when(authValidationService).validatePassword(signupRequestDto.getPassword());
         when(passwordService.encodePassword(signupRequestDto.getPassword())).thenReturn(encodedPassword);
         when(memberMapper.toEntity(any(SignupRequestDto.class))).thenAnswer(invocation -> {
             SignupRequestDto dto = invocation.getArgument(0);
