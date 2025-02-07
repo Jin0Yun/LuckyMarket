@@ -7,6 +7,7 @@ import com.luckymarket.auth.exception.AuthException;
 import com.luckymarket.auth.exception.RedisException;
 import com.luckymarket.auth.security.JwtTokenProvider;
 import com.luckymarket.auth.service.redis.RedisService;
+import com.luckymarket.auth.validator.AuthValidationService;
 import com.luckymarket.user.domain.model.Member;
 import com.luckymarket.user.domain.model.Status;
 import com.luckymarket.user.domain.repository.UserRepository;
@@ -21,25 +22,25 @@ public class LoginService {
     private final PasswordService passwordService;
     private final JwtTokenProvider jwtTokenProvider;
     private final RedisService redisService;
-    private final LoginValidator loginValidator;
+    private final AuthValidationService authValidationService;
 
     public LoginService(
             UserRepository userRepository,
             PasswordService passwordService,
             JwtTokenProvider jwtTokenProvider,
             RedisService redisService,
-            LoginValidator loginValidator
+            AuthValidationService authValidationService
     ) {
         this.userRepository = userRepository;
         this.passwordService = passwordService;
         this.jwtTokenProvider = jwtTokenProvider;
         this.redisService = redisService;
-        this.loginValidator = loginValidator;
+        this.authValidationService = authValidationService;
     }
 
     public LoginResponseDto login(LoginRequestDto loginRequestDto) {
-        loginValidator.validateEmail(loginRequestDto.getEmail());
-        loginValidator.validatePassword(loginRequestDto.getPassword());
+        authValidationService.validateEmail(loginRequestDto.getEmail());
+        authValidationService.validatePassword(loginRequestDto.getPassword());
 
         Member member = userRepository.findByEmail(loginRequestDto.getEmail());
         if (member == null) {
