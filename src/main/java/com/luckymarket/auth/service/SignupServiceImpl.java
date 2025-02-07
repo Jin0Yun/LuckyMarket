@@ -5,7 +5,7 @@ import com.luckymarket.user.domain.exception.UserErrorCode;
 import com.luckymarket.user.domain.exception.UserException;
 import com.luckymarket.user.domain.model.Member;
 
-import com.luckymarket.user.usecase.dto.SignupRequestDto;
+import com.luckymarket.auth.dto.SignupRequestDto;
 import com.luckymarket.user.adapter.mapper.MemberMapper;
 import com.luckymarket.user.domain.repository.UserRepository;
 import com.luckymarket.user.usecase.service.PasswordService;

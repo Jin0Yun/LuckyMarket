@@ -1,6 +1,6 @@
 package com.luckymarket.user.adapter.web.dto;
 
-import com.luckymarket.user.usecase.dto.SignupRequestDto;
+import com.luckymarket.auth.dto.SignupRequestDto;
 import com.luckymarket.user.domain.model.Member;
 import com.luckymarket.user.domain.model.Role;
 import com.luckymarket.user.domain.model.Status;

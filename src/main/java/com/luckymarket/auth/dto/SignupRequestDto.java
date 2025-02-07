@@ -1,4 +1,4 @@
-package com.luckymarket.user.usecase.dto;
+package com.luckymarket.auth.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;

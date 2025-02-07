@@ -5,7 +5,7 @@ import com.luckymarket.common.ApiResponseWrapper;
 import com.luckymarket.auth.dto.TokenResponseDto;
 import com.luckymarket.auth.dto.LoginRequestDto;
 import com.luckymarket.auth.service.AuthService;
-import com.luckymarket.user.usecase.dto.SignupRequestDto;
+import com.luckymarket.auth.dto.SignupRequestDto;
 import com.luckymarket.auth.service.SignupService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

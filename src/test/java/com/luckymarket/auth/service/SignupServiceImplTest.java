@@ -2,7 +2,7 @@ package com.luckymarket.auth.service;
 
 import com.luckymarket.auth.validator.AuthValidationService;
 import com.luckymarket.user.domain.model.Member;
-import com.luckymarket.user.usecase.dto.SignupRequestDto;
+import com.luckymarket.auth.dto.SignupRequestDto;
 import com.luckymarket.user.adapter.mapper.MemberMapper;
 import com.luckymarket.user.domain.repository.UserRepository;
 import com.luckymarket.user.usecase.service.PasswordService;
