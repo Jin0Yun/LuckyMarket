@@ -49,7 +49,8 @@ class SignupServiceImplTest {
     @Test
     void shouldSaveMember_WhenSignupIsSuccessful() {
         // Given
-        doNothing().when(memberValidationService).validateSignupFields(signupRequestDto);
+        doNothing().when(memberValidationService).validateEmail(signupRequestDto.getEmail());
+        doNothing().when(memberValidationService).validatePassword(signupRequestDto.getPassword());
         when(passwordService.encodePassword(signupRequestDto.getPassword())).thenReturn(encodedPassword);
         when(memberMapper.toEntity(any(SignupRequestDto.class))).thenAnswer(invocation -> {
             SignupRequestDto dto = invocation.getArgument(0);
