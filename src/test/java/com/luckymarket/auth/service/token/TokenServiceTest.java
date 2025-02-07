@@ -36,32 +36,30 @@ class TokenServiceTest {
     @Test
     void shouldReturnNewAccessTokenWhenRefreshTokenIsValid() {
         // given
-        String accessToken = "Bearer valid-access-token";
         String refreshToken = "valid-refresh-token";
         Long userId = 1L;
 
         // Mock behavior
-        when(jwtTokenProvider.validateToken(accessToken)).thenReturn(true);
-        when(jwtTokenProvider.getSubject(accessToken)).thenReturn(userId.toString());
-        when(redisService.getRefreshToken(userId)).thenReturn(Optional.of(refreshToken));
         when(jwtTokenProvider.validateToken(refreshToken)).thenReturn(true);
+        when(jwtTokenProvider.getSubject(refreshToken)).thenReturn(userId.toString());
+        when(redisService.getRefreshToken(userId)).thenReturn(Optional.of(refreshToken));
         when(jwtTokenProvider.createAccessToken(userId)).thenReturn("new-access-token");
 
         // when
-        TokenResponseDto result = tokenService.refreshAccessToken(accessToken);
+        TokenResponseDto result = tokenService.refreshAccessToken(refreshToken);
 
         // then
-        assertEquals("Bearer new-access-token", result.getAccessToken());
+        assertEquals("new-access-token", result.getAccessToken());
     }
 
     @DisplayName("리프레시 토큰이 유효하지 않을 경우 예외를 던지는지 테스트")
     @Test
     void shouldThrowExceptionWhenRefreshTokenIsInvalid() {
         // given
-        String accessToken = "Bearer expired-access-token";
-        when(jwtTokenProvider.validateToken(accessToken)).thenThrow(new AuthException(AuthErrorCode.INVALID_TOKEN));
+        String refreshToken = "Bearer expired-access-token";
+        when(jwtTokenProvider.validateToken(refreshToken)).thenThrow(new AuthException(AuthErrorCode.INVALID_TOKEN));
 
         // when & then
-        assertThrows(AuthException.class, () -> tokenService.refreshAccessToken(accessToken));
+        assertThrows(AuthException.class, () -> tokenService.refreshAccessToken(refreshToken));
     }
 }
