@@ -6,7 +6,6 @@ import com.luckymarket.auth.dto.TokenResponseDto;
 import com.luckymarket.auth.service.login.LoginService;
 import com.luckymarket.auth.service.logout.LogoutService;
 import com.luckymarket.auth.service.token.TokenService;
-import com.luckymarket.user.domain.model.Member;
 import com.luckymarket.user.usecase.dto.SignupRequestDto;
 import org.springframework.stereotype.Service;
 
