@@ -6,6 +6,7 @@ import com.luckymarket.auth.exception.AuthErrorCode;
 import com.luckymarket.auth.exception.AuthException;
 import com.luckymarket.auth.security.JwtTokenProvider;
 import com.luckymarket.auth.service.redis.RedisService;
+import com.luckymarket.auth.validator.AuthValidationService;
 import com.luckymarket.user.domain.model.Member;
 import com.luckymarket.user.domain.repository.UserRepository;
 import com.luckymarket.user.usecase.service.PasswordService;
@@ -28,7 +29,7 @@ class LoginServiceTest {
     private PasswordService passwordService;
 
     @Mock
-    private LoginValidator loginValidator;
+    private AuthValidationService authValidationService;
 
     @Mock
     private JwtTokenProvider jwtTokenProvider;
