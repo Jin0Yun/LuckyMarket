@@ -1,9 +1,9 @@
 package com.luckymarket.auth.service;
 
+import com.luckymarket.auth.SignupMapper;
 import com.luckymarket.auth.validator.AuthValidationService;
 import com.luckymarket.user.domain.model.Member;
 import com.luckymarket.auth.dto.SignupRequestDto;
-import com.luckymarket.user.adapter.mapper.MemberMapper;
 import com.luckymarket.user.domain.repository.UserRepository;
 import com.luckymarket.user.usecase.service.PasswordService;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,7 +26,7 @@ class SignupServiceImplTest {
     private AuthValidationService authValidationService;
 
     @Mock
-    private MemberMapper memberMapper;
+    private SignupMapper signupMapper;
 
     @InjectMocks
     private SignupServiceImpl signupService;
@@ -52,7 +52,7 @@ class SignupServiceImplTest {
         doNothing().when(authValidationService).validateEmail(signupRequestDto.getEmail());
         doNothing().when(authValidationService).validatePassword(signupRequestDto.getPassword());
         when(passwordService.encodePassword(signupRequestDto.getPassword())).thenReturn(encodedPassword);
-        when(memberMapper.toEntity(any(SignupRequestDto.class))).thenAnswer(invocation -> {
+        when(signupMapper.toEntity(any(SignupRequestDto.class))).thenAnswer(invocation -> {
             SignupRequestDto dto = invocation.getArgument(0);
             return Member.builder()
                     .email(dto.getEmail())
