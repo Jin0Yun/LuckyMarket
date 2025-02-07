@@ -1,5 +1,7 @@
 package com.luckymarket.auth.service;
 
+import com.luckymarket.user.domain.exception.UserErrorCode;
+import com.luckymarket.user.domain.exception.UserException;
 import com.luckymarket.user.domain.model.Member;
 
 import com.luckymarket.user.usecase.dto.SignupRequestDto;
@@ -8,7 +10,6 @@ import com.luckymarket.user.domain.repository.UserRepository;
 import com.luckymarket.user.usecase.service.MemberValidationService;
 import com.luckymarket.user.usecase.service.PasswordService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,7 +36,13 @@ public class SignupServiceImpl implements SignupService {
     @Override
     @Transactional
     public void signup(SignupRequestDto signupRequestDto) {
-        memberValidationService.validateSignupFields(signupRequestDto);
+        memberValidationService.validateEmail(signupRequestDto.getEmail());
+        if (userRepository.existsByEmail(signupRequestDto.getEmail())) {
+            throw new UserException(UserErrorCode.EMAIL_ALREADY_USED);
+        }
+
+        memberValidationService.validatePassword(signupRequestDto.getPassword());
+
         signupRequestDto.setPassword(passwordService.encodePassword(signupRequestDto.getPassword()));
         Member member = memberMapper.toEntity(signupRequestDto);
         userRepository.save(member);
