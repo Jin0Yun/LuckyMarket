@@ -1,4 +1,4 @@
-package com.luckymarket.user.usecase.validator;
+package com.luckymarket.common.validator;
 
 import com.luckymarket.user.domain.exception.UserErrorCode;
 import com.luckymarket.user.domain.exception.UserException;

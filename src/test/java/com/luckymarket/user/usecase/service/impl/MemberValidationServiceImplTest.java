@@ -1,5 +1,7 @@
 package com.luckymarket.user.usecase.service.impl;
 
+import com.luckymarket.common.validator.EmailValidationRule;
+import com.luckymarket.common.validator.PasswordValidationRule;
 import com.luckymarket.user.usecase.validator.*;
 import com.luckymarket.user.domain.exception.UserErrorCode;
 import com.luckymarket.user.domain.exception.UserException;
