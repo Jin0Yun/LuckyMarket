@@ -25,6 +25,7 @@ public class LogoutService {
         }
 
         redisService.addToBlacklist(token, jwtTokenProvider.getRemainingExpirationTime(token));
+        redisService.markUserAsLoggedOut(userId);
         redisService.removeRefreshToken(userId);
     }
 }
