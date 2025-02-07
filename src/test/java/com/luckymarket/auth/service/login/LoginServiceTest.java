@@ -8,13 +8,13 @@ import com.luckymarket.auth.security.JwtTokenProvider;
 import com.luckymarket.auth.service.redis.RedisService;
 import com.luckymarket.user.domain.model.Member;
 import com.luckymarket.user.domain.repository.UserRepository;
+import com.luckymarket.user.usecase.service.PasswordService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.Mockito.*;
@@ -25,7 +25,7 @@ class LoginServiceTest {
     private UserRepository userRepository;
 
     @Mock
-    private PasswordEncoder passwordEncoder;
+    private PasswordService passwordService;
 
     @Mock
     private LoginValidator loginValidator;
@@ -110,7 +110,7 @@ class LoginServiceTest {
         LoginRequestDto loginRequestDto = new LoginRequestDto(email, password);
 
         when(userRepository.findByEmail(email)).thenReturn(mockMember);
-        when(passwordEncoder.matches(password, mockMember.getPassword())).thenReturn(false);
+        doThrow(new AuthException(AuthErrorCode.PASSWORD_MISMATCH)).when(passwordService).matches(password, mockMember.getPassword());
 
         // when & then
         AuthException exception = assertThrows(AuthException.class, () -> loginService.login(loginRequestDto));
@@ -126,9 +126,10 @@ class LoginServiceTest {
         LoginRequestDto loginRequestDto = new LoginRequestDto(email, password);
 
         when(userRepository.findByEmail(email)).thenReturn(mockMember);
-        when(passwordEncoder.matches(password, mockMember.getPassword())).thenReturn(true);
+        doNothing().when(passwordService).matches(password, mockMember.getPassword());
         when(jwtTokenProvider.createAccessToken(mockMember.getId())).thenReturn("mockAccessToken");
         when(jwtTokenProvider.createRefreshToken(mockMember.getId())).thenReturn("mockRefreshToken");
+
 
         // when
         LoginResponseDto result = loginService.login(loginRequestDto);
