@@ -10,14 +10,17 @@ import org.springframework.stereotype.Service;
 public class AuthValidationServiceImpl implements AuthValidationService {
     private final ValidationRule<String> emailValidationRule;
     private final ValidationRule<String> passwordValidationRule;
+    private final ValidationRule<String> loginPasswordValidationRule;
 
     @Autowired
     public AuthValidationServiceImpl(
             EmailValidationRule emailValidator,
-            PasswordValidationRule passwordValidator
+            PasswordValidationRule passwordValidator,
+            LoginPasswordValidationRule loginPasswordValidationRule
     ) {
         this.emailValidationRule = emailValidator;
         this.passwordValidationRule = passwordValidator;
+        this.loginPasswordValidationRule = loginPasswordValidationRule;
     }
 
     @Override
@@ -28,5 +31,10 @@ public class AuthValidationServiceImpl implements AuthValidationService {
     @Override
     public void validatePassword(String password) {
         passwordValidationRule.validate(password);
+    }
+
+    @Override
+    public void validateSimplePassword(String password) {
+        loginPasswordValidationRule.validate(password);
     }
 }
