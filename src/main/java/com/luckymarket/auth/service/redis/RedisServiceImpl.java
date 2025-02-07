@@ -82,4 +82,31 @@ public class RedisServiceImpl implements RedisService {
             throw new RedisException(RedisErrorCode.BLACKLIST_TOKEN_DELETE_FAILED);
         }
     }
+
+    public void markUserAsLoggedIn(Long userId) {
+        try {
+            if (redisTemplate.hasKey("user-logged-in:" + userId)) {
+                throw new RedisException(RedisErrorCode.ALREADY_LOGGED_IN_OTHER_DEVICE);
+            }
+
+            Boolean success = redisTemplate.opsForValue().setIfAbsent("user-logged-in:" + userId, "true");
+            if (!Boolean.TRUE.equals(success)) {
+                throw new RedisException(RedisErrorCode.KEY_SAVE_FAILED);
+            }
+        } catch (Exception e) {
+            throw new RedisException(RedisErrorCode.KEY_SAVE_FAILED);
+        }
+    }
+
+
+    public void markUserAsLoggedOut(Long userId) {
+        try {
+            boolean deleted = redisTemplate.delete("user-logged-in:" + userId);
+            if (!deleted) {
+                throw new RedisException(RedisErrorCode.KEY_DELETE_FAILED);
+            }
+        } catch (Exception e) {
+            throw new RedisException(RedisErrorCode.KEY_DELETE_FAILED);
+        }
+    }
 }
