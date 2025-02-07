@@ -1,8 +1,6 @@
-package com.luckymarket.user.usecase.service.impl;
+package com.luckymarket.auth.service;
 
 import com.luckymarket.user.domain.model.Member;
-import com.luckymarket.user.domain.model.Role;
-import com.luckymarket.user.domain.model.Status;
 import com.luckymarket.user.usecase.dto.SignupRequestDto;
 import com.luckymarket.user.adapter.mapper.MemberMapper;
 import com.luckymarket.user.domain.repository.UserRepository;
@@ -15,7 +13,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.Mockito.*;
 
 class SignupServiceImplTest {
@@ -35,7 +32,6 @@ class SignupServiceImplTest {
     private SignupServiceImpl signupService;
 
     private SignupRequestDto signupRequestDto;
-    private Member member;
     private final String encodedPassword = "encodedPassword123!";
 
     @BeforeEach
@@ -47,14 +43,6 @@ class SignupServiceImplTest {
                 .password("ValidPassword123!")
                 .username("testUser")
                 .build();
-
-        member = Member.builder()
-                .email(signupRequestDto.getEmail())
-                .password(encodedPassword)
-                .username(signupRequestDto.getUsername())
-                .role(Role.USER)
-                .status(Status.ACTIVE)
-                .build();
     }
 
     @DisplayName("정상적인 회원가입 요청 시, 회원 정보가 정상적으로 저장된다.")
@@ -63,16 +51,23 @@ class SignupServiceImplTest {
         // Given
         doNothing().when(memberValidationService).validateSignupFields(signupRequestDto);
         when(passwordService.encodePassword(signupRequestDto.getPassword())).thenReturn(encodedPassword);
-        when(memberMapper.toEntity(any(SignupRequestDto.class))).thenReturn(member);
-        when(userRepository.save(any(Member.class))).thenReturn(member);
+        when(memberMapper.toEntity(any(SignupRequestDto.class))).thenAnswer(invocation -> {
+            SignupRequestDto dto = invocation.getArgument(0);
+            return Member.builder()
+                    .email(dto.getEmail())
+                    .password(encodedPassword)
+                    .username(dto.getUsername())
+                    .build();
+        });
 
         // When
-        Member savedMember = signupService.signup(signupRequestDto);
+        signupService.signup(signupRequestDto);
 
         // Then
-        assertThat(savedMember).isNotNull();
-        assertThat(savedMember.getEmail()).isEqualTo(signupRequestDto.getEmail());
-        assertThat(savedMember.getUsername()).isEqualTo(signupRequestDto.getUsername());
-        assertThat(savedMember.getPassword()).isEqualTo(encodedPassword);
+        verify(userRepository).save(argThat(savedMember ->
+                savedMember.getEmail().equals(signupRequestDto.getEmail()) &&
+                savedMember.getUsername().equals(signupRequestDto.getUsername()) &&
+                savedMember.getPassword().equals(encodedPassword)
+        ));
     }
 }
