@@ -1,12 +1,12 @@
 package com.luckymarket.user.usecase.service.impl;
 
 import com.luckymarket.auth.service.redis.RedisService;
+import com.luckymarket.user.adapter.mapper.UserMapper;
 import com.luckymarket.user.usecase.dto.*;
 import com.luckymarket.user.domain.model.Member;
 import com.luckymarket.user.domain.model.Status;
 import com.luckymarket.user.domain.exception.UserErrorCode;
 import com.luckymarket.user.domain.exception.UserException;
-import com.luckymarket.user.adapter.mapper.MemberMapper;
 import com.luckymarket.user.domain.repository.UserRepository;
 import com.luckymarket.user.usecase.service.MemberValidationService;
 import com.luckymarket.user.usecase.service.PasswordService;
@@ -37,7 +37,7 @@ class UserServiceImplTest {
     private RedisService redisService;
 
     @Mock
-    private MemberMapper memberMapper;
+    private UserMapper userMapper;
 
     @InjectMocks
     private UserServiceImpl userService;
@@ -57,7 +57,7 @@ class UserServiceImplTest {
         member.setAddress("서울시 강남구");
         member.setStatus(Status.ACTIVE);
 
-        when(memberMapper.toMemberResponseDto(member)).thenReturn(
+        when(userMapper.toMemberResponseDto(member)).thenReturn(
                 new MemberResponseDto(
                         member.getId(),
                         member.getEmail(),
@@ -104,7 +104,7 @@ class UserServiceImplTest {
         // when
         when(userRepository.findById(1L)).thenReturn(Optional.of(member));
         when(userRepository.save(member)).thenReturn(member);
-        when(memberMapper.toMemberResponseDto(member)).thenReturn(
+        when(userMapper.toMemberResponseDto(member)).thenReturn(
                 new MemberResponseDto(
                         member.getId(),
                         member.getEmail(),
@@ -150,7 +150,7 @@ class UserServiceImplTest {
         when(userRepository.findById(1L)).thenReturn(Optional.of(member));
         doNothing().when(memberValidationService).validatePhoneNumber(dto.getPhoneNumber());
         when(userRepository.save(member)).thenReturn(member);
-        when(memberMapper.toMemberResponseDto(member)).thenReturn(
+        when(userMapper.toMemberResponseDto(member)).thenReturn(
                 new MemberResponseDto(
                         member.getId(),
                         member.getEmail(),
@@ -177,7 +177,7 @@ class UserServiceImplTest {
         when(userRepository.findById(1L)).thenReturn(Optional.of(member));
         doNothing().when(memberValidationService).validateAddress(dto.getAddress());
         when(userRepository.save(member)).thenReturn(member);
-        when(memberMapper.toMemberResponseDto(member)).thenReturn(
+        when(userMapper.toMemberResponseDto(member)).thenReturn(
                 new MemberResponseDto(
                         member.getId(),
                         member.getEmail(),

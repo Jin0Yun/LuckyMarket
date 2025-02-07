@@ -1,12 +1,12 @@
 package com.luckymarket.user.usecase.service.impl;
 
 import com.luckymarket.auth.service.redis.RedisService;
+import com.luckymarket.user.adapter.mapper.UserMapper;
 import com.luckymarket.user.usecase.dto.*;
 import com.luckymarket.user.domain.model.Member;
 import com.luckymarket.user.domain.model.Status;
 import com.luckymarket.user.domain.exception.UserErrorCode;
 import com.luckymarket.user.domain.exception.UserException;
-import com.luckymarket.user.adapter.mapper.MemberMapper;
 import com.luckymarket.user.domain.repository.UserRepository;
 import com.luckymarket.user.usecase.service.MemberValidationService;
 import com.luckymarket.user.usecase.service.PasswordService;
@@ -21,7 +21,7 @@ public class UserServiceImpl implements UserService {
     private final RedisService redisService;
     private final PasswordService passwordService;
     private final MemberValidationService memberValidationService;
-    private final MemberMapper memberMapper;
+    private final UserMapper userMapper;
 
     @Autowired
     public UserServiceImpl(
@@ -29,13 +29,13 @@ public class UserServiceImpl implements UserService {
             RedisService redisService,
             PasswordService passwordService,
             MemberValidationService memberValidationService,
-            MemberMapper memberMapper
+            UserMapper userMapper
     ) {
         this.userRepository = userRepository;
         this.redisService = redisService;
         this.passwordService = passwordService;
         this.memberValidationService = memberValidationService;
-        this.memberMapper = memberMapper;
+        this.userMapper = userMapper;
     }
 
     @Override
@@ -50,7 +50,7 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = true)
     public MemberResponseDto getUser(Long userId) {
         Member member = getUserById(userId);
-        return memberMapper.toMemberResponseDto(member);
+        return userMapper.toMemberResponseDto(member);
     }
 
     @Override
@@ -58,7 +58,7 @@ public class UserServiceImpl implements UserService {
     public MemberResponseDto updateName(Long userId, NameUpdateDto dto) {
         Member member = getUserById(userId);
         member.setUsername(dto.getNewName());
-        return memberMapper.toMemberResponseDto(member);
+        return userMapper.toMemberResponseDto(member);
     }
 
     @Override
@@ -67,7 +67,7 @@ public class UserServiceImpl implements UserService {
         Member member = getUserById(userId);
         memberValidationService.validatePhoneNumber(dto.getPhoneNumber());
         member.setPhoneNumber(dto.getPhoneNumber());
-        return memberMapper.toMemberResponseDto(member);
+        return userMapper.toMemberResponseDto(member);
     }
 
     @Override
@@ -76,7 +76,7 @@ public class UserServiceImpl implements UserService {
         Member member = getUserById(userId);
         memberValidationService.validateAddress(dto.getAddress());
         member.setAddress(dto.getAddress());
-        return memberMapper.toMemberResponseDto(member);
+        return userMapper.toMemberResponseDto(member);
     }
 
     @Override
@@ -87,7 +87,7 @@ public class UserServiceImpl implements UserService {
         memberValidationService.validatePhoneNumber(dto.getPhoneNumber());
         member.setPhoneNumber(dto.getPhoneNumber());
         member.setAddress(dto.getAddress());
-        return memberMapper.toMemberResponseDto(member);
+        return userMapper.toMemberResponseDto(member);
     }
 
     @Override
