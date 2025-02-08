@@ -1,9 +1,8 @@
 package com.luckymarket.auth.service.impl;
 
-import com.luckymarket.auth.exception.AuthErrorCode;
-import com.luckymarket.auth.exception.AuthException;
 import com.luckymarket.auth.exception.RedisErrorCode;
 import com.luckymarket.auth.exception.RedisException;
+import com.luckymarket.auth.RedisKeyUtils;
 import com.luckymarket.auth.service.RedisService;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -21,94 +20,73 @@ public class RedisServiceImpl implements RedisService {
 
     @Override
     public void saveRefreshToken(Long userId, String refreshToken, long expirationTime) {
-        try {
-            Boolean success = redisTemplate.opsForValue().setIfAbsent("refreshToken-user: " + userId, refreshToken, expirationTime, TimeUnit.MILLISECONDS);
-            if (!Boolean.TRUE.equals(success)) {
-                throw new RedisException(RedisErrorCode.REFRESH_TOKEN_SAVE_FAILED);
-            }
-        } catch (Exception e) {
+        String key = RedisKeyUtils.getRefreshTokenKey(userId);
+        Boolean success = redisTemplate.opsForValue().setIfAbsent(key, refreshToken, expirationTime, TimeUnit.MILLISECONDS);
+        if (!Boolean.TRUE.equals(success)) {
             throw new RedisException(RedisErrorCode.REFRESH_TOKEN_SAVE_FAILED);
         }
     }
 
     @Override
     public Optional<String> getRefreshToken(Long userId) {
-        try {
-            String token = redisTemplate.opsForValue().get("refreshToken-user: " + userId);
-            return Optional.ofNullable(token);
-        } catch (Exception e) {
-            throw new RedisException(RedisErrorCode.REFRESH_TOKEN_NOT_FOUND);
-        }
+        String key = RedisKeyUtils.getRefreshTokenKey(userId);
+        String token = redisTemplate.opsForValue().get(key);
+        return Optional.ofNullable(token);
     }
 
     @Override
     public void removeRefreshToken(Long userId) {
-        try {
-            boolean deleted = redisTemplate.delete("refreshToken-user: " + userId);
-            if (!deleted) {
-                throw new RedisException(RedisErrorCode.REFRESH_TOKEN_DELETE_FAILED);
-            }
-        } catch (Exception e) {
+        String key = RedisKeyUtils.getRefreshTokenKey(userId);
+        boolean deleted = redisTemplate.delete(key);
+        if (!deleted) {
             throw new RedisException(RedisErrorCode.REFRESH_TOKEN_DELETE_FAILED);
         }
     }
 
     @Override
     public void addToBlacklist(String accessToken, long expirationTime) {
-        try {
-            Boolean success = redisTemplate.opsForValue().setIfAbsent(accessToken, "BLACKLISTED", expirationTime, TimeUnit.MILLISECONDS);
-            if (!Boolean.TRUE.equals(success)) {
-                throw new RedisException(RedisErrorCode.BLACKLIST_TOKEN_SAVE_FAILED);
-            }
-        } catch (Exception e) {
+        String key = RedisKeyUtils.getBlacklistKey(accessToken);
+        Boolean success = redisTemplate.opsForValue().setIfAbsent(key, "BLACKLISTED", expirationTime, TimeUnit.MILLISECONDS);
+        if (!Boolean.TRUE.equals(success)) {
             throw new RedisException(RedisErrorCode.BLACKLIST_TOKEN_SAVE_FAILED);
         }
     }
 
     @Override
     public boolean isBlacklisted(String accessToken) {
-        try {
-            return redisTemplate.hasKey(accessToken);
-        } catch (Exception e) {
-            throw new RedisException(RedisErrorCode.KEY_EXIST_CHECK_FAILED);
-        }
+        String key = RedisKeyUtils.getBlacklistKey(accessToken);
+        return redisTemplate.hasKey(key);
     }
 
     @Override
     public void removeFromBlacklist(String accessToken) {
-        try {
-            boolean deleted = redisTemplate.delete(accessToken);
-            if (!deleted) {
-                throw new RedisException(RedisErrorCode.BLACKLIST_TOKEN_DELETE_FAILED);
-            }
-        } catch (Exception e) {
+        String key = RedisKeyUtils.getBlacklistKey(accessToken);
+        boolean deleted = redisTemplate.delete(key);
+        if (!deleted) {
             throw new RedisException(RedisErrorCode.BLACKLIST_TOKEN_DELETE_FAILED);
         }
     }
 
-    public void markUserAsLoggedIn(Long userId) {
-        try {
-            if (redisTemplate.hasKey("user-logged-in:" + userId)) {
-                throw new AuthException(AuthErrorCode.ALREADY_LOGGED_IN_OTHER_DEVICE);
-            }
+    @Override
+    public boolean isUserLoggedIn(Long userId) {
+        String key = RedisKeyUtils.getUserLoggedInKey(userId);
+        return redisTemplate.hasKey(key);
+    }
 
-            Boolean success = redisTemplate.opsForValue().setIfAbsent("user-logged-in:" + userId, "true");
-            if (!Boolean.TRUE.equals(success)) {
-                throw new RedisException(RedisErrorCode.KEY_SAVE_FAILED);
-            }
-        } catch (Exception e) {
+    @Override
+    public void markUserAsLoggedIn(Long userId) {
+        String key = RedisKeyUtils.getUserLoggedInKey(userId);
+        Boolean success = redisTemplate.opsForValue().setIfAbsent(key, "true");
+        if (!Boolean.TRUE.equals(success)) {
             throw new RedisException(RedisErrorCode.KEY_SAVE_FAILED);
         }
     }
 
-
+    @Override
     public void markUserAsLoggedOut(Long userId) {
-        try {
-            boolean deleted = redisTemplate.delete("user-logged-in:" + userId);
-            if (!deleted) {
-                throw new RedisException(RedisErrorCode.KEY_DELETE_FAILED);
-            }
-        } catch (Exception e) {
+        String key = RedisKeyUtils.getUserLoggedInKey(userId);
+        boolean deleted = redisTemplate.delete(key);
+        if (!deleted) {
             throw new RedisException(RedisErrorCode.KEY_DELETE_FAILED);
         }
     }

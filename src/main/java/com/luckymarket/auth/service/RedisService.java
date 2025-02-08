@@ -9,6 +9,7 @@ public interface RedisService {
     void addToBlacklist(String token, long expiration);
     boolean isBlacklisted(String token);
     void removeFromBlacklist(String accessToken);
+    boolean isUserLoggedIn(Long userId);
     void markUserAsLoggedIn(Long userId);
     void markUserAsLoggedOut(Long userId);
 }
