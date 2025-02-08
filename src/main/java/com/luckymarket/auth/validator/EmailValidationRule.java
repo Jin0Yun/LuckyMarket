@@ -1,7 +1,8 @@
-package com.luckymarket.common.validator;
+package com.luckymarket.auth.validator;
 
-import com.luckymarket.user.domain.exception.UserErrorCode;
-import com.luckymarket.user.domain.exception.UserException;
+import com.luckymarket.auth.exception.AuthErrorCode;
+import com.luckymarket.auth.exception.AuthException;
+import com.luckymarket.common.validator.ValidationRule;
 import org.springframework.stereotype.Component;
 
 import java.util.regex.Pattern;
@@ -11,10 +12,10 @@ public class EmailValidationRule implements ValidationRule<String> {
     @Override
     public void validate(String email) {
         if (email == null || email.trim().isEmpty()) {
-            throw new UserException(UserErrorCode.EMAIL_BLANK);
+            throw new AuthException(AuthErrorCode.EMAIL_BLANK);
         }
         if (!Pattern.matches("^[A-Za-z0-9+_.-]+@(.+)$", email)) {
-            throw new UserException(UserErrorCode.INVALID_EMAIL_FORMAT);
+            throw new AuthException(AuthErrorCode.INVALID_EMAIL_FORMAT);
         }
     }
 }

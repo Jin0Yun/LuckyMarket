@@ -2,7 +2,7 @@ package com.luckymarket.auth.service.impl;
 
 import com.luckymarket.auth.service.AuthValidationService;
 import com.luckymarket.auth.validator.LoginPasswordValidationRule;
-import com.luckymarket.common.validator.EmailValidationRule;
+import com.luckymarket.auth.validator.EmailValidationRule;
 import com.luckymarket.common.validator.PasswordValidationRule;
 import com.luckymarket.common.validator.ValidationRule;
 import org.springframework.beans.factory.annotation.Autowired;

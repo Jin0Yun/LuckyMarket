@@ -49,7 +49,7 @@ public class AuthServiceImpl implements AuthService {
     public void signup(SignupRequestDto signupRequestDto) {
         authValidationService.validateEmail(signupRequestDto.getEmail());
         if (userRepository.existsByEmail(signupRequestDto.getEmail())) {
-            throw new UserException(UserErrorCode.EMAIL_ALREADY_USED);
+            throw new AuthException(AuthErrorCode.EMAIL_ALREADY_USED);
         }
 
         authValidationService.validatePassword(signupRequestDto.getPassword());
