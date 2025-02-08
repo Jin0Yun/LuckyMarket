@@ -1,6 +1,5 @@
 package com.luckymarket.user.usecase.service.impl;
 
-import com.luckymarket.common.validator.EmailValidationRule;
 import com.luckymarket.common.validator.PasswordValidationRule;
 import com.luckymarket.common.validator.ValidationRule;
 import com.luckymarket.user.usecase.service.MemberValidationService;
@@ -12,7 +11,6 @@ import org.springframework.stereotype.Service;
 public class MemberValidationServiceImpl implements MemberValidationService {
     private final ValidationRule<Long> userValidationRule;
     private final ValidationRule<String> phoneNumberValidationRule;
-    private final ValidationRule<String> emailValidationRule;
     private final ValidationRule<String> passwordValidationRule;
     private final ValidationRule<String> addressValidationRule;
 
@@ -20,13 +18,11 @@ public class MemberValidationServiceImpl implements MemberValidationService {
     public MemberValidationServiceImpl(
             UserValidationRule userValidator,
             PhoneNumberValidationRule phoneNumberValidator,
-            EmailValidationRule emailValidator,
             PasswordValidationRule passwordValidator,
             AddressValidationRule addressValidator
     ) {
         this.userValidationRule = userValidator;
         this.phoneNumberValidationRule = phoneNumberValidator;
-        this.emailValidationRule = emailValidator;
         this.passwordValidationRule = passwordValidator;
         this.addressValidationRule = addressValidator;
     }
@@ -34,11 +30,6 @@ public class MemberValidationServiceImpl implements MemberValidationService {
     @Override
     public void validateUser(Long userId) {
         userValidationRule.validate(userId);
-    }
-
-    @Override
-    public void validateEmail(String email) {
-        emailValidationRule.validate(email);
     }
 
     @Override
