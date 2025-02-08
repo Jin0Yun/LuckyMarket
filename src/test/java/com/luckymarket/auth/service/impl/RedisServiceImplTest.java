@@ -202,6 +202,6 @@ class RedisServiceImplTest {
 
         // when & then
         RedisException exception = assertThrows(RedisException.class, () -> redisService.removeFromBlacklist(accessToken));
-        assertThat(exception.getMessage()).isEqualTo(RedisErrorCode.BLACKLIST_TOKEN_DELETE_FAILED.getMessage());  // 예외 메시지가 맞는지 확인
+        assertThat(exception.getMessage()).isEqualTo(RedisErrorCode.BLACKLIST_TOKEN_DELETE_FAILED.getMessage());
     }
 }

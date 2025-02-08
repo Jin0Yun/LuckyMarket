@@ -9,6 +9,8 @@ import com.luckymarket.auth.exception.AuthException;
 import com.luckymarket.auth.security.JwtTokenProvider;
 import com.luckymarket.auth.service.AuthValidationService;
 import com.luckymarket.auth.service.RedisService;
+import com.luckymarket.user.domain.exception.UserErrorCode;
+import com.luckymarket.user.domain.exception.UserException;
 import com.luckymarket.user.domain.model.Member;
 import com.luckymarket.user.domain.repository.UserRepository;
 import com.luckymarket.user.usecase.service.PasswordService;
@@ -92,7 +94,7 @@ class AuthServiceImplTest {
         // given
         LoginRequestDto loginRequestDto = new LoginRequestDto("test@example.com", "ValidPassword123!");
 
-        when(userRepository.findByEmail(loginRequestDto.getEmail())).thenReturn(member);
+        when(userRepository.findByEmail(loginRequestDto.getEmail())).thenReturn(Optional.of(member));
         when(jwtTokenProvider.createAccessToken(member.getId())).thenReturn("accessToken");
         when(jwtTokenProvider.createRefreshToken(member.getId())).thenReturn("refreshToken");
 
@@ -110,11 +112,11 @@ class AuthServiceImplTest {
         // given
         LoginRequestDto loginRequestDto = new LoginRequestDto("test@example.com", "ValidPassword123!");
 
-        when(userRepository.findByEmail(loginRequestDto.getEmail())).thenReturn(null);
+        when(userRepository.findByEmail(loginRequestDto.getEmail())).thenReturn(Optional.empty());
 
         // when & then
-        AuthException exception = assertThrows(AuthException.class, () -> authService.login(loginRequestDto));
-        assertThat(exception.getMessage()).isEqualTo(AuthErrorCode.EMAIL_NOT_FOUND.getMessage());
+        UserException exception = assertThrows(UserException.class, () -> authService.login(loginRequestDto));
+        assertEquals(UserErrorCode.USER_NOT_FOUND.getMessage(), exception.getMessage());
     }
 
     @DisplayName("로그인 시 비밀번호가 일치하지 않으면 예외를 던진다.")
@@ -123,7 +125,7 @@ class AuthServiceImplTest {
         // given
         LoginRequestDto loginRequestDto = new LoginRequestDto("test@example.com", "InvalidPassword123!");
 
-        when(userRepository.findByEmail(loginRequestDto.getEmail())).thenReturn(member);
+        when(userRepository.findByEmail(loginRequestDto.getEmail())).thenReturn(Optional.of(member));
         doThrow(new AuthException(AuthErrorCode.PASSWORD_MISMATCH)).when(passwordService).matches(loginRequestDto.getPassword(), member.getPassword());
 
         // when & then
@@ -136,7 +138,7 @@ class AuthServiceImplTest {
     void login_ShouldThrowException_WhenUserAlreadyLoggedInOtherDevice() {
         // given
         LoginRequestDto loginRequestDto = new LoginRequestDto("test@example.com", "ValidPassword123!");
-        when(userRepository.findByEmail(loginRequestDto.getEmail())).thenReturn(member);
+        when(userRepository.findByEmail(loginRequestDto.getEmail())).thenReturn(Optional.of(member));
         doThrow(new AuthException(AuthErrorCode.ALREADY_LOGGED_IN_OTHER_DEVICE)).when(redisService).markUserAsLoggedIn(member.getId());
 
         // when & then

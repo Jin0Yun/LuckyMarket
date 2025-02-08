@@ -5,14 +5,14 @@ import com.luckymarket.auth.dto.LoginResponseDto;
 import com.luckymarket.auth.dto.TokenResponseDto;
 import com.luckymarket.auth.exception.AuthErrorCode;
 import com.luckymarket.auth.exception.AuthException;
-import com.luckymarket.auth.exception.RedisException;
 import com.luckymarket.auth.security.JwtTokenProvider;
 import com.luckymarket.auth.service.AuthService;
 import com.luckymarket.auth.service.RedisService;
 import com.luckymarket.auth.dto.SignupRequestDto;
 import com.luckymarket.auth.service.AuthValidationService;
+import com.luckymarket.user.domain.exception.UserErrorCode;
+import com.luckymarket.user.domain.exception.UserException;
 import com.luckymarket.user.domain.model.Member;
-import com.luckymarket.user.domain.model.Status;
 import com.luckymarket.user.domain.repository.UserRepository;
 import com.luckymarket.user.usecase.service.PasswordService;
 import org.springframework.stereotype.Service;
@@ -51,11 +51,9 @@ public class AuthServiceImpl implements AuthService {
         }
 
         authValidationService.validatePassword(signupRequestDto.getPassword());
-
         String encodedPassword = passwordService.encodePassword(signupRequestDto.getPassword());
-        Member member = new Member();
-        member.setEmail(signupRequestDto.getEmail());
-        member.setPassword(encodedPassword);
+
+        Member member = createMember(signupRequestDto, encodedPassword);
         userRepository.save(member);
     }
 
@@ -65,34 +63,22 @@ public class AuthServiceImpl implements AuthService {
         authValidationService.validateEmail(loginRequestDto.getEmail());
         authValidationService.validateLoginPassword(loginRequestDto.getPassword());
 
-        Member member = userRepository.findByEmail(loginRequestDto.getEmail());
-        if (member == null) {
-            throw new AuthException(AuthErrorCode.EMAIL_NOT_FOUND);
-        }
+        Member member = userRepository.findByEmail(loginRequestDto.getEmail())
+                .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
 
-        if (member.getStatus() == Status.DELETED) {
-            throw new AuthException(AuthErrorCode.USER_ALREADY_DELETED);
-        }
-
+        authValidationService.validateMember(member);
         passwordService.matches(loginRequestDto.getPassword(), member.getPassword());
-        try {
-            redisService.markUserAsLoggedIn(member.getId());
-        } catch (RedisException e) {
-            throw new AuthException(AuthErrorCode.ALREADY_LOGGED_IN_OTHER_DEVICE);
-        }
 
         String accessToken = jwtTokenProvider.createAccessToken(member.getId());
         String refreshToken = jwtTokenProvider.createRefreshToken(member.getId());
 
-        redisService.saveRefreshToken(member.getId(), refreshToken, jwtTokenProvider.getRemainingExpirationTime(refreshToken));
-        member.setLastLogin(LocalDateTime.now());
-        userRepository.save(member);
+        saveLoginInfo(member, refreshToken);
         return new LoginResponseDto(accessToken, refreshToken);
     }
 
     @Override
     public void logout(String accessToken) {
-        String token = accessToken.replace("Bearer ", "").trim();
+        String token = extractToken(accessToken);
         Long userId = Long.parseLong(jwtTokenProvider.getSubject(token));
 
         if (redisService.isBlacklisted(token)) {
@@ -106,16 +92,41 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public TokenResponseDto refreshAccessToken(String refreshToken) {
-        jwtTokenProvider.validateToken(refreshToken);
-
+        String token = extractToken(refreshToken);
         Long userId = Long.parseLong(jwtTokenProvider.getSubject(refreshToken));
         String redisRefreshToken = redisService.getRefreshToken(userId)
                 .orElseThrow(() -> new AuthException(AuthErrorCode.INVALID_TOKEN));
 
-        if (!redisRefreshToken.equals(refreshToken)) {
+        if (!redisRefreshToken.equals(token)) {
             throw new AuthException(AuthErrorCode.INVALID_TOKEN);
         }
+
         String newAccessToken = jwtTokenProvider.createAccessToken(userId);
         return new TokenResponseDto(newAccessToken);
+    }
+
+    private Member createMember(SignupRequestDto signupRequestDto, String encodedPassword) {
+        Member member = new Member();
+        member.setEmail(signupRequestDto.getEmail());
+        member.setPassword(encodedPassword);
+        member.setUsername(signupRequestDto.getUsername());
+        return member;
+    }
+
+    private void saveLoginInfo(Member member, String refreshToken) {
+        redisService.markUserAsLoggedIn(member.getId());
+        redisService.saveRefreshToken(
+                member.getId(),
+                refreshToken,
+                jwtTokenProvider.getRemainingExpirationTime(refreshToken)
+        );
+        member.setLastLogin(LocalDateTime.now());
+        userRepository.save(member);
+    }
+
+    private String extractToken(String refreshToken) {
+        String token = refreshToken.replace("Bearer ", "").trim();
+        authValidationService.validateToken(token);
+        return token;
     }
 }

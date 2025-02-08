@@ -29,7 +29,6 @@ public class AuthController {
         return ApiResponseWrapper.success("회원가입 성공", null);
     }
 
-
     @PostMapping("/login")
     @Operation(
             summary = "로그인",
@@ -53,10 +52,9 @@ public class AuthController {
     @PostMapping("/refresh")
     @Operation(
             summary = "액세스 토큰 재발급",
-            description = "리프레시 토큰을 사용하여 새로운 액세스 토큰을 발급받습니다. 클라이언트가 전달한 액세스 토큰을 검증하고 유효한 경우 새로운 액세스 토큰을 반환합니다."
+            description = "리프레시 토큰을 사용하여 새로운 액세스 토큰을 발급받습니다. 리프레시 토큰이 유효한 경우 새로운 액세스 토큰과 리프레시 토큰을 반환합니다."
     )
-    public ApiResponseWrapper<Object> reissueAccessToken(@RequestHeader("Authorization") String accessToken) {
-        String refreshToken = accessToken.replace("Bearer ", "");
+    public ApiResponseWrapper<Object> reissueAccessToken(@RequestHeader("Authorization") String refreshToken) {
         TokenResponseDto jwtTokenDto = authService.refreshAccessToken(refreshToken);
         return ApiResponseWrapper.success("엑세스 토큰 갱신 성공", jwtTokenDto);
     }
