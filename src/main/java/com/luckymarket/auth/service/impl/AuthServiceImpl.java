@@ -11,8 +11,6 @@ import com.luckymarket.auth.service.AuthService;
 import com.luckymarket.auth.service.RedisService;
 import com.luckymarket.auth.dto.SignupRequestDto;
 import com.luckymarket.auth.service.AuthValidationService;
-import com.luckymarket.user.domain.exception.UserErrorCode;
-import com.luckymarket.user.domain.exception.UserException;
 import com.luckymarket.user.domain.model.Member;
 import com.luckymarket.user.domain.model.Status;
 import com.luckymarket.user.domain.repository.UserRepository;
