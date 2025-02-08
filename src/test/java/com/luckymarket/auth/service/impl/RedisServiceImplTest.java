@@ -1,4 +1,4 @@
-package com.luckymarket.auth.service.redis;
+package com.luckymarket.auth.service.impl;
 
 import com.luckymarket.auth.exception.RedisErrorCode;
 import com.luckymarket.auth.exception.RedisException;

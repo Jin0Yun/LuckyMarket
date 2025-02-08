@@ -1,5 +1,7 @@
-package com.luckymarket.auth.validator;
+package com.luckymarket.auth.service.impl;
 
+import com.luckymarket.auth.service.AuthValidationService;
+import com.luckymarket.auth.validator.LoginPasswordValidationRule;
 import com.luckymarket.common.validator.EmailValidationRule;
 import com.luckymarket.common.validator.PasswordValidationRule;
 import com.luckymarket.common.validator.ValidationRule;
@@ -34,7 +36,7 @@ public class AuthValidationServiceImpl implements AuthValidationService {
     }
 
     @Override
-    public void validateSimplePassword(String password) {
+    public void validateLoginPassword(String password) {
         loginPasswordValidationRule.validate(password);
     }
 }

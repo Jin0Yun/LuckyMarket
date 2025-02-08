@@ -1,7 +1,10 @@
-package com.luckymarket.auth.service.redis;
+package com.luckymarket.auth.service.impl;
 
+import com.luckymarket.auth.exception.AuthErrorCode;
+import com.luckymarket.auth.exception.AuthException;
 import com.luckymarket.auth.exception.RedisErrorCode;
 import com.luckymarket.auth.exception.RedisException;
+import com.luckymarket.auth.service.RedisService;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -86,7 +89,7 @@ public class RedisServiceImpl implements RedisService {
     public void markUserAsLoggedIn(Long userId) {
         try {
             if (redisTemplate.hasKey("user-logged-in:" + userId)) {
-                throw new RedisException(RedisErrorCode.ALREADY_LOGGED_IN_OTHER_DEVICE);
+                throw new AuthException(AuthErrorCode.ALREADY_LOGGED_IN_OTHER_DEVICE);
             }
 
             Boolean success = redisTemplate.opsForValue().setIfAbsent("user-logged-in:" + userId, "true");
