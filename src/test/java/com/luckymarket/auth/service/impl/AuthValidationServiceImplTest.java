@@ -13,7 +13,6 @@ import org.mockito.MockitoAnnotations;
 import static org.mockito.Mockito.*;
 
 class AuthValidationServiceImplTest {
-
     @Mock
     private EmailValidationRule emailValidationRule;
 
