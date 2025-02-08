@@ -1,7 +1,7 @@
-package com.luckymarket.auth.validator;
+package com.luckymarket.auth.service;
 
 public interface AuthValidationService {
     void validateEmail(String email);
     void validatePassword(String password);
-    void validateSimplePassword(String password);
+    void validateLoginPassword(String password);
 }
