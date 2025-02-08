@@ -4,6 +4,7 @@ public enum AuthErrorCode {
     EMAIL_NOT_FOUND("이메일을 찾을 수 없습니다."),
     EMAIL_BLANK("이메일은 필수 입력 값입니다."),
     INVALID_EMAIL_FORMAT("잘못된 이메일 형식입니다."),
+    EMAIL_ALREADY_USED("이미 사용 중인 이메일입니다."),
 
     PASSWORD_MISMATCH("비밀번호가 일치하지 않습니다."),
     PASSWORD_BLANK("비밀번호는 필수 입력 값입니다."),
