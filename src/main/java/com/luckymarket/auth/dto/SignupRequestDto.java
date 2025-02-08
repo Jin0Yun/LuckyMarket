@@ -1,6 +1,7 @@
 package com.luckymarket.auth.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -8,6 +9,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
+@AllArgsConstructor
 public class SignupRequestDto {
     @Schema(description = "사용자 이메일", example = "example@email.com", required = true)
     private String email;
