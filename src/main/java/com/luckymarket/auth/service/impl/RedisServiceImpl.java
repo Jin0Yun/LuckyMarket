@@ -31,7 +31,10 @@ public class RedisServiceImpl implements RedisService {
     public Optional<String> getRefreshToken(Long userId) {
         String key = RedisKeyUtils.getRefreshTokenKey(userId);
         String token = redisTemplate.opsForValue().get(key);
-        return Optional.ofNullable(token);
+        if (token == null || token.trim().isEmpty()) {
+            throw new RedisException(RedisErrorCode.REFRESH_TOKEN_NOT_FOUND);
+        }
+        return Optional.of(token);
     }
 
     @Override
@@ -55,6 +58,9 @@ public class RedisServiceImpl implements RedisService {
     @Override
     public boolean isBlacklisted(String accessToken) {
         String key = RedisKeyUtils.getBlacklistKey(accessToken);
+        if (!redisTemplate.hasKey(key)) {
+            throw new RedisException(RedisErrorCode.BLACKLIST_TOKEN_NOT_FOUND);
+        }
         return redisTemplate.hasKey(key);
     }
 

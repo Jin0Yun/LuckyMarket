@@ -7,7 +7,6 @@ public enum UserErrorCode {
     INVALID_PHONE_NUMBER("유효하지 않은 전화번호 형식입니다."),
     ADDRESS_BLANK("주소는 필수 입력값입니다."),
 
-    USER_NOT_FOUND("사용자를 찾을 수 없습니다."),
     USER_ALREADY_DELETED("이 사용자는 이미 탈퇴한 상태입니다."),
     UNAUTHORIZED_ACCESS("사용자가 접근 권한이 없습니다."),
 

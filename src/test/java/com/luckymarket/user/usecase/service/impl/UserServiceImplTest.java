@@ -1,5 +1,7 @@
 package com.luckymarket.user.usecase.service.impl;
 
+import com.luckymarket.auth.exception.AuthErrorCode;
+import com.luckymarket.auth.exception.AuthException;
 import com.luckymarket.auth.service.RedisService;
 import com.luckymarket.user.adapter.mapper.UserMapper;
 import com.luckymarket.user.usecase.dto.*;
@@ -80,8 +82,8 @@ class UserServiceImplTest {
         when(userRepository.findById(userId)).thenReturn(java.util.Optional.empty());
 
         // when & then
-        UserException exception = assertThrows(UserException.class, () -> userService.getUserById(userId));
-        assertThat(exception.getMessage()).isEqualTo(UserErrorCode.USER_NOT_FOUND.getMessage());
+        AuthException exception = assertThrows(AuthException.class, () -> userService.getUserById(userId));
+        assertThat(exception.getMessage()).isEqualTo(AuthErrorCode.USER_NOT_FOUND.getMessage());
     }
 
     @DisplayName("회원 이름을 변경하면, 변경된 이름으로 저장된다.")

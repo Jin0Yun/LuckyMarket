@@ -1,5 +1,7 @@
 package com.luckymarket.user.usecase.service.impl;
 
+import com.luckymarket.auth.exception.AuthErrorCode;
+import com.luckymarket.auth.exception.AuthException;
 import com.luckymarket.auth.service.RedisService;
 import com.luckymarket.user.adapter.mapper.UserMapper;
 import com.luckymarket.user.usecase.dto.*;
@@ -43,7 +45,7 @@ public class UserServiceImpl implements UserService {
     public Member getUserById(Long userId) {
         memberValidationService.validateUser(userId);
         return userRepository.findById(userId)
-                .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
+                .orElseThrow(() -> new AuthException(AuthErrorCode.USER_NOT_FOUND));
     }
 
     @Override
@@ -107,6 +109,7 @@ public class UserServiceImpl implements UserService {
             throw new UserException(UserErrorCode.USER_ALREADY_DELETED);
         }
         redisService.removeRefreshToken(userId);
+        redisService.markUserAsLoggedOut(userId);
         member.setStatus(Status.DELETED);
     }
 }

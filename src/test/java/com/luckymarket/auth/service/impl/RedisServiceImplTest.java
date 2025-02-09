@@ -85,18 +85,16 @@ class RedisServiceImplTest {
         assertThat(result.get()).isEqualTo(refreshToken);
     }
 
-    @DisplayName("리프레시 토큰이 없을 경우 빈 Optional을 반환하는지 테스트")
+    @DisplayName("리프레시 토큰이 없을 경우 예외를 던지는지 테스트")
     @Test
-    void shouldReturnEmptyWhenRefreshTokenNotFound() {
+    void shouldThrowExceptionWhenRefreshTokenNotFound() {
         // given
         String refreshTokenKey = RedisKeyUtils.getRefreshTokenKey(userId);
         when(valueOperations.get(refreshTokenKey)).thenReturn(null);
 
-        // when
-        Optional<String> result = redisService.getRefreshToken(userId);
-
-        // then
-        assertThat(result).isNotPresent();
+        // when & then
+        RedisException exception = assertThrows(RedisException.class, () -> redisService.getRefreshToken(userId));
+        assertThat(exception.getMessage()).isEqualTo(RedisErrorCode.REFRESH_TOKEN_NOT_FOUND.getMessage());
     }
 
     @DisplayName("리프레시 토큰을 Redis에서 삭제되는지 테스트")
@@ -165,18 +163,16 @@ class RedisServiceImplTest {
         assertThat(result).isTrue();
     }
 
-    @DisplayName("블랙리스트에 토큰이 없을 경우 false를 반환하는지 테스트")
+    @DisplayName("블랙리스트에 토큰이 없을 경우 예외를 던지는지 테스트")
     @Test
-    void shouldReturnFalseWhenTokenIsNotBlacklisted() {
+    void shouldThrowExceptionWhenTokenNotFoundInBlacklist() {
         // given
         String blacklistKey = RedisKeyUtils.getBlacklistKey(accessToken);
         when(redisTemplate.hasKey(blacklistKey)).thenReturn(false);
 
-        // when
-        boolean result = redisService.isBlacklisted(accessToken);
-
-        // then
-        assertThat(result).isFalse();
+        // when & then
+        RedisException exception = assertThrows(RedisException.class, () -> redisService.isBlacklisted(accessToken));
+        assertThat(exception.getMessage()).isEqualTo(RedisErrorCode.BLACKLIST_TOKEN_NOT_FOUND.getMessage());
     }
 
     @DisplayName("블랙리스트에서 토큰 삭제 성공하는지 테스트")

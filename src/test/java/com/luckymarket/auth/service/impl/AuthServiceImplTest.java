@@ -6,7 +6,10 @@ import com.luckymarket.auth.dto.SignupRequestDto;
 import com.luckymarket.auth.dto.TokenResponseDto;
 import com.luckymarket.auth.exception.AuthErrorCode;
 import com.luckymarket.auth.exception.AuthException;
+import com.luckymarket.auth.exception.RedisErrorCode;
+import com.luckymarket.auth.exception.RedisException;
 import com.luckymarket.auth.security.JwtTokenProvider;
+import com.luckymarket.auth.security.SecurityContextService;
 import com.luckymarket.auth.service.AuthValidationService;
 import com.luckymarket.auth.service.RedisService;
 import com.luckymarket.user.domain.exception.UserErrorCode;
@@ -40,6 +43,9 @@ class AuthServiceImplTest {
 
     @Mock
     private AuthValidationService authValidationService;
+
+    @Mock
+    private SecurityContextService securityContextService;
 
     @InjectMocks
     private AuthServiceImpl authService;
@@ -95,8 +101,8 @@ class AuthServiceImplTest {
         LoginRequestDto loginRequestDto = new LoginRequestDto("test@example.com", "ValidPassword123!");
 
         when(userRepository.findByEmail(loginRequestDto.getEmail())).thenReturn(Optional.of(member));
-        when(jwtTokenProvider.createAccessToken(member.getId())).thenReturn("accessToken");
-        when(jwtTokenProvider.createRefreshToken(member.getId())).thenReturn("refreshToken");
+        when(jwtTokenProvider.createAccessToken(member.getId(), member.getEmail())).thenReturn("accessToken");
+        when(jwtTokenProvider.createRefreshToken(member.getId(), member.getEmail())).thenReturn("refreshToken");
 
         // when
         LoginResponseDto loginResponse = authService.login(loginRequestDto);
@@ -115,8 +121,8 @@ class AuthServiceImplTest {
         when(userRepository.findByEmail(loginRequestDto.getEmail())).thenReturn(Optional.empty());
 
         // when & then
-        UserException exception = assertThrows(UserException.class, () -> authService.login(loginRequestDto));
-        assertEquals(UserErrorCode.USER_NOT_FOUND.getMessage(), exception.getMessage());
+        AuthException exception = assertThrows(AuthException.class, () -> authService.login(loginRequestDto));
+        assertEquals(AuthErrorCode.USER_NOT_FOUND.getMessage(), exception.getMessage());
     }
 
     @DisplayName("로그인 시 비밀번호가 일치하지 않으면 예외를 던진다.")
@@ -146,51 +152,45 @@ class AuthServiceImplTest {
         assertThat(exception.getMessage()).isEqualTo(AuthErrorCode.ALREADY_LOGGED_IN_OTHER_DEVICE.getMessage());
     }
 
-    @DisplayName("로그아웃 시 토큰이 블랙리스트에 있을 경우 예외를 던진다.")
-    @Test
-    void logout_ShouldThrowException_WhenTokenIsBlacklisted() {
-        // given
-        String accessToken = "Bearer invalidToken";
-        when(jwtTokenProvider.getSubject(anyString())).thenReturn("1");
-        when(redisService.isBlacklisted(accessToken.replace("Bearer ", "").trim())).thenReturn(true);
-
-        // when & then
-        AuthException exception = assertThrows(AuthException.class, () -> authService.logout(accessToken));
-        assertThat(exception.getMessage()).isEqualTo(AuthErrorCode.INVALID_TOKEN.getMessage());
-    }
-
     @DisplayName("로그아웃 시 유효한 토큰으로 로그아웃을 처리한다.")
     @Test
     void logout_ShouldLogOutUser_WhenValidAccessToken() {
         // given
-        String accessToken = "Bearer validToken";
-        when(jwtTokenProvider.getSubject(anyString())).thenReturn("1");
-        when(redisService.isBlacklisted(accessToken.replace("Bearer ", "").trim())).thenReturn(false);
+        String accessToken = "Bearer validAccessToken";
+        String token = "validAccessToken";
+        String refreshToken = "validRefreshToken";
+
+        when(securityContextService.getCurrentUserId()).thenReturn(member.getId());
+        when(redisService.isBlacklisted(token)).thenReturn(false);
+        when(redisService.getRefreshToken(member.getId())).thenReturn(Optional.of(refreshToken));
 
         // when
         authService.logout(accessToken);
 
         // then
-        verify(redisService, times(1)).addToBlacklist(anyString(), anyLong());
-        verify(redisService, times(1)).markUserAsLoggedOut(anyLong());
+        verify(redisService).markUserAsLoggedOut(member.getId());
+        verify(redisService).removeRefreshToken(member.getId());
     }
 
     @DisplayName("리프레시 토큰으로 새로운 액세스 토큰을 생성한다.")
     @Test
     void refreshAccessToken_ShouldReturnNewAccessToken_WhenValidRefreshToken() {
         // given
-        String refreshToken = "validRefreshToken";
-        Long userId = 1L;
-        when(jwtTokenProvider.validateToken(refreshToken)).thenReturn(true);
-        when(jwtTokenProvider.getSubject(refreshToken)).thenReturn(String.valueOf(userId));
-        when(redisService.getRefreshToken(userId)).thenReturn(java.util.Optional.of(refreshToken));
-        when(jwtTokenProvider.createAccessToken(userId)).thenReturn("newAccessToken");
+        String refreshToken = "Bearer validRefreshToken";
+        String token = "validRefreshToken";
+        String newAccessToken = "newAccessToken";
+
+        when(securityContextService.getCurrentUserId()).thenReturn(member.getId());
+        when(redisService.getRefreshToken(member.getId())).thenReturn(Optional.of(token));
+        when(userRepository.findById(member.getId())).thenReturn(Optional.of(member));
+        when(jwtTokenProvider.createAccessToken(member.getId(), member.getEmail())).thenReturn(newAccessToken);
 
         // when
         TokenResponseDto tokenResponse = authService.refreshAccessToken(refreshToken);
 
         // then
-        assertEquals("newAccessToken", tokenResponse.getAccessToken());
+        assertThat(tokenResponse.getAccessToken()).isEqualTo(newAccessToken);
+        verify(jwtTokenProvider).createAccessToken(member.getId(), member.getEmail());
     }
 
     @DisplayName("리프레시 토큰이 없으면 예외를 던진다.")
@@ -205,5 +205,25 @@ class AuthServiceImplTest {
         // when & then
         AuthException exception = assertThrows(AuthException.class, () -> authService.refreshAccessToken(refreshToken));
         assertThat(exception.getMessage()).isEqualTo(AuthErrorCode.INVALID_TOKEN.getMessage());
+    }
+
+    @DisplayName("사용자를 찾을 수 없는 경우 예외가 발생한다.")
+    @Test
+    void refreshAccessToken_ShouldThrowException_WhenUserNotFound() {
+        // given
+        String refreshToken = "Bearer validRefreshToken";
+        String token = "validRefreshToken";
+        Long userId = 1L;
+
+        when(securityContextService.getCurrentUserId()).thenReturn(userId);
+        when(redisService.getRefreshToken(userId)).thenReturn(Optional.of(token));
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        // when & then
+        AuthException exception = assertThrows(AuthException.class,
+                () -> authService.refreshAccessToken(refreshToken));
+
+        assertThat(exception.getMessage()).isEqualTo(AuthErrorCode.USER_NOT_FOUND.getMessage());
+        verify(jwtTokenProvider, never()).createAccessToken(anyLong(), anyString());
     }
 }

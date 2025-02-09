@@ -2,17 +2,17 @@ package com.luckymarket.auth.security;
 
 import com.luckymarket.auth.exception.AuthErrorCode;
 import com.luckymarket.auth.exception.AuthException;
+import com.luckymarket.user.domain.model.Role;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.security.core.Authentication;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
-import java.util.Collections;
 import java.util.Date;
 
 @Component
@@ -26,29 +26,28 @@ public class JwtTokenProviderImpl implements JwtTokenProvider {
         this.key = Keys.hmacShaKeyFor(keyBytes);
     }
 
-    private String createToken(Long userId, long expiration) {
+    private String createToken(Long userId, String email, Role role, long expiration) {
         long now = System.currentTimeMillis();
         Date expiryDate = new Date(now + expiration);
 
-        JwtBuilder builder = Jwts.builder()
+        return Jwts.builder()
+                .setSubject(String.valueOf(userId))
+                .claim("email", email)
+                .claim("role", role.name())
+                .setIssuedAt(new Date(now))
                 .setExpiration(expiryDate)
-                .signWith(key, SignatureAlgorithm.HS256);
-
-        if (userId != null) {
-            builder.setSubject(String.valueOf(userId));
-        }
-
-        return builder.compact();
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
     }
 
     @Override
-    public String createAccessToken(Long userId) {
-        return createToken(userId, ACCESS_TOKEN_EXPIRATION);
+    public String createAccessToken(Long userId, String email) {
+        return createToken(userId, email, Role.USER, ACCESS_TOKEN_EXPIRATION);
     }
 
     @Override
-    public String createRefreshToken(Long userId) {
-        return createToken(userId, REFRESH_TOKEN_EXPIRATION);
+    public String createRefreshToken(Long userId, String email) {
+        return createToken(userId, email, Role.USER, REFRESH_TOKEN_EXPIRATION);
     }
 
     @Override
@@ -82,8 +81,15 @@ public class JwtTokenProviderImpl implements JwtTokenProvider {
 
     @Override
     public Authentication getAuthentication(String token) {
-        Long userId = Long.parseLong(getSubject(token));
-        return new UsernamePasswordAuthenticationToken(userId, token, Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")));
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+
+        Long userId = Long.parseLong(claims.getSubject());
+        String role = claims.get("role", String.class);
+        return new UsernamePasswordAuthenticationToken(userId, token, AuthorityUtils.createAuthorityList(role));
     }
 
     @Override

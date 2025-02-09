@@ -1,5 +1,7 @@
 package com.luckymarket.product.service;
 
+import com.luckymarket.auth.exception.AuthErrorCode;
+import com.luckymarket.auth.exception.AuthException;
 import com.luckymarket.product.domain.Category;
 import com.luckymarket.product.domain.Product;
 import com.luckymarket.product.domain.ProductStatus;
@@ -11,8 +13,6 @@ import com.luckymarket.product.repository.CategoryRepository;
 import com.luckymarket.product.repository.ProductRepository;
 import com.luckymarket.product.repository.ProductSpecification;
 import com.luckymarket.user.domain.model.Member;
-import com.luckymarket.user.domain.exception.UserErrorCode;
-import com.luckymarket.user.domain.exception.UserException;
 import com.luckymarket.user.domain.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
@@ -38,7 +38,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Product createProduct(ProductCreateDto productCreateDto, Long userId) {
         Member member = userRepository.findById(userId)
-                .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
+                .orElseThrow(() -> new AuthException(AuthErrorCode.USER_NOT_FOUND));
 
         Category category = categoryRepository.findByCode(productCreateDto.getCategoryCode());
 

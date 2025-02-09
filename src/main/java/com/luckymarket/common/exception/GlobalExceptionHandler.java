@@ -1,6 +1,7 @@
 package com.luckymarket.common.exception;
 
 import com.luckymarket.auth.exception.AuthException;
+import com.luckymarket.auth.exception.RedisException;
 import com.luckymarket.common.ApiResponseWrapper;
 import com.luckymarket.user.domain.exception.UserException;
 import io.swagger.v3.oas.annotations.Hidden;
@@ -14,19 +15,25 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class GlobalExceptionHandler {
     @ExceptionHandler(UserException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ApiResponseWrapper<String> handleUserException(UserException e) {
+    public ApiResponseWrapper<Object> handleUserException(UserException e) {
         return ApiResponseWrapper.error(e.getMessage(), HttpStatus.BAD_REQUEST.value());
     }
 
     @ExceptionHandler(AuthException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public ApiResponseWrapper<String> handleAuthException(AuthException ex) {
+    public ApiResponseWrapper<Object> handleAuthException(AuthException ex) {
+        return ApiResponseWrapper.error(ex.getMessage(), HttpStatus.UNAUTHORIZED.value());
+    }
+
+    @ExceptionHandler(RedisException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ApiResponseWrapper<Object> handleRedisException(RedisException ex) {
         return ApiResponseWrapper.error(ex.getMessage(), HttpStatus.UNAUTHORIZED.value());
     }
 
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ApiResponseWrapper<String> handleException(Exception e) {
+    public ApiResponseWrapper<Object> handleException(Exception e) {
         return ApiResponseWrapper.error("서버 내부 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR.value());
     }
 }

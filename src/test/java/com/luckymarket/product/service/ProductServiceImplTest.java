@@ -1,5 +1,7 @@
 package com.luckymarket.product.service;
 
+import com.luckymarket.auth.exception.AuthErrorCode;
+import com.luckymarket.auth.exception.AuthException;
 import com.luckymarket.product.domain.Category;
 import com.luckymarket.product.domain.Product;
 import com.luckymarket.product.domain.ProductStatus;
@@ -105,8 +107,8 @@ class ProductServiceImplTest {
 
         // when & then
         assertThatThrownBy(() -> productService.createProduct(validProductCreateDto, 1L))
-                .isInstanceOf(UserException.class)
-                .hasMessage(UserErrorCode.USER_NOT_FOUND.getMessage());
+                .isInstanceOf(AuthException.class)
+                .hasMessage(AuthErrorCode.USER_NOT_FOUND.getMessage());
     }
 
     @DisplayName("존재하지 않는 카테고리로 상품 등록 시 예외가 발생하는지 확인하는 테스트")

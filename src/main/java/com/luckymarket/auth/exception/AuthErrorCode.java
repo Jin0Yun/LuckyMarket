@@ -17,7 +17,9 @@ public enum AuthErrorCode {
     JWT_AUTHENTICATION_FAILED("JWT 인증에 실패했습니다."),
     ALREADY_LOGGED_IN_OTHER_DEVICE("이미 다른 기기에서 로그인 중입니다."),
 
-    USER_ALREADY_DELETED("회원은 이미 탈퇴한 상태입니다.");
+    USER_ALREADY_DELETED("회원은 이미 탈퇴한 상태입니다."),
+    USER_NOT_FOUND("사용자를 찾을 수 없습니다."),
+    USER_NOT_AUTHENTICATED("사용자가 인증되지 않았습니다.");
 
     private final String message;
 

@@ -5,7 +5,10 @@ import com.luckymarket.auth.dto.LoginResponseDto;
 import com.luckymarket.auth.dto.TokenResponseDto;
 import com.luckymarket.auth.exception.AuthErrorCode;
 import com.luckymarket.auth.exception.AuthException;
+import com.luckymarket.auth.exception.RedisErrorCode;
+import com.luckymarket.auth.exception.RedisException;
 import com.luckymarket.auth.security.JwtTokenProvider;
+import com.luckymarket.auth.security.SecurityContextService;
 import com.luckymarket.auth.service.AuthService;
 import com.luckymarket.auth.service.RedisService;
 import com.luckymarket.auth.dto.SignupRequestDto;
@@ -27,19 +30,22 @@ public class AuthServiceImpl implements AuthService {
     private final JwtTokenProvider jwtTokenProvider;
     private final RedisService redisService;
     private final AuthValidationService authValidationService;
+    private final SecurityContextService securityContextService;
 
     public AuthServiceImpl(
             UserRepository userRepository,
             PasswordService passwordService,
             JwtTokenProvider jwtTokenProvider,
             RedisService redisService,
-            AuthValidationService authValidationService
+            AuthValidationService authValidationService,
+            SecurityContextService securityContextService
     ) {
         this.userRepository = userRepository;
         this.passwordService = passwordService;
         this.jwtTokenProvider = jwtTokenProvider;
         this.redisService = redisService;
         this.authValidationService = authValidationService;
+        this.securityContextService = securityContextService;
     }
 
     @Override
@@ -49,7 +55,6 @@ public class AuthServiceImpl implements AuthService {
         if (userRepository.existsByEmail(signupRequestDto.getEmail())) {
             throw new AuthException(AuthErrorCode.EMAIL_ALREADY_USED);
         }
-
         authValidationService.validatePassword(signupRequestDto.getPassword());
         String encodedPassword = passwordService.encodePassword(signupRequestDto.getPassword());
 
@@ -64,13 +69,13 @@ public class AuthServiceImpl implements AuthService {
         authValidationService.validateLoginPassword(loginRequestDto.getPassword());
 
         Member member = userRepository.findByEmail(loginRequestDto.getEmail())
-                .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
+                .orElseThrow(() -> new AuthException(AuthErrorCode.USER_NOT_FOUND));
 
         authValidationService.validateMember(member);
         passwordService.matches(loginRequestDto.getPassword(), member.getPassword());
 
-        String accessToken = jwtTokenProvider.createAccessToken(member.getId());
-        String refreshToken = jwtTokenProvider.createRefreshToken(member.getId());
+        String accessToken = jwtTokenProvider.createAccessToken(member.getId(), loginRequestDto.getEmail());
+        String refreshToken = jwtTokenProvider.createRefreshToken(member.getId(), loginRequestDto.getEmail());
 
         saveLoginInfo(member, refreshToken);
         return new LoginResponseDto(accessToken, refreshToken);
@@ -79,13 +84,12 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public void logout(String accessToken) {
         String token = extractToken(accessToken);
-        Long userId = Long.parseLong(jwtTokenProvider.getSubject(token));
-
-        if (redisService.isBlacklisted(token)) {
-            throw new AuthException(AuthErrorCode.INVALID_TOKEN);
-        }
-
+        Long userId = securityContextService.getCurrentUserId();
         redisService.addToBlacklist(token, jwtTokenProvider.getRemainingExpirationTime(token));
+
+        String refreshToken = redisService.getRefreshToken(userId)
+                .orElseThrow(() -> new RedisException(RedisErrorCode.REFRESH_TOKEN_NOT_FOUND));
+        redisService.addToBlacklist(refreshToken, jwtTokenProvider.getRemainingExpirationTime(refreshToken));
         redisService.markUserAsLoggedOut(userId);
         redisService.removeRefreshToken(userId);
     }
@@ -93,15 +97,20 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public TokenResponseDto refreshAccessToken(String refreshToken) {
         String token = extractToken(refreshToken);
-        Long userId = Long.parseLong(jwtTokenProvider.getSubject(refreshToken));
+        jwtTokenProvider.validateToken(token);
+
+        Long userId = securityContextService.getCurrentUserId();
         String redisRefreshToken = redisService.getRefreshToken(userId)
                 .orElseThrow(() -> new AuthException(AuthErrorCode.INVALID_TOKEN));
 
         if (!redisRefreshToken.equals(token)) {
             throw new AuthException(AuthErrorCode.INVALID_TOKEN);
         }
+        Member member = userRepository.findById(userId)
+                .orElseThrow(() -> new AuthException(AuthErrorCode.USER_NOT_FOUND));
+        String email = member.getEmail();
 
-        String newAccessToken = jwtTokenProvider.createAccessToken(userId);
+        String newAccessToken = jwtTokenProvider.createAccessToken(userId, email);
         return new TokenResponseDto(newAccessToken);
     }
 
@@ -125,8 +134,9 @@ public class AuthServiceImpl implements AuthService {
     }
 
     private String extractToken(String refreshToken) {
-        String token = refreshToken.replace("Bearer ", "").trim();
-        authValidationService.validateToken(token);
-        return token;
+        if (refreshToken == null || !refreshToken.startsWith("Bearer ")) {
+            throw new AuthException(AuthErrorCode.INVALID_TOKEN);
+        }
+        return refreshToken.substring(7).trim();
     }
 }

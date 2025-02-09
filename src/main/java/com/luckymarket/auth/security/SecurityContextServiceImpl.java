@@ -1,11 +1,18 @@
 package com.luckymarket.auth.security;
 
+import com.luckymarket.auth.exception.AuthErrorCode;
+import com.luckymarket.auth.exception.AuthException;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 @Component
 public class SecurityContextServiceImpl implements SecurityContextService {
     public Long getCurrentUserId() {
-        return Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new AuthException(AuthErrorCode.USER_NOT_AUTHENTICATED);
+        }
+        return Long.valueOf(authentication.getName());
     }
 }
