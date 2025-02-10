@@ -3,6 +3,7 @@ package com.luckymarket.infrastructure.redis;
 import com.luckymarket.domain.exception.auth.RedisErrorCode;
 import com.luckymarket.domain.exception.auth.RedisException;
 import com.luckymarket.domain.utils.RedisKeyUtils;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -10,12 +11,9 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 @Service
+@RequiredArgsConstructor
 public class RedisServiceImpl implements RedisService {
     private final RedisTemplate<String, String> redisTemplate;
-
-    public RedisServiceImpl(RedisTemplate<String, String> redisTemplate) {
-        this.redisTemplate = redisTemplate;
-    }
 
     @Override
     public void saveRefreshToken(Long userId, String refreshToken, long expirationTime) {

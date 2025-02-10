@@ -13,32 +13,18 @@ import com.luckymarket.domain.exception.user.UserException;
 import com.luckymarket.application.service.user.MemberValidationService;
 import com.luckymarket.application.service.user.PasswordService;
 import com.luckymarket.application.service.user.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final RedisService redisService;
     private final PasswordService passwordService;
     private final MemberValidationService memberValidationService;
     private final UserMapper userMapper;
-
-    @Autowired
-    public UserServiceImpl(
-            UserRepository userRepository,
-            RedisService redisService,
-            PasswordService passwordService,
-            MemberValidationService memberValidationService,
-            UserMapper userMapper
-    ) {
-        this.userRepository = userRepository;
-        this.redisService = redisService;
-        this.passwordService = passwordService;
-        this.memberValidationService = memberValidationService;
-        this.userMapper = userMapper;
-    }
 
     @Override
     @Transactional(readOnly = true)

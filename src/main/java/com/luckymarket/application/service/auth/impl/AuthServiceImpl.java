@@ -16,12 +16,14 @@ import com.luckymarket.application.service.auth.AuthValidationService;
 import com.luckymarket.domain.entity.user.Member;
 import com.luckymarket.adapter.out.persistence.user.UserRepository;
 import com.luckymarket.application.service.user.PasswordService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
 @Service
+@RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
     private final PasswordService passwordService;
@@ -29,22 +31,6 @@ public class AuthServiceImpl implements AuthService {
     private final RedisService redisService;
     private final AuthValidationService authValidationService;
     private final SecurityContextService securityContextService;
-
-    public AuthServiceImpl(
-            UserRepository userRepository,
-            PasswordService passwordService,
-            JwtTokenProvider jwtTokenProvider,
-            RedisService redisService,
-            AuthValidationService authValidationService,
-            SecurityContextService securityContextService
-    ) {
-        this.userRepository = userRepository;
-        this.passwordService = passwordService;
-        this.jwtTokenProvider = jwtTokenProvider;
-        this.redisService = redisService;
-        this.authValidationService = authValidationService;
-        this.securityContextService = securityContextService;
-    }
 
     @Override
     @Transactional
