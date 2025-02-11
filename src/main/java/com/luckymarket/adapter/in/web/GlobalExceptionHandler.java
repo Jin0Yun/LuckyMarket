@@ -2,6 +2,7 @@ package com.luckymarket.adapter.in.web;
 
 import com.luckymarket.domain.exception.auth.AuthException;
 import com.luckymarket.domain.exception.auth.RedisException;
+import com.luckymarket.domain.exception.product.CategoryException;
 import com.luckymarket.domain.exception.user.UserException;
 import io.swagger.v3.oas.annotations.Hidden;
 import org.springframework.http.HttpStatus;
@@ -25,9 +26,15 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(RedisException.class)
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ApiResponse<Object> handleRedisException(RedisException ex) {
-        return ApiResponse.error(ex.getMessage(), HttpStatus.UNAUTHORIZED.value());
+        return ApiResponse.error(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
+    }
+
+    @ExceptionHandler(CategoryException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ApiResponse<Object> handleCategoryException(CategoryException ex) {
+        return ApiResponse.error(ex.getMessage(), HttpStatus.BAD_REQUEST.value());
     }
 
     @ExceptionHandler(Exception.class)

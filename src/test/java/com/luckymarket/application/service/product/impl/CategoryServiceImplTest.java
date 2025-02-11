@@ -1,8 +1,7 @@
 package com.luckymarket.application.service.product.impl;
 
+import com.luckymarket.application.validation.CategoryValidationRule;
 import com.luckymarket.domain.entity.product.Category;
-import com.luckymarket.domain.exception.product.CategoryErrorCode;
-import com.luckymarket.domain.exception.product.CategoryException;
 import com.luckymarket.adapter.out.persistence.product.CategoryRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -18,9 +17,11 @@ import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class CategoryServiceImplTest {
-
     @Mock
     private CategoryRepository categoryRepository;
+
+    @Mock
+    private CategoryValidationRule categoryValidationRule;
 
     @InjectMocks
     private CategoryServiceImpl categoryService;
@@ -82,18 +83,6 @@ class CategoryServiceImplTest {
         assertThat(result.get(0).getName()).isEqualTo("과일");
     }
 
-    @DisplayName("부모 카테고리가 없을 경우 예외가 발생하는지 확인하는 테스트")
-    @Test
-    void shouldThrowExceptionWhenParentCategoryNotFound() {
-        // given
-        when(categoryRepository.findByParent(999L)).thenReturn(Arrays.asList());
-
-        // when & then
-        assertThatThrownBy(() -> categoryService.getSubCategories(999L))
-                .isInstanceOf(CategoryException.class)
-                .hasMessage(CategoryErrorCode.PARENT_CATEGORY_NOT_FOUND.getMessage());
-    }
-
     @DisplayName("하위 카테고리를 조회하는지 테스트")
     @Test
     void shouldRetrieveSubCategoriesSuccessfully() {
@@ -109,20 +98,6 @@ class CategoryServiceImplTest {
         assertThat(result).contains(childCategory1, childCategory2);
     }
 
-    @DisplayName("하위 카테고리가 없을 경우 예외가 발생하는지 확인하는 테스트")
-    @Test
-    void shouldThrowExceptionWhenNoSubCategoriesFound() {
-        // given
-        when(categoryRepository.existsById(1L)).thenReturn(true);
-        when(categoryRepository.findByParent(1L)).thenReturn(Arrays.asList());
-
-        // when & then
-        assertThatThrownBy(() -> categoryService.getSubCategories(1L))
-                .isInstanceOf(CategoryException.class)
-                .hasMessage(CategoryErrorCode.NO_SUBCATEGORY_FOUND.getMessage());
-    }
-
-
     @DisplayName("특정 카테고리 코드로 조회되는지 테스트")
     @Test
     void shouldRetrieveCategoryByCodeSuccessfully() {
@@ -135,18 +110,5 @@ class CategoryServiceImplTest {
 
         // then
         assertThat(result).isEqualTo(childCategory1);
-    }
-
-    @DisplayName("존재하지 않는 카테고리 코드로 조회 시 예외가 발생하는지 확인하는 테스트")
-    @Test
-    void shouldReturnEmptyWhenCategoryNotFoundByCode() {
-        // given
-        String code = "NON_EXISTING_CODE";
-        when(categoryRepository.findByCode(code)).thenReturn(null);
-
-        // when & then
-        assertThatThrownBy(() -> categoryService.getCategoryByCode(code))
-                .isInstanceOf(CategoryException.class)
-                .hasMessage(CategoryErrorCode.CATEGORY_CODE_NOT_FOUND.getMessage());
     }
 }

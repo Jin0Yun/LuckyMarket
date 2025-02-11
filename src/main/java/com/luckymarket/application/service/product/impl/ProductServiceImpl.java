@@ -15,7 +15,7 @@ import com.luckymarket.domain.exception.product.ProductException;
 import com.luckymarket.domain.mapper.ProductMapper;
 import com.luckymarket.domain.entity.user.Member;
 import com.luckymarket.adapter.out.persistence.user.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -24,17 +24,11 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
-
-    @Autowired
-    public ProductServiceImpl(ProductRepository productRepository, UserRepository userRepository, CategoryRepository categoryRepository) {
-        this.productRepository = productRepository;
-        this.userRepository = userRepository;
-        this.categoryRepository = categoryRepository;
-    }
 
     @Override
     public Product createProduct(ProductCreateDto productCreateDto, Long userId) {

@@ -8,19 +8,15 @@ import com.luckymarket.application.service.auth.AuthService;
 import com.luckymarket.application.dto.auth.SignupRequestDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
+@RequiredArgsConstructor
 @Tag(name = "인증 API", description = "사용자 로그인, 로그아웃, 토큰 갱신 관련 API")
 public class AuthController {
     private final AuthService authService;
-
-    @Autowired
-    public AuthController(AuthService authService) {
-        this.authService = authService;
-    }
 
     @PostMapping("/signup")
     @Operation(summary = "회원가입", description = "사용자가 이메일, 비밀번호, 이름으로 회원가입을 요청합니다.")

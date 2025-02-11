@@ -2,59 +2,46 @@ package com.luckymarket.application.service.product.impl;
 
 import com.luckymarket.adapter.out.persistence.product.CategoryRepository;
 import com.luckymarket.application.service.product.CategoryService;
+import com.luckymarket.application.validation.CategoryValidationRule;
 import com.luckymarket.domain.entity.product.Category;
-import com.luckymarket.domain.exception.product.CategoryErrorCode;
-import com.luckymarket.domain.exception.product.CategoryException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
-
-    public CategoryServiceImpl(CategoryRepository categoryRepository) {
-        this.categoryRepository = categoryRepository;
-    }
+    private final CategoryValidationRule categoryValidationRule;
 
     @Override
     public List<Category> getCategories() {
         List<Category> categories = categoryRepository.findAll();
-        if (categories == null || categories.isEmpty()) {
-            throw new CategoryException(CategoryErrorCode.CATEGORY_NOT_FOUND);
-        }
+        categoryValidationRule.validate(categories);
         return categories;
     }
 
     @Override
     public List<Category> getParentCategories() {
         List<Category> categories = categoryRepository.findByParentIsNull();
-        if (categories == null || categories.isEmpty()) {
-            throw new CategoryException(CategoryErrorCode.PARENT_CATEGORY_NOT_FOUND);
-        }
+        categoryValidationRule.validate(categories);
         return categories;
     }
 
     @Override
     public List<Category> getSubCategories(Long parentId) {
         boolean parentExists = categoryRepository.existsById(parentId);
-        if (!parentExists) {
-            throw new CategoryException(CategoryErrorCode.PARENT_CATEGORY_NOT_FOUND);
-        }
+        categoryValidationRule.validateParentCategoryExists(parentExists);
         List<Category> subCategories = categoryRepository.findByParent(parentId);
-        if (subCategories == null || subCategories.isEmpty()) {
-            throw new CategoryException(CategoryErrorCode.NO_SUBCATEGORY_FOUND);
-        }
-
+        categoryValidationRule.validateSubCategoriesExist(subCategories);
         return subCategories;
     }
 
     @Override
     public Category getCategoryByCode(String code) {
-        Category category = Optional.ofNullable(categoryRepository.findByCode(code))
-                .orElseThrow(() -> new CategoryException(CategoryErrorCode.CATEGORY_CODE_NOT_FOUND));
-
+        Category category = categoryRepository.findByCode(code);
+        categoryValidationRule.validateCategoryCodeExists(category);
         return category;
     }
 }
