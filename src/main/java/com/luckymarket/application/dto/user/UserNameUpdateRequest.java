@@ -7,9 +7,9 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@Schema(description = "회원의 이름 업데이트를 위한 DTO")
 @AllArgsConstructor
-public class NameUpdateDto {
+@Schema(description = "회원 이름 업데이트 요청 DTO")
+public class UserNameUpdateRequest {
     @Schema(description = "회원의 새로운 이름", example = "홍길동", required = true)
     private String newName;
 }

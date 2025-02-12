@@ -1,8 +1,8 @@
 package com.luckymarket.application.service.auth.impl;
 
-import com.luckymarket.application.dto.auth.LoginRequestDto;
-import com.luckymarket.application.dto.auth.LoginResponseDto;
-import com.luckymarket.application.dto.auth.TokenResponseDto;
+import com.luckymarket.application.dto.auth.AuthLoginRequest;
+import com.luckymarket.application.dto.auth.AuthTokenResponse;
+import com.luckymarket.application.dto.auth.AuthRefreshTokenResponse;
 import com.luckymarket.domain.exception.auth.AuthErrorCode;
 import com.luckymarket.domain.exception.auth.AuthException;
 import com.luckymarket.domain.exception.auth.RedisErrorCode;
@@ -11,7 +11,7 @@ import com.luckymarket.infrastructure.security.JwtTokenProvider;
 import com.luckymarket.infrastructure.security.SecurityContextService;
 import com.luckymarket.application.service.auth.AuthService;
 import com.luckymarket.infrastructure.redis.RedisService;
-import com.luckymarket.application.dto.auth.SignupRequestDto;
+import com.luckymarket.application.dto.auth.SignupRequest;
 import com.luckymarket.application.service.auth.AuthValidationService;
 import com.luckymarket.domain.entity.user.Member;
 import com.luckymarket.adapter.out.persistence.user.UserRepository;
@@ -34,34 +34,34 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public void signup(SignupRequestDto signupRequestDto) {
-        authValidationService.validateEmail(signupRequestDto.getEmail());
-        if (userRepository.existsByEmail(signupRequestDto.getEmail())) {
+    public void signup(SignupRequest signupRequest) {
+        authValidationService.validateEmail(signupRequest.getEmail());
+        if (userRepository.existsByEmail(signupRequest.getEmail())) {
             throw new AuthException(AuthErrorCode.EMAIL_ALREADY_USED);
         }
-        authValidationService.validatePassword(signupRequestDto.getPassword());
-        String encodedPassword = passwordService.encodePassword(signupRequestDto.getPassword());
+        authValidationService.validatePassword(signupRequest.getPassword());
+        String encodedPassword = passwordService.encodePassword(signupRequest.getPassword());
 
-        Member member = createMember(signupRequestDto, encodedPassword);
+        Member member = createMember(signupRequest, encodedPassword);
         userRepository.save(member);
     }
 
     @Override
     @Transactional
-    public LoginResponseDto login(LoginRequestDto loginRequestDto) {
-        authValidationService.validateLogin(loginRequestDto.getEmail(), loginRequestDto.getPassword());
+    public AuthTokenResponse login(AuthLoginRequest authLoginRequest) {
+        authValidationService.validateLogin(authLoginRequest.getEmail(), authLoginRequest.getPassword());
 
-        Member member = userRepository.findByEmail(loginRequestDto.getEmail())
+        Member member = userRepository.findByEmail(authLoginRequest.getEmail())
                 .orElseThrow(() -> new AuthException(AuthErrorCode.USER_NOT_FOUND));
 
         authValidationService.validateMember(member);
-        passwordService.matches(loginRequestDto.getPassword(), member.getPassword());
+        passwordService.matches(authLoginRequest.getPassword(), member.getPassword());
 
-        String accessToken = jwtTokenProvider.createAccessToken(member.getId(), loginRequestDto.getEmail());
-        String refreshToken = jwtTokenProvider.createRefreshToken(member.getId(), loginRequestDto.getEmail());
+        String accessToken = jwtTokenProvider.createAccessToken(member.getId(), authLoginRequest.getEmail());
+        String refreshToken = jwtTokenProvider.createRefreshToken(member.getId(), authLoginRequest.getEmail());
 
         saveLoginInfo(member, refreshToken);
-        return new LoginResponseDto(accessToken, refreshToken);
+        return new AuthTokenResponse(accessToken, refreshToken);
     }
 
     @Override
@@ -76,7 +76,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public TokenResponseDto refreshAccessToken(String refreshToken) {
+    public AuthRefreshTokenResponse refreshAccessToken(String refreshToken) {
         String token = extractToken(refreshToken);
         jwtTokenProvider.validateToken(token);
 
@@ -92,14 +92,14 @@ public class AuthServiceImpl implements AuthService {
         String email = member.getEmail();
 
         String newAccessToken = jwtTokenProvider.createAccessToken(userId, email);
-        return new TokenResponseDto(newAccessToken);
+        return new AuthRefreshTokenResponse(newAccessToken);
     }
 
-    private Member createMember(SignupRequestDto signupRequestDto, String encodedPassword) {
+    private Member createMember(SignupRequest signupRequest, String encodedPassword) {
         Member member = new Member();
-        member.setEmail(signupRequestDto.getEmail());
+        member.setEmail(signupRequest.getEmail());
         member.setPassword(encodedPassword);
-        member.setUsername(signupRequestDto.getUsername());
+        member.setUsername(signupRequest.getUsername());
         return member;
     }
 

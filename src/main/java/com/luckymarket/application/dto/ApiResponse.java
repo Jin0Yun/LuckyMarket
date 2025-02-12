@@ -1,4 +1,4 @@
-package com.luckymarket.adapter.in.web;
+package com.luckymarket.application.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -11,7 +11,7 @@ import org.springframework.http.HttpStatus;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Schema(description = "API 응답의 Wrapper 클래스")
+@Schema(description = "공통 API 응답 형식")
 public class ApiResponse<T> {
     @Schema(description = "응답 코드", example = "SUCCESS")
     private String code;

@@ -8,7 +8,8 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class LoginResponseDto {
+@Schema(description = "로그인 성공 시 반환되는 토큰 정보")
+public class AuthTokenResponse {
     @Schema(description = "액세스 토큰", example = "Bearer <access_token>")
     private String accessToken;
 

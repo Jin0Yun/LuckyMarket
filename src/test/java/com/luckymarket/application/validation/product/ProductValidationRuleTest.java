@@ -1,6 +1,6 @@
 package com.luckymarket.application.validation.product;
 
-import com.luckymarket.application.dto.product.ProductCreateDto;
+import com.luckymarket.application.dto.product.ProductCreateRequest;
 import com.luckymarket.domain.exception.product.ProductErrorCode;
 import com.luckymarket.domain.exception.product.ProductException;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,7 +26,7 @@ class ProductValidationRuleTest {
     @Test
     void should_ThrowException_WhenTitleIsBlank() {
         // given
-        ProductCreateDto dto = ProductCreateDto.builder()
+        ProductCreateRequest dto = ProductCreateRequest.builder()
                 .title("")
                 .description("Description")
                 .price(BigDecimal.TEN)
@@ -44,7 +44,7 @@ class ProductValidationRuleTest {
     @Test
     void should_ThrowException_WhenDescriptionIsBlank() {
         // given
-        ProductCreateDto dto = ProductCreateDto.builder()
+        ProductCreateRequest dto = ProductCreateRequest.builder()
                 .title("Title")
                 .description("")
                 .price(BigDecimal.TEN)
@@ -62,7 +62,7 @@ class ProductValidationRuleTest {
     @Test
     void should_ThrowException_WhenPriceIsZeroOrNegative() {
         // given
-        ProductCreateDto dto = ProductCreateDto.builder()
+        ProductCreateRequest dto = ProductCreateRequest.builder()
                 .title("Title")
                 .description("Description")
                 .price(BigDecimal.ZERO)
@@ -80,7 +80,7 @@ class ProductValidationRuleTest {
     @Test
     void should_ThrowException_WhenCategoryCodeIsBlank() {
         // given
-        ProductCreateDto dto = ProductCreateDto.builder()
+        ProductCreateRequest dto = ProductCreateRequest.builder()
                 .title("Title")
                 .description("Description")
                 .price(BigDecimal.TEN)
@@ -98,7 +98,7 @@ class ProductValidationRuleTest {
     @Test
     void should_ThrowException_WhenMaxParticipantsIsZeroOrNegative() {
         // given
-        ProductCreateDto dto = ProductCreateDto.builder()
+        ProductCreateRequest dto = ProductCreateRequest.builder()
                 .title("Title")
                 .description("Description")
                 .price(BigDecimal.TEN)
@@ -116,7 +116,7 @@ class ProductValidationRuleTest {
     @Test
     void should_ThrowException_WhenEndDateIsBeforeToday() {
         // given
-        ProductCreateDto dto = ProductCreateDto.builder()
+        ProductCreateRequest dto = ProductCreateRequest.builder()
                 .title("Title")
                 .description("Description")
                 .price(BigDecimal.TEN)
@@ -134,7 +134,7 @@ class ProductValidationRuleTest {
     @Test
     void should_NotThrowException_WhenAllFieldsAreValid() {
         // given
-        ProductCreateDto dto = ProductCreateDto.builder()
+        ProductCreateRequest dto = ProductCreateRequest.builder()
                 .title("Title")
                 .description("Description")
                 .price(BigDecimal.TEN)

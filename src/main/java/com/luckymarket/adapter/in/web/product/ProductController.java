@@ -1,8 +1,8 @@
 package com.luckymarket.adapter.in.web.product;
 
-import com.luckymarket.adapter.in.web.ApiResponse;
+import com.luckymarket.application.dto.ApiResponse;
 import com.luckymarket.domain.entity.product.Product;
-import com.luckymarket.application.dto.product.ProductCreateDto;
+import com.luckymarket.application.dto.product.ProductCreateRequest;
 import com.luckymarket.application.service.product.ProductService;
 import com.luckymarket.domain.entity.product.ProductStatus;
 import com.luckymarket.infrastructure.security.SecurityContextService;
@@ -24,10 +24,10 @@ public class ProductController {
 
     @PostMapping
     @Operation(summary = "공동구매 상품 등록", description = "새로운 공동구매 상품을 등록합니다.")
-    public ApiResponse<Product> createProduct(@RequestBody ProductCreateDto productCreateDto) {
+    public ApiResponse<Product> createProduct(@RequestBody ProductCreateRequest productCreateRequest) {
         Long userId = securityContextService.getCurrentUserId();
-        Product product = productService.createProduct(productCreateDto, userId);
-        return ApiResponse.success("상품 [" + product.getTitle() + "]이 성공적으로 등록되었습니다", product);
+        Product product = productService.createProduct(productCreateRequest, userId);
+        return ApiResponse.success("상품이 성공적으로 등록되었습니다", product);
     }
 
     @GetMapping("/{productId}")
@@ -48,10 +48,10 @@ public class ProductController {
     @Operation(summary = "공동구매 상품 수정", description = "기존 공동구매 상품의 정보를 수정합니다.")
     public ApiResponse<Product> updateProduct(
             @PathVariable Long productId,
-            @RequestBody ProductCreateDto productCreateDto
+            @RequestBody ProductCreateRequest productCreateRequest
     ) {
         Long userId = securityContextService.getCurrentUserId();
-        Product updatedProduct = productService.updateProduct(productId, productCreateDto, userId);
+        Product updatedProduct = productService.updateProduct(productId, productCreateRequest, userId);
         return ApiResponse.success("상품이 성공적으로 수정되었습니다", updatedProduct);
     }
 

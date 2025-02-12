@@ -2,7 +2,7 @@ package com.luckymarket.adapter.in.web.product;
 
 import com.luckymarket.domain.entity.product.Category;
 import com.luckymarket.application.service.product.CategoryService;
-import com.luckymarket.adapter.in.web.ApiResponse;
+import com.luckymarket.application.dto.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;

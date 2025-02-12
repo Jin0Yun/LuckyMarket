@@ -7,9 +7,9 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@Schema(description = "회원의 전화번호 및 주소 업데이트를 위한 DTO")
 @AllArgsConstructor
-public class PhoneNumberAndAddressUpdateDto {
+@Schema(description = "회원의 전화번호 및 주소 업데이트 요청 DTO")
+public class UserContactUpdateRequest {
     @Schema(description = "회원의 전화번호", example = "+821012345678", required = true)
     private String phoneNumber;
 

@@ -90,11 +90,11 @@ class UserServiceImplTest {
     @Test
     void shouldUpdateMemberName_WhenNameIsValid() {
         // given
-        NameUpdateDto dto = new NameUpdateDto("newName");
+        UserNameUpdateRequest dto = new UserNameUpdateRequest("newName");
         when(userRepository.findById(userId)).thenReturn(java.util.Optional.of(member));
 
         // when
-        MemberResponseDto result = userService.updateName(userId, dto);
+        UserProfileResponse result = userService.updateName(userId, dto);
 
         // then
         assertThat(member.getUsername()).isEqualTo("newName");
@@ -104,7 +104,7 @@ class UserServiceImplTest {
     @Test
     void shouldUpdatePassword_WhenPasswordIsValid() {
         // given
-        PasswordUpdateDto dto = new PasswordUpdateDto("newPassword");
+        UserPasswordUpdateRequest dto = new UserPasswordUpdateRequest("newPassword");
         when(userRepository.findById(userId)).thenReturn(java.util.Optional.of(member));
         when(passwordService.encodePassword(dto.getPassword())).thenReturn("encodedNewPassword");
 
@@ -119,11 +119,11 @@ class UserServiceImplTest {
     @Test
     void shouldUpdateMemberPhoneNumber_WhenPhoneNumberIsValid() {
         // given
-        PhoneNumberUpdateDto dto = new PhoneNumberUpdateDto("9876543210");
+        UserPhoneUpdateRequest dto = new UserPhoneUpdateRequest("9876543210");
         when(userRepository.findById(userId)).thenReturn(java.util.Optional.of(member));
 
         // when
-        MemberResponseDto result = userService.updatePhoneNumber(userId, dto);
+        UserProfileResponse result = userService.updatePhoneNumber(userId, dto);
 
         // then
         assertThat(member.getPhoneNumber()).isEqualTo("9876543210");
@@ -133,11 +133,11 @@ class UserServiceImplTest {
     @Test
     void shouldUpdateMemberAddress_WhenAddressIsValid() {
         // given
-        AddressUpdateDto dto = new AddressUpdateDto("new address");
+        UserAddressUpdateRequest dto = new UserAddressUpdateRequest("new address");
         when(userRepository.findById(userId)).thenReturn(java.util.Optional.of(member));
 
         // when
-        MemberResponseDto result = userService.updateAddress(userId, dto);
+        UserProfileResponse result = userService.updateAddress(userId, dto);
 
         // then
         assertThat(member.getAddress()).isEqualTo("new address");
@@ -147,11 +147,11 @@ class UserServiceImplTest {
     @Test
     void updatePhoneNumberAndAddress_ShouldUpdateBothPhoneNumberAndAddress_WhenValidDto() {
         // given
-        PhoneNumberAndAddressUpdateDto dto = new PhoneNumberAndAddressUpdateDto("9876543210", "new address");
+        UserContactUpdateRequest dto = new UserContactUpdateRequest("9876543210", "new address");
         when(userRepository.findById(userId)).thenReturn(java.util.Optional.of(member));
 
         // when
-        MemberResponseDto result = userService.updatePhoneNumberAndAddress(userId, dto);
+        UserProfileResponse result = userService.updatePhoneNumberAndAddress(userId, dto);
 
         // then
         assertThat(member.getPhoneNumber()).isEqualTo("9876543210");

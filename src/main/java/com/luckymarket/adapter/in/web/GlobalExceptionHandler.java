@@ -1,5 +1,6 @@
 package com.luckymarket.adapter.in.web;
 
+import com.luckymarket.application.dto.ApiResponse;
 import com.luckymarket.domain.exception.auth.AuthException;
 import com.luckymarket.domain.exception.auth.RedisException;
 import com.luckymarket.domain.exception.product.CategoryException;

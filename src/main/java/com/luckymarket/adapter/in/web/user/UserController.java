@@ -2,7 +2,7 @@ package com.luckymarket.adapter.in.web.user;
 
 import com.luckymarket.application.dto.user.*;
 import com.luckymarket.infrastructure.security.SecurityContextService;
-import com.luckymarket.adapter.in.web.ApiResponse;
+import com.luckymarket.application.dto.ApiResponse;
 import com.luckymarket.application.service.user.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -19,15 +19,15 @@ public class UserController {
 
     @GetMapping("/get-user")
     @Operation(summary = "회원 정보 조회", description = "회원의 이름, 전화번호, 주소 등을 조회합니다.")
-    public ApiResponse<MemberResponseDto> getUser() {
+    public ApiResponse<UserProfileResponse> getUser() {
         Long userId = securityContextService.getCurrentUserId();
-        MemberResponseDto member = userService.getUser(userId);
+        UserProfileResponse member = userService.getUser(userId);
         return ApiResponse.success("회원 정보를 성공적으로 조회했습니다", member);
     }
 
     @PatchMapping("/update-password")
     @Operation(summary = "비밀번호 변경", description = "회원의 비밀번호를 변경합니다.")
-    public ApiResponse<Void> changePassword(@RequestBody PasswordUpdateDto dto) {
+    public ApiResponse<Void> changePassword(@RequestBody UserPasswordUpdateRequest dto) {
         Long userId = securityContextService.getCurrentUserId();
         userService.changePassword(userId, dto);
         return ApiResponse.success("비밀번호가 성공적으로 변경되었습니다", null);
@@ -35,33 +35,33 @@ public class UserController {
 
     @PatchMapping("/update-phone")
     @Operation(summary = "전화번호 변경", description = "회원의 전화번호를 변경합니다.")
-    public ApiResponse<MemberResponseDto> updatePhoneNumber(@RequestBody PhoneNumberUpdateDto dto) {
+    public ApiResponse<UserProfileResponse> updatePhoneNumber(@RequestBody UserPhoneUpdateRequest dto) {
         Long userId = securityContextService.getCurrentUserId();
-        MemberResponseDto member = userService.updatePhoneNumber(userId, dto);
+        UserProfileResponse member = userService.updatePhoneNumber(userId, dto);
         return ApiResponse.success("전화번호가 성공적으로 변경되었습니다", member);
     }
 
     @PatchMapping("/update-address")
     @Operation(summary = "주소 변경", description = "회원의 주소를 변경합니다.")
-    public ApiResponse<MemberResponseDto> updateAddress(@RequestBody AddressUpdateDto dto) {
+    public ApiResponse<UserProfileResponse> updateAddress(@RequestBody UserAddressUpdateRequest dto) {
         Long userId = securityContextService.getCurrentUserId();
-        MemberResponseDto member = userService.updateAddress(userId, dto);
+        UserProfileResponse member = userService.updateAddress(userId, dto);
         return ApiResponse.success("주소가 성공적으로 변경되었습니다", member);
     }
 
     @PatchMapping("/update-phone-address")
     @Operation(summary = "전화번호 및 주소 변경", description = "회원의 전화번호와 주소를 변경합니다.")
-    public ApiResponse<MemberResponseDto> updatePhoneNumberAndAddress(@RequestBody PhoneNumberAndAddressUpdateDto phoneAndAddressDto) {
+    public ApiResponse<UserProfileResponse> updatePhoneNumberAndAddress(@RequestBody UserContactUpdateRequest phoneAndAddressDto) {
         Long userId = securityContextService.getCurrentUserId();
-        MemberResponseDto member = userService.updatePhoneNumberAndAddress(userId, phoneAndAddressDto);
+        UserProfileResponse member = userService.updatePhoneNumberAndAddress(userId, phoneAndAddressDto);
         return ApiResponse.success("전화번호와 주소가 성공적으로 업데이트되었습니다", member);
     }
 
     @PatchMapping("/update-name")
     @Operation(summary = "이름 변경", description = "회원의 이름을 변경합니다.")
-    public ApiResponse<MemberResponseDto> updateName(@RequestBody NameUpdateDto nameUpdateDto) {
+    public ApiResponse<UserProfileResponse> updateName(@RequestBody UserNameUpdateRequest userNameUpdateRequest) {
         Long userId = securityContextService.getCurrentUserId();
-        MemberResponseDto member = userService.updateName(userId, nameUpdateDto);
+        UserProfileResponse member = userService.updateName(userId, userNameUpdateRequest);
         return ApiResponse.success("이름이 성공적으로 변경되었습니다", member);
     }
 

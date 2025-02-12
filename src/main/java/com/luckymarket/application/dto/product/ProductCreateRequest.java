@@ -14,7 +14,8 @@ import java.time.LocalDate;
 @Setter
 @Builder
 @AllArgsConstructor
-public class ProductCreateDto {
+@Schema(description = "새 상품 등록 요청 DTO")
+public class ProductCreateRequest {
     @Schema(description = "상품 제목", example = "신선한 사과")
     private String title;
 

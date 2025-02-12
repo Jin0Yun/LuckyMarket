@@ -8,7 +8,8 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class LoginRequestDto {
+@Schema(description = "사용자 로그인 요청 DTO")
+public class AuthLoginRequest {
     @Schema(description = "사용자 이메일", example = "example@email.com", required = true)
     private String email;
 

@@ -1,6 +1,6 @@
 package com.luckymarket.application.validation.product;
 
-import com.luckymarket.application.dto.product.ProductCreateDto;
+import com.luckymarket.application.dto.product.ProductCreateRequest;
 import com.luckymarket.application.validation.ValidationRule;
 import com.luckymarket.domain.exception.product.ProductErrorCode;
 import com.luckymarket.domain.exception.product.ProductException;
@@ -10,9 +10,9 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Component
-public class ProductValidationRule implements ValidationRule<ProductCreateDto> {
+public class ProductValidationRule implements ValidationRule<ProductCreateRequest> {
     @Override
-    public void validate(ProductCreateDto dto) {
+    public void validate(ProductCreateRequest dto) {
         if (dto.getTitle() == null || dto.getTitle().isEmpty()) {
             throw new ProductException(ProductErrorCode.TITLE_BLANK);
         }

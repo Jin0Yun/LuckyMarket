@@ -9,7 +9,7 @@ import com.luckymarket.domain.entity.product.PriceRange;
 import com.luckymarket.domain.entity.product.Category;
 import com.luckymarket.domain.entity.product.Product;
 import com.luckymarket.domain.entity.product.ProductStatus;
-import com.luckymarket.application.dto.product.ProductCreateDto;
+import com.luckymarket.application.dto.product.ProductCreateRequest;
 import com.luckymarket.domain.exception.auth.AuthErrorCode;
 import com.luckymarket.domain.exception.auth.AuthException;
 import com.luckymarket.domain.exception.product.ProductErrorCode;
@@ -65,7 +65,7 @@ class ProductServiceImplTest {
     private ProductServiceImpl productService;
 
     private Member member;
-    private ProductCreateDto validProductCreateDto;
+    private ProductCreateRequest validProductCreateRequest;
     private Product product;
     private Category category;
 
@@ -81,7 +81,7 @@ class ProductServiceImplTest {
         category.setName("과일");
         category.setCode("A000");
 
-        validProductCreateDto = ProductCreateDto.builder()
+        validProductCreateRequest = ProductCreateRequest.builder()
                 .title("신선한 사과")
                 .description("100% 유기농 사과, 맛있고 건강한 사과입니다.")
                 .price(BigDecimal.valueOf(5000))
@@ -91,7 +91,7 @@ class ProductServiceImplTest {
                 .endDate(LocalDate.of(2025, 3, 10))
                 .build();
 
-        product = ProductMapper.toEntity(validProductCreateDto, member, category);
+        product = ProductMapper.toEntity(validProductCreateRequest, member, category);
     }
 
     @DisplayName("존재하지 않는 카테고리 코드로 상품을 생성하려고 하면 예외를 던진다.")
@@ -102,7 +102,7 @@ class ProductServiceImplTest {
         when(categoryRepository.findByCode("A000")).thenReturn(Optional.empty());
 
         // when & then
-        ProductException exception = assertThrows(ProductException.class, () -> productService.createProduct(validProductCreateDto, 1L));
+        ProductException exception = assertThrows(ProductException.class, () -> productService.createProduct(validProductCreateRequest, 1L));
         assertThat(exception.getMessage()).isEqualTo(ProductErrorCode.CATEGORY_NOT_FOUND.getMessage());
     }
 
@@ -113,7 +113,7 @@ class ProductServiceImplTest {
         when(userRepository.findById(1L)).thenReturn(Optional.empty());
 
         // when & then
-        AuthException exception = assertThrows(AuthException.class, () -> productService.createProduct(validProductCreateDto, 1L));
+        AuthException exception = assertThrows(AuthException.class, () -> productService.createProduct(validProductCreateRequest, 1L));
         assertThat(exception.getMessage()).isEqualTo(AuthErrorCode.USER_NOT_FOUND.getMessage());
     }
 
@@ -125,7 +125,7 @@ class ProductServiceImplTest {
         when(categoryRepository.findByCode("A000")).thenReturn(Optional.of(category));
 
         // when
-        productService.createProduct(validProductCreateDto, 1L);
+        productService.createProduct(validProductCreateRequest, 1L);
 
         // then
         verify(productRepository, times(1)).save(any(Product.class));
@@ -162,7 +162,7 @@ class ProductServiceImplTest {
         when(productRepository.findById(1L)).thenReturn(Optional.empty());
 
         // when & then
-        ProductException exception = assertThrows(ProductException.class, () -> productService.updateProduct(1L, validProductCreateDto, 1L));
+        ProductException exception = assertThrows(ProductException.class, () -> productService.updateProduct(1L, validProductCreateRequest, 1L));
         assertThat(exception.getMessage()).isEqualTo(ProductErrorCode.PRODUCT_NOT_FOUND.getMessage());
     }
 
@@ -178,7 +178,7 @@ class ProductServiceImplTest {
         Long unauthorizedUserId = 2L;
 
         // when & then
-        ProductException exception = assertThrows(ProductException.class, () -> productService.updateProduct(1L, validProductCreateDto, unauthorizedUserId));
+        ProductException exception = assertThrows(ProductException.class, () -> productService.updateProduct(1L, validProductCreateRequest, unauthorizedUserId));
         assertThat(exception.getMessage()).isEqualTo(ProductErrorCode.UNAUTHORIZED_PRODUCT_MODIFY.getMessage());
     }
 
@@ -191,7 +191,7 @@ class ProductServiceImplTest {
         when(categoryRepository.findByCode("A000")).thenReturn(Optional.empty());
 
         // when & then
-        ProductException exception = assertThrows(ProductException.class, () -> productService.updateProduct(1L, validProductCreateDto, 1L));
+        ProductException exception = assertThrows(ProductException.class, () -> productService.updateProduct(1L, validProductCreateRequest, 1L));
         assertThat(exception.getMessage()).isEqualTo(ProductErrorCode.CATEGORY_NOT_FOUND.getMessage());
     }
 
@@ -204,7 +204,7 @@ class ProductServiceImplTest {
         when(categoryRepository.findByCode("A000")).thenReturn(Optional.of(category));
 
         // when
-        productService.updateProduct(1L, validProductCreateDto, 1L);
+        productService.updateProduct(1L, validProductCreateRequest, 1L);
 
         // then
         verify(productRepository, times(1)).save(any(Product.class));

@@ -10,7 +10,8 @@ import lombok.Setter;
 @Setter
 @Builder
 @AllArgsConstructor
-public class SignupRequestDto {
+@Schema(description = "회원 가입 요청 DTO")
+public class SignupRequest {
     @Schema(description = "사용자 이메일", example = "example@email.com", required = true)
     private String email;
 

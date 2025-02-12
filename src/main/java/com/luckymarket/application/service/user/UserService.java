@@ -5,11 +5,11 @@ import com.luckymarket.domain.entity.user.Member;
 
 public interface UserService {
     Member getUserById(Long userId);
-    MemberResponseDto getUser(Long userId);
-    MemberResponseDto updateName(Long userId, NameUpdateDto dto);
-    MemberResponseDto updatePhoneNumber(Long userId, PhoneNumberUpdateDto dto);
-    MemberResponseDto updateAddress(Long userId, AddressUpdateDto addressDto);
-    MemberResponseDto updatePhoneNumberAndAddress(Long userId, PhoneNumberAndAddressUpdateDto dto);
-    void changePassword(Long userId, PasswordUpdateDto dto);
+    UserProfileResponse getUser(Long userId);
+    UserProfileResponse updateName(Long userId, UserNameUpdateRequest dto);
+    UserProfileResponse updatePhoneNumber(Long userId, UserPhoneUpdateRequest dto);
+    UserProfileResponse updateAddress(Long userId, UserAddressUpdateRequest addressDto);
+    UserProfileResponse updatePhoneNumberAndAddress(Long userId, UserContactUpdateRequest dto);
+    void changePassword(Long userId, UserPasswordUpdateRequest dto);
     void deleteAccount(Long userId);
 }

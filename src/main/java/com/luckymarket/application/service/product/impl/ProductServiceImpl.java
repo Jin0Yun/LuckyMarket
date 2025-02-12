@@ -14,7 +14,7 @@ import com.luckymarket.domain.exception.auth.AuthErrorCode;
 import com.luckymarket.domain.exception.auth.AuthException;
 import com.luckymarket.domain.entity.product.Category;
 import com.luckymarket.domain.entity.product.Product;
-import com.luckymarket.application.dto.product.ProductCreateDto;
+import com.luckymarket.application.dto.product.ProductCreateRequest;
 import com.luckymarket.domain.exception.product.ProductErrorCode;
 import com.luckymarket.domain.exception.product.ProductException;
 import com.luckymarket.domain.mapper.ProductMapper;
@@ -40,14 +40,14 @@ public class ProductServiceImpl implements ProductService {
     private final ProductStatusSearchStrategy productStatusSearchStrategy;
 
     @Override
-    public Product createProduct(ProductCreateDto productCreateDto, Long userId) {
+    public Product createProduct(ProductCreateRequest productCreateRequest, Long userId) {
         Member member = userRepository.findById(userId)
                 .orElseThrow(() -> new AuthException(AuthErrorCode.USER_NOT_FOUND));
-        Category category = categoryRepository.findByCode(productCreateDto.getCategoryCode())
+        Category category = categoryRepository.findByCode(productCreateRequest.getCategoryCode())
                 .orElseThrow(() -> new ProductException(ProductErrorCode.CATEGORY_NOT_FOUND));
 
-        productValidationRule.validate(productCreateDto);
-        Product product = ProductMapper.toEntity(productCreateDto, member, category);
+        productValidationRule.validate(productCreateRequest);
+        Product product = ProductMapper.toEntity(productCreateRequest, member, category);
 
         return productRepository.save(product);
     }
@@ -64,7 +64,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Product updateProduct(Long productId, ProductCreateDto productCreateDto, Long userId) {
+    public Product updateProduct(Long productId, ProductCreateRequest productCreateRequest, Long userId) {
         Product existingProduct = productRepository.findById(productId)
                 .orElseThrow(() -> new ProductException(ProductErrorCode.PRODUCT_NOT_FOUND));
 
@@ -72,11 +72,11 @@ public class ProductServiceImpl implements ProductService {
             throw new ProductException(ProductErrorCode.UNAUTHORIZED_PRODUCT_MODIFY);
         }
 
-        Category category = categoryRepository.findByCode(productCreateDto.getCategoryCode())
+        Category category = categoryRepository.findByCode(productCreateRequest.getCategoryCode())
                 .orElseThrow(() -> new ProductException(ProductErrorCode.CATEGORY_NOT_FOUND));
 
-        productValidationRule.validate(productCreateDto);
-        ProductMapper.updateEntity(existingProduct, productCreateDto, category);
+        productValidationRule.validate(productCreateRequest);
+        ProductMapper.updateEntity(existingProduct, productCreateRequest, category);
         return productRepository.save(existingProduct);
     }
 
