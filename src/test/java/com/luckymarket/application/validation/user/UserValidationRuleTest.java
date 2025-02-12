@@ -1,4 +1,4 @@
-package com.luckymarket.application.validation;
+package com.luckymarket.application.validation.user;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -33,7 +33,6 @@ class UserValidationRuleTest {
         // given
         Long currentUserId = 1L;
         Long userId = 2L;
-
         when(securityContextService.getCurrentUserId()).thenReturn(currentUserId);
 
         // when & then
@@ -47,7 +46,6 @@ class UserValidationRuleTest {
         // given
         Long currentUserId = 1L;
         Long userId = 1L;
-
         when(securityContextService.getCurrentUserId()).thenReturn(currentUserId);
 
         // when & then

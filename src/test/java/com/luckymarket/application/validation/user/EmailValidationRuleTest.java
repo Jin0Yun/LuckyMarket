@@ -1,4 +1,4 @@
-package com.luckymarket.application.validation;
+package com.luckymarket.application.validation.user;
 
 import com.luckymarket.domain.exception.auth.AuthErrorCode;
 import com.luckymarket.domain.exception.auth.AuthException;

@@ -1,6 +1,6 @@
 package com.luckymarket.application.service.product.impl;
 
-import com.luckymarket.application.validation.CategoryValidationRule;
+import com.luckymarket.application.validation.product.CategoryValidationRule;
 import com.luckymarket.domain.entity.product.Category;
 import com.luckymarket.adapter.out.persistence.product.CategoryRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,6 +12,7 @@ import org.mockito.MockitoAnnotations;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -57,7 +58,7 @@ class CategoryServiceImplTest {
 
     @DisplayName("전체 카테고리 조회 테스트")
     @Test
-    void shouldRetrieveAllCategoriesSuccessfully() {
+    void should_RetrieveAllCategoriesSuccessfully() {
         // given
         when(categoryRepository.findAll()).thenReturn(Arrays.asList(parentCategory, childCategory1, childCategory2));
 
@@ -67,11 +68,12 @@ class CategoryServiceImplTest {
         // then
         assertThat(result).hasSize(3);
         assertThat(result).contains(parentCategory, childCategory1, childCategory2);
+        verify(categoryValidationRule).validate(result);
     }
 
     @DisplayName("부모 카테고리를 조회하는지 테스트")
     @Test
-    void shouldRetrieveParentCategoriesSuccessfully() {
+    void should_RetrieveParentCategoriesSuccessfully() {
         // given
         when(categoryRepository.findByParentIsNull()).thenReturn(Arrays.asList(parentCategory));
 
@@ -81,11 +83,12 @@ class CategoryServiceImplTest {
         // then
         assertThat(result).hasSize(1);
         assertThat(result.get(0).getName()).isEqualTo("과일");
+        verify(categoryValidationRule).validate(result);
     }
 
     @DisplayName("하위 카테고리를 조회하는지 테스트")
     @Test
-    void shouldRetrieveSubCategoriesSuccessfully() {
+    void should_RetrieveSubCategoriesSuccessfully() {
         // given
         when(categoryRepository.existsById(1L)).thenReturn(true);
         when(categoryRepository.findByParent(1L)).thenReturn(Arrays.asList(childCategory1, childCategory2));
@@ -96,19 +99,22 @@ class CategoryServiceImplTest {
         // then
         assertThat(result).hasSize(2);
         assertThat(result).contains(childCategory1, childCategory2);
+        verify(categoryValidationRule).validateParentCategoryExists(true);
+        verify(categoryValidationRule).validateSubCategoriesExist(result);
     }
 
     @DisplayName("특정 카테고리 코드로 조회되는지 테스트")
     @Test
-    void shouldRetrieveCategoryByCodeSuccessfully() {
+    void should_RetrieveCategoryByCodeSuccessfully() {
         // given
         String code = "A001";
-        when(categoryRepository.findByCode(code)).thenReturn(childCategory1);
+        when(categoryRepository.findByCode(code)).thenReturn(Optional.of(childCategory1));
 
         // when
         Category result = categoryService.getCategoryByCode(code);
 
         // then
         assertThat(result).isEqualTo(childCategory1);
+        verify(categoryValidationRule).validateCategoryCodeExists(childCategory1);
     }
 }
