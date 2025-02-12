@@ -40,6 +40,7 @@ public class Product {
     @Column(nullable = false)
     private int maxParticipants;
 
+    @Builder.Default
     @Column(nullable = false)
     private int participants = 0;
 

@@ -49,6 +49,7 @@ public class Member {
     @Column(nullable = true)
     private LocalDateTime lastLogin;
 
+    @Builder.Default
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<Product> products = new ArrayList<>();
