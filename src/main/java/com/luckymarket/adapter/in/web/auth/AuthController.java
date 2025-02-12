@@ -22,7 +22,7 @@ public class AuthController {
     @Operation(summary = "회원가입", description = "사용자가 이메일, 비밀번호, 이름으로 회원가입을 요청합니다.")
     public ApiResponse<Void> signup(@RequestBody SignupRequestDto signupRequestDto) {
         authService.signup(signupRequestDto);
-        return ApiResponse.success("회원가입 성공", null);
+        return ApiResponse.success("회원가입이 성공적으로 완료되었습니다.", null);
     }
 
     @PostMapping("/login")
@@ -32,7 +32,7 @@ public class AuthController {
     )
     public ApiResponse<Object> login(@RequestBody LoginRequestDto loginRequestDto) {
         LoginResponseDto responseDto = authService.login(loginRequestDto);
-        return ApiResponse.success("로그인 성공", responseDto);
+        return ApiResponse.success("로그인이 성공적으로 완료되었습니다.", responseDto);
     }
 
     @PostMapping("/logout")
@@ -42,7 +42,7 @@ public class AuthController {
     )
     public ApiResponse<Object> logout(@RequestHeader("Authorization") String accessToken) {
         authService.logout(accessToken);
-        return ApiResponse.success("로그아웃 성공", null);
+        return ApiResponse.success("로그아웃이 성공적으로 처리되었습니다.", null);
     }
 
     @PostMapping("/refresh")
@@ -52,6 +52,6 @@ public class AuthController {
     )
     public ApiResponse<Object> reissueAccessToken(@RequestHeader("Authorization") String refreshToken) {
         TokenResponseDto jwtTokenDto = authService.refreshAccessToken(refreshToken);
-        return ApiResponse.success("엑세스 토큰 갱신 성공", jwtTokenDto);
+        return ApiResponse.success("엑세스 토큰이 성공적으로 갱신되었습니다.", jwtTokenDto);
     }
 }
