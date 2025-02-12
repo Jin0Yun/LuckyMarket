@@ -21,4 +21,15 @@ public class ProductMapper {
                 .member(member)
                 .build();
     }
+
+    public static void updateEntity(Product product, ProductCreateDto dto, Category category) {
+        product.setTitle(dto.getTitle());
+        product.setDescription(dto.getDescription());
+        product.setPrice(dto.getPrice());
+        product.setCategory(category);
+        product.setStatus(dto.getStatus());
+        product.setMaxParticipants(dto.getMaxParticipants());
+        product.setEndDate(dto.getEndDate());
+        product.setImageUrl(dto.getImageUrl());
+    }
 }
