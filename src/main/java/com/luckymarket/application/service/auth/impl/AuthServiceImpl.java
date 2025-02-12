@@ -72,9 +72,7 @@ public class AuthServiceImpl implements AuthService {
 
         String refreshToken = redisService.getRefreshToken(userId)
                 .orElseThrow(() -> new RedisException(RedisErrorCode.REFRESH_TOKEN_NOT_FOUND));
-        redisService.addToBlacklist(refreshToken, jwtTokenProvider.getRemainingExpirationTime(refreshToken));
-        redisService.markUserAsLoggedOut(userId);
-        redisService.removeRefreshToken(userId);
+        saveLogoutInfo(userId, refreshToken);
     }
 
     @Override
@@ -114,6 +112,12 @@ public class AuthServiceImpl implements AuthService {
         );
         member.setLastLogin(LocalDateTime.now());
         userRepository.save(member);
+    }
+
+    private void saveLogoutInfo(Long userId, String refreshToken) {
+        redisService.addToBlacklist(refreshToken, jwtTokenProvider.getRemainingExpirationTime(refreshToken));
+        redisService.markUserAsLoggedOut(userId);
+        redisService.removeRefreshToken(userId);
     }
 
     private String extractToken(String refreshToken) {
