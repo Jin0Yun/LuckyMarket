@@ -2,6 +2,7 @@ package com.luckymarket.application.dto.product;
 
 import com.luckymarket.domain.entity.product.ProductStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,6 +13,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @Builder
+@AllArgsConstructor
 public class ProductCreateDto {
     @Schema(description = "상품 제목", example = "신선한 사과")
     private String title;

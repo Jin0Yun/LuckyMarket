@@ -1,5 +1,6 @@
-package com.luckymarket.application.validation;
+package com.luckymarket.application.validation.auth;
 
+import com.luckymarket.application.validation.ValidationRule;
 import com.luckymarket.domain.exception.auth.AuthErrorCode;
 import com.luckymarket.domain.exception.auth.AuthException;
 import com.luckymarket.domain.entity.user.Member;

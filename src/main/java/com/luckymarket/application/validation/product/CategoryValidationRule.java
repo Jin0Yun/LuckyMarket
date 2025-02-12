@@ -1,5 +1,6 @@
-package com.luckymarket.application.validation;
+package com.luckymarket.application.validation.product;
 
+import com.luckymarket.application.validation.ValidationRule;
 import com.luckymarket.domain.entity.product.Category;
 import com.luckymarket.domain.exception.product.CategoryErrorCode;
 import com.luckymarket.domain.exception.product.CategoryException;

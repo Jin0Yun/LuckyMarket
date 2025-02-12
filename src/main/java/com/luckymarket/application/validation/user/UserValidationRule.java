@@ -1,5 +1,6 @@
-package com.luckymarket.application.validation;
+package com.luckymarket.application.validation.user;
 
+import com.luckymarket.application.validation.ValidationRule;
 import com.luckymarket.infrastructure.security.SecurityContextService;
 import com.luckymarket.domain.exception.user.UserErrorCode;
 import com.luckymarket.domain.exception.user.UserException;

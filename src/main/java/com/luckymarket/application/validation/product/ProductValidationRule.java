@@ -1,6 +1,7 @@
-package com.luckymarket.application.validation;
+package com.luckymarket.application.validation.product;
 
 import com.luckymarket.application.dto.product.ProductCreateDto;
+import com.luckymarket.application.validation.ValidationRule;
 import com.luckymarket.domain.exception.product.ProductErrorCode;
 import com.luckymarket.domain.exception.product.ProductException;
 import org.springframework.stereotype.Component;

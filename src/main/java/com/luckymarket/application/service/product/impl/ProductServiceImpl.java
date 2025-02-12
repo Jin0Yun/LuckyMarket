@@ -7,7 +7,7 @@ import com.luckymarket.adapter.out.persistence.product.search.strategy.PriceSear
 import com.luckymarket.adapter.out.persistence.product.search.strategy.ProductStatusSearchStrategy;
 import com.luckymarket.adapter.out.persistence.product.search.strategy.TitleSearchStrategy;
 import com.luckymarket.application.service.product.ProductService;
-import com.luckymarket.application.validation.ProductValidationRule;
+import com.luckymarket.application.validation.product.ProductValidationRule;
 import com.luckymarket.domain.entity.product.PriceRange;
 import com.luckymarket.domain.entity.product.ProductStatus;
 import com.luckymarket.domain.exception.auth.AuthErrorCode;
