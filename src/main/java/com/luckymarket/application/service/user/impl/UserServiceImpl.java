@@ -115,4 +115,18 @@ public class UserServiceImpl implements UserService {
                 .map(productMapper::toProductSummaryResponse)
                 .collect(Collectors.toList());
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<UserParticipatedProductResponse> getParticipatedProducts(Long userId) {
+        List<Product> participatedProducts = productRepository.findByParticipations_Member_Id(userId);  // 수정된 부분
+
+        if (participatedProducts.isEmpty()) {
+            throw new UserException(UserErrorCode.NO_PARTICIPATED_PRODUCTS_FOUND);
+        }
+
+        return participatedProducts.stream()
+                .map(productMapper::toParticipatedProductResponse)
+                .collect(Collectors.toList());
+    }
 }
