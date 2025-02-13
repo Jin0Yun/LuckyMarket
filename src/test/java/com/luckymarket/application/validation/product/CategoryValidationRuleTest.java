@@ -1,5 +1,6 @@
 package com.luckymarket.application.validation.product;
 
+import com.luckymarket.adapter.out.persistence.product.CategoryRepository;
 import com.luckymarket.domain.entity.product.Category;
 import com.luckymarket.domain.exception.product.CategoryErrorCode;
 import com.luckymarket.domain.exception.product.CategoryException;
@@ -13,13 +14,17 @@ import java.util.List;
 import static org.assertj.core.api.AssertionsForClassTypes.*;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class CategoryValidationRuleTest {
+    private CategoryRepository categoryRepository;
     private CategoryValidationRule categoryValidationRule;
 
     @BeforeEach
     void setUp() {
-        categoryValidationRule = new CategoryValidationRule();
+        categoryRepository = mock(CategoryRepository.class);
+        categoryValidationRule = new CategoryValidationRule(categoryRepository);
     }
 
     @DisplayName("카테고리 목록이 null일 경우 예외를 던진다.")
@@ -58,10 +63,11 @@ class CategoryValidationRuleTest {
     @Test
     void validateParentCategoryExists_ShouldThrowException_WhenParentCategoryDoesNotExist() {
         // given
+        Long parentCategoryId = 1L;
         boolean parentExists = false;
 
         // when & then
-        CategoryException exception = assertThrows(CategoryException.class, () -> categoryValidationRule.validateParentCategoryExists(parentExists));
+        CategoryException exception = assertThrows(CategoryException.class, () -> categoryValidationRule.validateParentCategoryExists(parentCategoryId));
         assertThat(exception.getMessage()).isEqualTo(CategoryErrorCode.PARENT_CATEGORY_NOT_FOUND.getMessage());
     }
 
@@ -69,10 +75,11 @@ class CategoryValidationRuleTest {
     @Test
     void validateParentCategoryExists_ShouldNotThrowException_WhenParentCategoryExists() {
         // given
-        boolean parentExists = true;
+        Long parentCategoryId = 1L;
+        when(categoryRepository.existsById(parentCategoryId)).thenReturn(true);
 
         // when & then
-        assertDoesNotThrow(() -> categoryValidationRule.validateParentCategoryExists(parentExists));
+        assertDoesNotThrow(() -> categoryValidationRule.validateParentCategoryExists(parentCategoryId));
     }
 
     @DisplayName("하위 카테고리 목록이 null일 경우 예외를 던진다.")
