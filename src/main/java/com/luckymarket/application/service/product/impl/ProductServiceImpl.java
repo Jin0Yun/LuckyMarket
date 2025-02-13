@@ -44,7 +44,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Product getProductById(Long productId) {
-        return productRepository.findById(productId).get();
+        return productExistenceValidationRule.getEntity(productId);
     }
 
     @Override
@@ -54,7 +54,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Product updateProduct(Long productId, ProductCreateRequest productCreateRequest, Long userId) {
-        Product existingProduct = productExistenceValidationRule.getEntity(productId);
+        Product existingProduct = getProductById(productId);
 
         if (!existingProduct.getMember().getId().equals(userId)) {
             throw new ProductException(ProductErrorCode.UNAUTHORIZED_PRODUCT_MODIFY);
@@ -68,7 +68,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public void deleteProduct(Long productId, Long userId) {
-        Product product = productExistenceValidationRule.getEntity(productId);
+        Product product = getProductById(productId);
         if (!product.getMember().getId().equals(userId)) {
             throw new ProductException(ProductErrorCode.UNAUTHORIZED_PRODUCT_DELETE);
         }
