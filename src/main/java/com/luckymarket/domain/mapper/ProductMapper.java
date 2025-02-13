@@ -1,10 +1,16 @@
 package com.luckymarket.domain.mapper;
 
+import com.luckymarket.application.dto.user.ProductParticipantInfo;
+import com.luckymarket.application.dto.user.UserProductSummaryResponse;
+import com.luckymarket.domain.entity.participation.Participation;
 import com.luckymarket.domain.entity.product.Category;
 import com.luckymarket.domain.entity.product.Product;
 import com.luckymarket.application.dto.product.ProductCreateRequest;
 import com.luckymarket.domain.entity.user.Member;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class ProductMapper {
@@ -31,5 +37,29 @@ public class ProductMapper {
         product.setMaxParticipants(dto.getMaxParticipants());
         product.setEndDate(dto.getEndDate());
         product.setImageUrl(dto.getImageUrl());
+    }
+
+    public UserProductSummaryResponse toProductSummaryResponse(Product product) {
+        return UserProductSummaryResponse.builder()
+                .productId(product.getId())
+                .productTitle(product.getTitle())
+                .productPrice(product.getPrice())
+                .productCategory(product.getCategory())
+                .participants(product.getParticipants())
+                .maxParticipants(product.getMaxParticipants())
+                .productStatus(product.getStatus())
+                .productImageUrl(product.getImageUrl())
+                .productEndDate(product.getEndDate())
+                .participantsList(getParticipantInfoList(product.getParticipations()))
+                .build();
+    }
+
+    private static List<ProductParticipantInfo> getParticipantInfoList(List<Participation> participations) {
+        return participations.stream()
+                .map(participation -> ProductParticipantInfo.builder()
+                        .participantId(participation.getMember().getId())
+                        .username(participation.getMember().getUsername())
+                        .build())
+                .collect(Collectors.toList());
     }
 }
