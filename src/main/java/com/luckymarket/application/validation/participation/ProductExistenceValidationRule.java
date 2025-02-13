@@ -1,7 +1,7 @@
 package com.luckymarket.application.validation.participation;
 
 import com.luckymarket.adapter.out.persistence.product.ProductRepository;
-import com.luckymarket.application.validation.ValidationRule;
+import com.luckymarket.application.validation.EntityRetrievalRule;
 import com.luckymarket.domain.entity.product.Product;
 import com.luckymarket.domain.exception.product.ProductErrorCode;
 import com.luckymarket.domain.exception.product.ProductException;
@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class ProductExistenceValidationRule implements ValidationRule<Long> {
+public class ProductExistenceValidationRule implements EntityRetrievalRule<Product, Long> {
     private final ProductRepository productRepository;
 
     @Override
@@ -20,7 +20,8 @@ public class ProductExistenceValidationRule implements ValidationRule<Long> {
         }
     }
 
-    public Product getProduct(Long productId) {
+    @Override
+    public Product getEntity(Long productId) {
         return productRepository.findById(productId)
                 .orElseThrow(() -> new ProductException(ProductErrorCode.PRODUCT_NOT_FOUND));
     }

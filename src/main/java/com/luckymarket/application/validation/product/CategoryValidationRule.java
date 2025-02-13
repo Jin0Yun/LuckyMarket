@@ -12,7 +12,7 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
-public class CategoryValidationRule implements ValidationRule<List<Category> > {
+public class CategoryValidationRule implements ValidationRule<List<Category>> {
     private final CategoryRepository categoryRepository;
 
     @Override
