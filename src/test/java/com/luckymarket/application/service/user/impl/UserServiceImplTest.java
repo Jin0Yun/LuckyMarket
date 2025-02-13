@@ -1,6 +1,9 @@
 package com.luckymarket.application.service.user.impl;
 
+import com.luckymarket.adapter.out.persistence.product.ProductRepository;
 import com.luckymarket.application.dto.user.*;
+import com.luckymarket.application.validation.participation.UserExistenceValidationRule;
+import com.luckymarket.domain.entity.product.Product;
 import com.luckymarket.domain.exception.auth.AuthErrorCode;
 import com.luckymarket.domain.exception.auth.AuthException;
 import com.luckymarket.infrastructure.redis.RedisService;
@@ -19,13 +22,20 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 class UserServiceImplTest {
     @Mock
-    private UserRepository userRepository;
+    private UserExistenceValidationRule userExistenceValidationRule;
+
+    @Mock
+    private ProductRepository productRepository;
 
     @Mock
     private MemberValidationService memberValidationService;
@@ -66,7 +76,7 @@ class UserServiceImplTest {
     @Test
     void shouldReturnMember_WhenUserExists() {
         // given
-        when(userRepository.findById(userId)).thenReturn(java.util.Optional.of(member));
+        when(userExistenceValidationRule.getEntity(userId)).thenReturn(member);
 
         // when
         Member result = userService.getUserById(userId);
@@ -79,7 +89,7 @@ class UserServiceImplTest {
     @Test
     void shouldThrowUserNotFoundException_WhenUserDoesNotExist() {
         // given
-        when(userRepository.findById(userId)).thenReturn(java.util.Optional.empty());
+        when(userExistenceValidationRule.getEntity(userId)).thenThrow(new AuthException(AuthErrorCode.USER_NOT_FOUND));
 
         // when & then
         AuthException exception = assertThrows(AuthException.class, () -> userService.getUserById(userId));
@@ -91,7 +101,7 @@ class UserServiceImplTest {
     void shouldUpdateMemberName_WhenNameIsValid() {
         // given
         UserNameUpdateRequest dto = new UserNameUpdateRequest("newName");
-        when(userRepository.findById(userId)).thenReturn(java.util.Optional.of(member));
+        when(userExistenceValidationRule.getEntity(userId)).thenReturn(member);
 
         // when
         UserProfileResponse result = userService.updateName(userId, dto);
@@ -105,7 +115,7 @@ class UserServiceImplTest {
     void shouldUpdatePassword_WhenPasswordIsValid() {
         // given
         UserPasswordUpdateRequest dto = new UserPasswordUpdateRequest("newPassword");
-        when(userRepository.findById(userId)).thenReturn(java.util.Optional.of(member));
+        when(userExistenceValidationRule.getEntity(userId)).thenReturn(member);
         when(passwordService.encodePassword(dto.getPassword())).thenReturn("encodedNewPassword");
 
         // when
@@ -120,7 +130,7 @@ class UserServiceImplTest {
     void shouldUpdateMemberPhoneNumber_WhenPhoneNumberIsValid() {
         // given
         UserPhoneUpdateRequest dto = new UserPhoneUpdateRequest("9876543210");
-        when(userRepository.findById(userId)).thenReturn(java.util.Optional.of(member));
+        when(userExistenceValidationRule.getEntity(userId)).thenReturn(member);
 
         // when
         UserProfileResponse result = userService.updatePhoneNumber(userId, dto);
@@ -134,7 +144,7 @@ class UserServiceImplTest {
     void shouldUpdateMemberAddress_WhenAddressIsValid() {
         // given
         UserAddressUpdateRequest dto = new UserAddressUpdateRequest("new address");
-        when(userRepository.findById(userId)).thenReturn(java.util.Optional.of(member));
+        when(userExistenceValidationRule.getEntity(userId)).thenReturn(member);
 
         // when
         UserProfileResponse result = userService.updateAddress(userId, dto);
@@ -148,7 +158,7 @@ class UserServiceImplTest {
     void updatePhoneNumberAndAddress_ShouldUpdateBothPhoneNumberAndAddress_WhenValidDto() {
         // given
         UserContactUpdateRequest dto = new UserContactUpdateRequest("9876543210", "new address");
-        when(userRepository.findById(userId)).thenReturn(java.util.Optional.of(member));
+        when(userExistenceValidationRule.getEntity(userId)).thenReturn(member);
 
         // when
         UserProfileResponse result = userService.updatePhoneNumberAndAddress(userId, dto);
@@ -163,7 +173,7 @@ class UserServiceImplTest {
     void shouldUpdateStatusToDeleted_WhenUserIsActive() {
         // given
         member.setStatus(Status.ACTIVE);
-        when(userRepository.findById(userId)).thenReturn(java.util.Optional.of(member));
+        when(userExistenceValidationRule.getEntity(userId)).thenReturn(member);
 
         // when
         userService.deleteAccount(userId);
@@ -177,10 +187,21 @@ class UserServiceImplTest {
     void shouldThrowUserAlreadyDeletedException_WhenUserIsAlreadyDeleted() {
         // given
         member.setStatus(Status.DELETED);
-        when(userRepository.findById(userId)).thenReturn(java.util.Optional.of(member));
+        when(userExistenceValidationRule.getEntity(userId)).thenReturn(member);
 
         // when & then
         UserException exception = assertThrows(UserException.class, () -> userService.deleteAccount(userId));
         assertThat(exception.getMessage()).isEqualTo(UserErrorCode.USER_ALREADY_DELETED.getMessage());
+    }
+
+    @DisplayName("유저가 생성한 상품이 없으면, 예외를 발생시킨다.")
+    @Test
+    void shouldThrowUserException_WhenUserHasNoCreatedProducts() {
+        // given
+        when(productRepository.findByMemberId(userId)).thenReturn(Collections.emptyList());
+
+        // when & then
+        UserException exception = assertThrows(UserException.class, () -> userService.getCreatedProducts(userId));
+        assertThat(exception.getMessage()).isEqualTo(UserErrorCode.NO_CREATED_PRODUCTS_FOUND.getMessage());
     }
 }
