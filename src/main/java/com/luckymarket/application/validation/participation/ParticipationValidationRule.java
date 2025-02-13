@@ -1,7 +1,7 @@
 package com.luckymarket.application.validation.participation;
 
 import com.luckymarket.adapter.out.persistence.participation.ParticipationRepository;
-import com.luckymarket.application.dto.ParticipationRequest;
+import com.luckymarket.application.dto.participation.ParticipationRequest;
 import com.luckymarket.application.validation.ValidationRule;
 import com.luckymarket.domain.entity.product.Product;
 import com.luckymarket.domain.entity.product.ProductStatus;
