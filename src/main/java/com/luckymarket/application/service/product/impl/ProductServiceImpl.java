@@ -6,10 +6,10 @@ import com.luckymarket.adapter.out.persistence.product.search.strategy.CategoryC
 import com.luckymarket.adapter.out.persistence.product.search.strategy.PriceSearchStrategy;
 import com.luckymarket.adapter.out.persistence.product.search.strategy.ProductStatusSearchStrategy;
 import com.luckymarket.adapter.out.persistence.product.search.strategy.TitleSearchStrategy;
+import com.luckymarket.application.dto.product.ProductSearchRequest;
 import com.luckymarket.application.service.product.ProductService;
 import com.luckymarket.application.validation.product.ProductValidationRule;
 import com.luckymarket.domain.entity.product.PriceRange;
-import com.luckymarket.domain.entity.product.ProductStatus;
 import com.luckymarket.domain.exception.auth.AuthErrorCode;
 import com.luckymarket.domain.exception.auth.AuthException;
 import com.luckymarket.domain.entity.product.Category;
@@ -24,7 +24,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -93,13 +92,19 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<Product> searchProducts(String title, String categoryCode, BigDecimal priceMin, BigDecimal priceMax, ProductStatus status) {
+    public List<Product> searchProducts(ProductSearchRequest searchRequest) {
         Specification<Product> spec = Specification
-                .where(titleSearchStrategy.apply(title))
-                .and(categoryCodeSearchStrategy.apply(categoryCode))
-                .and(priceSearchStrategy.apply(new PriceRange(priceMin, priceMax)))
-                .and(productStatusSearchStrategy.apply(status));
+                .where(titleSearchStrategy.apply(searchRequest.getTitle()))
+                .and(categoryCodeSearchStrategy.apply(searchRequest.getCategoryCode()))
+                .and(priceSearchStrategy.apply(new PriceRange(searchRequest.getPriceMin(), searchRequest.getPriceMax())))
+                .and(productStatusSearchStrategy.apply(searchRequest.getStatus()));
 
-        return productRepository.findAll(spec);
+        List<Product> products = productRepository.findAll(spec);
+
+        if (products.isEmpty()) {
+            throw new ProductException(ProductErrorCode.PRODUCT_NOT_FOUND);
+        }
+
+        return products;
     }
 }
