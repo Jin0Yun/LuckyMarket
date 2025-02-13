@@ -53,8 +53,6 @@ public class ParticipationServiceImpl implements ParticipationService {
 
         Product product = productExistenceValidationRule.getProduct(productId);
         ParticipationRequest request = new ParticipationRequest(product, userId);
-
-        participationExistenceValidationRule.validate(request);
         Participation participation = participationExistenceValidationRule.getParticipation(productId, userId);
 
         participationRepository.delete(participation);
