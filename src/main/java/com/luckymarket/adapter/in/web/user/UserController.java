@@ -9,6 +9,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/user")
 @RequiredArgsConstructor
@@ -71,5 +73,16 @@ public class UserController {
         Long userId = securityContextService.getCurrentUserId();
         userService.deleteAccount(userId);
         return ApiResponse.success("회원 탈퇴가 성공적으로 처리되었습니다", null);
+    }
+
+    @GetMapping("/get-created-products")
+    @Operation(
+            summary = "회원이 생성한 상품 조회",
+            description = "회원이 생성한 상품 목록을 조회합니다. 해당 회원이 생성한 모든 상품을 반환합니다."
+    )
+    public ApiResponse<List<UserProductSummaryResponse>> getCreatedProducts() {
+        Long userId = securityContextService.getCurrentUserId();
+        List<UserProductSummaryResponse> createdProducts = userService.getCreatedProducts(userId);
+        return ApiResponse.success("성공적으로 생성한 상품 목록을 조회했습니다.", createdProducts);
     }
 }
