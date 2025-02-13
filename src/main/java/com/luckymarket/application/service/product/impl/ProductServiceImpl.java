@@ -2,14 +2,10 @@ package com.luckymarket.application.service.product.impl;
 
 import com.luckymarket.adapter.out.persistence.product.CategoryRepository;
 import com.luckymarket.adapter.out.persistence.product.ProductRepository;
-import com.luckymarket.adapter.out.persistence.product.search.strategy.CategoryCodeSearchStrategy;
-import com.luckymarket.adapter.out.persistence.product.search.strategy.PriceSearchStrategy;
-import com.luckymarket.adapter.out.persistence.product.search.strategy.ProductStatusSearchStrategy;
-import com.luckymarket.adapter.out.persistence.product.search.strategy.TitleSearchStrategy;
 import com.luckymarket.application.dto.product.ProductSearchRequest;
+import com.luckymarket.application.service.product.ProductSearchService;
 import com.luckymarket.application.service.product.ProductService;
 import com.luckymarket.application.validation.product.ProductValidationRule;
-import com.luckymarket.domain.entity.product.PriceRange;
 import com.luckymarket.domain.exception.auth.AuthErrorCode;
 import com.luckymarket.domain.exception.auth.AuthException;
 import com.luckymarket.domain.entity.product.Category;
@@ -21,7 +17,6 @@ import com.luckymarket.domain.mapper.ProductMapper;
 import com.luckymarket.domain.entity.user.Member;
 import com.luckymarket.adapter.out.persistence.user.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -33,10 +28,7 @@ public class ProductServiceImpl implements ProductService {
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
     private final ProductValidationRule productValidationRule;
-    private final TitleSearchStrategy titleSearchStrategy;
-    private final CategoryCodeSearchStrategy categoryCodeSearchStrategy;
-    private final PriceSearchStrategy priceSearchStrategy;
-    private final ProductStatusSearchStrategy productStatusSearchStrategy;
+    private final ProductSearchService productSearchService;
 
     @Override
     public Product createProduct(ProductCreateRequest productCreateRequest, Long userId) {
@@ -93,18 +85,6 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<Product> searchProducts(ProductSearchRequest searchRequest) {
-        Specification<Product> spec = Specification
-                .where(titleSearchStrategy.apply(searchRequest.getTitle()))
-                .and(categoryCodeSearchStrategy.apply(searchRequest.getCategoryCode()))
-                .and(priceSearchStrategy.apply(new PriceRange(searchRequest.getPriceMin(), searchRequest.getPriceMax())))
-                .and(productStatusSearchStrategy.apply(searchRequest.getStatus()));
-
-        List<Product> products = productRepository.findAll(spec);
-
-        if (products.isEmpty()) {
-            throw new ProductException(ProductErrorCode.PRODUCT_NOT_FOUND);
-        }
-
-        return products;
+        return productSearchService.search(searchRequest);
     }
 }
