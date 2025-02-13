@@ -1,6 +1,7 @@
 package com.luckymarket.domain.entity.user;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.luckymarket.domain.entity.participation.Participation;
 import com.luckymarket.domain.entity.product.Product;
 import jakarta.persistence.*;
 import lombok.*;
@@ -52,7 +53,12 @@ public class Member {
     @Builder.Default
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
-    private List<Product> products = new ArrayList<>();
+    private List<Product> createdProducts = new ArrayList<>();
+
+    @Builder.Default
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<Participation> participations = new ArrayList<>();
 
     @PrePersist
     public void prePersist() {

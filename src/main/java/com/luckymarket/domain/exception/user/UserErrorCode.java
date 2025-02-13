@@ -14,7 +14,10 @@ public enum UserErrorCode {
     PASSWORD_MISSING_SPECIAL_CHAR("비밀번호에는 특수문자가 포함되어야 합니다."),
     PASSWORD_MISSING_LOWERCASE("비밀번호에는 소문자가 포함되어야 합니다."),
     PASSWORD_MISSING_UPPERCASE("비밀번호에는 대문자가 포함되어야 합니다."),
-    PASSWORD_BLANK("비밀번호는 필수 항목입니다.");
+    PASSWORD_BLANK("비밀번호는 필수 항목입니다."),
+
+    NO_CREATED_PRODUCTS_FOUND("생성한 상품이 없습니다."),
+    NO_PARTICIPATED_PRODUCTS_FOUND("참여한 상품이 없습니다.");
 
     private final String message;
 

@@ -99,7 +99,7 @@ class CategoryServiceImplTest {
         // then
         assertThat(result).hasSize(2);
         assertThat(result).contains(childCategory1, childCategory2);
-        verify(categoryValidationRule).validateParentCategoryExists(true);
+        verify(categoryValidationRule).validateParentCategoryExists(1L);
         verify(categoryValidationRule).validateSubCategoriesExist(result);
     }
 
@@ -107,14 +107,14 @@ class CategoryServiceImplTest {
     @Test
     void should_RetrieveCategoryByCodeSuccessfully() {
         // given
-        String code = "A001";
-        when(categoryRepository.findByCode(code)).thenReturn(Optional.of(childCategory1));
+        String code = "A000";
+        when(categoryValidationRule.getCategory(code)).thenReturn(childCategory1);
 
         // when
         Category result = categoryService.getCategoryByCode(code);
 
         // then
         assertThat(result).isEqualTo(childCategory1);
-        verify(categoryValidationRule).validateCategoryCodeExists(childCategory1);
+        verify(categoryValidationRule).getCategory(code);
     }
 }

@@ -4,8 +4,6 @@ import com.luckymarket.adapter.out.persistence.product.CategoryRepository;
 import com.luckymarket.application.service.product.CategoryService;
 import com.luckymarket.application.validation.product.CategoryValidationRule;
 import com.luckymarket.domain.entity.product.Category;
-import com.luckymarket.domain.exception.product.ProductErrorCode;
-import com.luckymarket.domain.exception.product.ProductException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -33,8 +31,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public List<Category> getSubCategories(Long parentId) {
-        boolean parentExists = categoryRepository.existsById(parentId);
-        categoryValidationRule.validateParentCategoryExists(parentExists);
+        categoryValidationRule.validateParentCategoryExists(parentId);
         List<Category> subCategories = categoryRepository.findByParent(parentId);
         categoryValidationRule.validateSubCategoriesExist(subCategories);
         return subCategories;
@@ -42,9 +39,6 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public Category getCategoryByCode(String code) {
-        Category category = categoryRepository.findByCode(code)
-                .orElseThrow(() -> new ProductException(ProductErrorCode.CATEGORY_NOT_FOUND));
-        categoryValidationRule.validateCategoryCodeExists(category);
-        return category;
+        return categoryValidationRule.getCategory(code);
     }
 }

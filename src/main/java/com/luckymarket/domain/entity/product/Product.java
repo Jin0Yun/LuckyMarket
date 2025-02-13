@@ -1,6 +1,8 @@
 package com.luckymarket.domain.entity.product;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.luckymarket.domain.entity.participation.Participation;
 import com.luckymarket.domain.entity.user.Member;
 import jakarta.persistence.*;
 import lombok.*;
@@ -8,6 +10,8 @@ import lombok.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -58,6 +62,10 @@ public class Product {
     @JoinColumn(name = "member_id")
     @JsonBackReference
     private Member member;
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<Participation> participations = new ArrayList<>();
 
     @PrePersist
     public void prePersist() {
