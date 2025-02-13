@@ -1,6 +1,7 @@
 package com.luckymarket.domain.mapper;
 
 import com.luckymarket.application.dto.user.ProductParticipantInfo;
+import com.luckymarket.application.dto.user.UserParticipatedProductResponse;
 import com.luckymarket.application.dto.user.UserProductSummaryResponse;
 import com.luckymarket.domain.entity.participation.Participation;
 import com.luckymarket.domain.entity.product.Category;
@@ -51,6 +52,20 @@ public class ProductMapper {
                 .productImageUrl(product.getImageUrl())
                 .productEndDate(product.getEndDate())
                 .participantsList(getParticipantInfoList(product.getParticipations()))
+                .build();
+    }
+
+    public UserParticipatedProductResponse toParticipatedProductResponse(Product product) {
+        return UserParticipatedProductResponse.builder()
+                .productId(product.getId())
+                .productTitle(product.getTitle())
+                .productPrice(product.getPrice())
+                .productCategory(product.getCategory())
+                .participants(product.getParticipants())
+                .maxParticipants(product.getMaxParticipants())
+                .productStatus(product.getStatus())
+                .productImageUrl(product.getImageUrl())
+                .productEndDate(product.getEndDate())
                 .build();
     }
 

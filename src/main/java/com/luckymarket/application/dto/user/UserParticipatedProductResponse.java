@@ -7,15 +7,14 @@ import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.List;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Schema(description = "유저가 생성한 상품 목록 반환 DTO")
-public class UserProductSummaryResponse {
+@Schema(description = "유저가 참여한 상품 목록 반환 DTO")
+public class UserParticipatedProductResponse {
     @Schema(description = "상품 ID", example = "1")
     private Long productId;
 
@@ -42,7 +41,4 @@ public class UserProductSummaryResponse {
 
     @Schema(description = "상품 종료 날짜", example = "2025-12-31")
     private LocalDate productEndDate;
-
-    @Schema(description = "참여자 명단")
-    private List<ProductParticipantInfo> participantsList;
 }

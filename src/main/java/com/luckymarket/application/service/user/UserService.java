@@ -15,4 +15,5 @@ public interface UserService {
     void changePassword(Long userId, UserPasswordUpdateRequest dto);
     void deleteAccount(Long userId);
     List<UserProductSummaryResponse> getCreatedProducts(Long userId);
+    List<UserParticipatedProductResponse> getParticipatedProducts(Long userId);
 }

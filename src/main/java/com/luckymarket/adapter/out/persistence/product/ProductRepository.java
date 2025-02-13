@@ -10,4 +10,5 @@ import java.util.List;
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpecificationExecutor<Product> {
     List<Product> findByMemberId(Long memberId);
+    List<Product> findByParticipations_Member_Id(Long memberId);
 }
