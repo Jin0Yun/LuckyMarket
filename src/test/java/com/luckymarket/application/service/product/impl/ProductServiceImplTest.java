@@ -4,6 +4,7 @@ import com.luckymarket.adapter.out.persistence.product.search.strategy.CategoryC
 import com.luckymarket.adapter.out.persistence.product.search.strategy.PriceSearchStrategy;
 import com.luckymarket.adapter.out.persistence.product.search.strategy.ProductStatusSearchStrategy;
 import com.luckymarket.adapter.out.persistence.product.search.strategy.TitleSearchStrategy;
+import com.luckymarket.application.dto.product.ProductSearchRequest;
 import com.luckymarket.application.validation.product.ProductValidationRule;
 import com.luckymarket.domain.entity.product.PriceRange;
 import com.luckymarket.domain.entity.product.Category;
@@ -251,15 +252,35 @@ class ProductServiceImplTest {
         verify(productRepository, times(1)).delete(existingProduct);
     }
 
+    @DisplayName("상품을 제목으로 검색한다.")
+    @Test
+    void should_SearchProductByTitle() {
+        // given
+        ProductSearchRequest searchCriteria = new ProductSearchRequest(
+                "신선한 사과", null, null, null, null
+        );
+        when(titleSearchStrategy.apply("신선한 사과")).thenReturn(Specification.where(null));
+        when(productRepository.findAll(any(Specification.class))).thenReturn(List.of(product));
+
+        // when
+        List<Product> products = productService.searchProducts(searchCriteria);
+
+        // then
+        assertThat(products).isNotEmpty();
+    }
+
     @DisplayName("상품을 카테고리 코드로 검색한다.")
     @Test
     void should_SearchProductByCategoryCode() {
         // given
+        ProductSearchRequest searchCriteria = new ProductSearchRequest(
+                null, "A000", null, null, null
+        );
         when(categoryCodeSearchStrategy.apply("A000")).thenReturn(Specification.where(null));
         when(productRepository.findAll(any(Specification.class))).thenReturn(List.of(product));
 
         // when
-        List<Product> products = productService.searchProducts(null, "A000", null, null, null);
+        List<Product> products = productService.searchProducts(searchCriteria);
 
         // then
         assertThat(products).isNotEmpty();
@@ -269,11 +290,14 @@ class ProductServiceImplTest {
     @Test
     void should_SearchProductByPriceRange() {
         // given
+        ProductSearchRequest searchCriteria = new ProductSearchRequest(
+                null, null, BigDecimal.valueOf(1000), BigDecimal.valueOf(5000), null
+        );
         when(priceSearchStrategy.apply(new PriceRange(BigDecimal.valueOf(1000), BigDecimal.valueOf(5000)))).thenReturn(Specification.where(null));
         when(productRepository.findAll(any(Specification.class))).thenReturn(List.of(product));
 
         // when
-        List<Product> products = productService.searchProducts(null, null, BigDecimal.valueOf(1000), BigDecimal.valueOf(5000), null);
+        List<Product> products = productService.searchProducts(searchCriteria);
 
         // then
         assertThat(products).isNotEmpty();
@@ -283,11 +307,14 @@ class ProductServiceImplTest {
     @Test
     void should_ReturnProducts_WhenSearchByStatus() {
         // given
+        ProductSearchRequest searchCriteria = new ProductSearchRequest(
+                null, null, null, null, ProductStatus.ONGOING
+        );
         when(productStatusSearchStrategy.apply(ProductStatus.ONGOING)).thenReturn(Specification.where((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("status"), ProductStatus.ONGOING)));
         when(productRepository.findAll(any(Specification.class))).thenReturn(List.of(product));
 
         // when
-        List<Product> products = productService.searchProducts(null, null, null, null, ProductStatus.ONGOING);
+        List<Product> products = productService.searchProducts(searchCriteria);
 
         // then
         assertThat(products).isNotEmpty();
@@ -297,27 +324,16 @@ class ProductServiceImplTest {
     @Test
     void should_ReturnProducts_WhenSearchWithMultipleCriteria() {
         // given
+        ProductSearchRequest searchCriteria = new ProductSearchRequest(
+                "상품명", "A001", BigDecimal.valueOf(1000), BigDecimal.valueOf(5000), null
+        );
         when(titleSearchStrategy.apply("상품명")).thenReturn(Specification.where((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("title"), "상품명")));
         when(categoryCodeSearchStrategy.apply("A001")).thenReturn(Specification.where((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("categoryCode"), "A001")));
         when(priceSearchStrategy.apply(new PriceRange(BigDecimal.valueOf(1000), BigDecimal.valueOf(5000)))).thenReturn(Specification.where((root, query, criteriaBuilder) -> criteriaBuilder.between(root.get("price"), BigDecimal.valueOf(1000), BigDecimal.valueOf(5000))));
         when(productRepository.findAll(any(Specification.class))).thenReturn(List.of(product));
 
         // when
-        List<Product> products = productService.searchProducts("상품명", "A001", BigDecimal.valueOf(1000), BigDecimal.valueOf(5000), null);
-
-        // then
-        assertThat(products).isNotEmpty();
-    }
-
-    @DisplayName("상품을 제목으로 검색한다.")
-    @Test
-    void should_SearchProductByTitle() {
-        // given
-        when(titleSearchStrategy.apply("신선한 사과")).thenReturn(Specification.where(null));
-        when(productRepository.findAll(any(Specification.class))).thenReturn(List.of(product));
-
-        // when
-        List<Product> products = productService.searchProducts("신선한 사과", null, null, null, null);
+        List<Product> products = productService.searchProducts(searchCriteria);
 
         // then
         assertThat(products).isNotEmpty();
