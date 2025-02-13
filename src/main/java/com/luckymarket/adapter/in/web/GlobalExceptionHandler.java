@@ -3,6 +3,7 @@ package com.luckymarket.adapter.in.web;
 import com.luckymarket.application.dto.ApiResponse;
 import com.luckymarket.domain.exception.auth.AuthException;
 import com.luckymarket.domain.exception.auth.RedisException;
+import com.luckymarket.domain.exception.persistence.ParticipationException;
 import com.luckymarket.domain.exception.product.CategoryException;
 import com.luckymarket.domain.exception.product.ProductException;
 import com.luckymarket.domain.exception.user.UserException;
@@ -42,6 +43,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ProductException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ApiResponse<Object> handleProductException(ProductException ex) {
+        return ApiResponse.error(ex.getMessage(), HttpStatus.BAD_REQUEST.value());
+    }
+
+    @ExceptionHandler(ParticipationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ApiResponse<Object> handleParticipationException(ParticipationException ex) {
         return ApiResponse.error(ex.getMessage(), HttpStatus.BAD_REQUEST.value());
     }
 
