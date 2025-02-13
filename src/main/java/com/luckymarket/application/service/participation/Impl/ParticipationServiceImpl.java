@@ -30,8 +30,8 @@ public class ParticipationServiceImpl implements ParticipationService {
     public void participateInProduct(Long productId, Long userId) {
         validateProductAndUser(productId, userId);
 
-        Product product = productExistenceValidationRule.getProduct(productId);
-        Member member = userExistenceValidationRule.getMember(userId);
+        Product product = productExistenceValidationRule.getEntity(productId);
+        Member member = userExistenceValidationRule.getEntity(userId);
 
         ParticipationRequest request = new ParticipationRequest(product, userId);
         participationValidationRule.validate(request);
@@ -51,9 +51,9 @@ public class ParticipationServiceImpl implements ParticipationService {
     public void leaveProduct(Long productId, Long userId) {
         validateProductAndUser(productId, userId);
 
-        Product product = productExistenceValidationRule.getProduct(productId);
+        Product product = productExistenceValidationRule.getEntity(productId);
         ParticipationRequest request = new ParticipationRequest(product, userId);
-        Participation participation = participationExistenceValidationRule.getParticipation(productId, userId);
+        Participation participation = participationExistenceValidationRule.getEntity(productId, userId);
 
         participationRepository.delete(participation);
         product.setParticipants(product.getParticipants() - 1);
