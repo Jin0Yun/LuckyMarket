@@ -1,6 +1,8 @@
 package com.luckymarket.adapter.in.web.user;
 
 import com.luckymarket.application.dto.user.*;
+import com.luckymarket.domain.exception.user.UserErrorCode;
+import com.luckymarket.domain.exception.user.UserException;
 import com.luckymarket.infrastructure.security.SecurityContextService;
 import com.luckymarket.application.dto.ApiResponse;
 import com.luckymarket.application.service.user.UserService;
@@ -84,5 +86,21 @@ public class UserController {
         Long userId = securityContextService.getCurrentUserId();
         List<UserProductSummaryResponse> createdProducts = userService.getCreatedProducts(userId);
         return ApiResponse.success("성공적으로 생성한 상품 목록을 조회했습니다.", createdProducts);
+    }
+
+    @GetMapping("/get-participated")
+    @Operation(
+            summary = "회원이 참여한 상품 조회",
+            description = "회원이 참여한 상품 목록을 조회합니다. 해당 회원이 참여한 모든 상품을 반환합니다."
+    )
+    public ApiResponse<List<UserParticipatedProductResponse>> getParticipatedProducts() {
+        Long userId = securityContextService.getCurrentUserId();
+        List<UserParticipatedProductResponse> participatedProducts = userService.getParticipatedProducts(userId);
+
+        if (participatedProducts.isEmpty()) {
+            throw new UserException(UserErrorCode.NO_PARTICIPATED_PRODUCTS_FOUND);
+        }
+
+        return ApiResponse.success("성공적으로 참여한 상품 목록을 조회했습니다.", participatedProducts);
     }
 }
