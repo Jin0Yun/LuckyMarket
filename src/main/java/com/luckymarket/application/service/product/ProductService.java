@@ -1,16 +1,16 @@
 package com.luckymarket.application.service.product;
 
+import com.luckymarket.application.dto.product.ProductSearchRequest;
 import com.luckymarket.domain.entity.product.Product;
-import com.luckymarket.application.dto.product.ProductCreateDto;
+import com.luckymarket.application.dto.product.ProductCreateRequest;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 public interface ProductService {
-    Product createProduct(ProductCreateDto productCreateDto, Long userId);
+    Product createProduct(ProductCreateRequest productCreateRequest, Long userId);
     Product getProductById(Long productId);
     List<Product> getAllProducts();
-    Product updateProduct(Long productId, ProductCreateDto productCreateDto, Long userId);
+    Product updateProduct(Long productId, ProductCreateRequest productCreateRequest, Long userId);
     void deleteProduct(Long productId, Long userId);
-    List<Product> searchProducts(String title, String categoryCode, BigDecimal priceMin, BigDecimal priceMax, String status);
+    List<Product> searchProducts(ProductSearchRequest criteria);
 }

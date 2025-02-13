@@ -1,8 +1,7 @@
 package com.luckymarket.domain.entity.product;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
 @Table(name = "product_categories")

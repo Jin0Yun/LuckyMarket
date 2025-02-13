@@ -1,8 +1,8 @@
 package com.luckymarket.application.service.auth.impl;
 
-import com.luckymarket.application.validation.EmailValidationRule;
-import com.luckymarket.application.validation.LoginPasswordValidationRule;
-import com.luckymarket.application.validation.PasswordValidationRule;
+import com.luckymarket.application.validation.user.EmailValidationRule;
+import com.luckymarket.application.validation.auth.LoginPasswordValidationRule;
+import com.luckymarket.application.validation.user.PasswordValidationRule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

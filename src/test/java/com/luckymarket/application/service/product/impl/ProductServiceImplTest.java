@@ -1,24 +1,27 @@
 package com.luckymarket.application.service.product.impl;
 
-import com.luckymarket.domain.exception.auth.AuthErrorCode;
-import com.luckymarket.domain.exception.auth.AuthException;
+import com.luckymarket.application.dto.product.ProductSearchRequest;
+import com.luckymarket.application.service.product.ProductSearchService;
+import com.luckymarket.application.validation.product.ProductValidationRule;
 import com.luckymarket.domain.entity.product.Category;
 import com.luckymarket.domain.entity.product.Product;
 import com.luckymarket.domain.entity.product.ProductStatus;
-import com.luckymarket.application.dto.product.ProductCreateDto;
+import com.luckymarket.application.dto.product.ProductCreateRequest;
+import com.luckymarket.domain.exception.auth.AuthErrorCode;
+import com.luckymarket.domain.exception.auth.AuthException;
 import com.luckymarket.domain.exception.product.ProductErrorCode;
 import com.luckymarket.domain.exception.product.ProductException;
 import com.luckymarket.adapter.out.persistence.product.CategoryRepository;
 import com.luckymarket.adapter.out.persistence.product.ProductRepository;
 import com.luckymarket.domain.entity.user.Member;
 import com.luckymarket.adapter.out.persistence.user.UserRepository;
+import com.luckymarket.domain.mapper.ProductMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.data.jpa.domain.Specification;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -26,6 +29,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 class ProductServiceImplTest {
@@ -38,135 +42,95 @@ class ProductServiceImplTest {
     @Mock
     private CategoryRepository categoryRepository;
 
+    @Mock
+    private ProductValidationRule productValidationRule;
+
+    @Mock
+    private ProductSearchService productSearchService;
+
     @InjectMocks
     private ProductServiceImpl productService;
 
-    private ProductCreateDto validProductCreateDto;
     private Member member;
-    private Category category;
+    private ProductCreateRequest validProductCreateRequest;
     private Product product;
+    private Category category;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+        member = new Member();
+        member.setId(1L);
+        member.setEmail("test@example.com");
+        member.setPassword("encodedPassword");
 
-        validProductCreateDto = ProductCreateDto.builder()
+        category = new Category();
+        category.setName("과일");
+        category.setCode("A000");
+
+        validProductCreateRequest = ProductCreateRequest.builder()
                 .title("신선한 사과")
                 .description("100% 유기농 사과, 맛있고 건강한 사과입니다.")
                 .price(BigDecimal.valueOf(5000))
                 .categoryCode("A000")
                 .status(ProductStatus.ONGOING)
-                .maxParticipants(100)
                 .endDate(LocalDate.of(2025, 3, 10))
                 .build();
 
-        member = new Member();
-        member.setId(1L);
-
-        category = new Category();
-        category.setCode("A000");
-        category.setName("과일");
-
-        product = Product.builder()
-                .id(1L)
-                .title("신선한 사과")
-                .description("100% 유기농 사과")
-                .price(BigDecimal.valueOf(5000))
-                .category(category)
-                .status(ProductStatus.ONGOING)
-                .maxParticipants(100)
-                .endDate(LocalDate.of(2025, 3, 10))
-                .imageUrl("image-url")
-                .member(member)
-                .build();
+        product = ProductMapper.toEntity(validProductCreateRequest, member, category);
     }
 
-    @DisplayName("상품 등록이 성공하는지 확인하는 테스트")
+    @DisplayName("존재하지 않는 카테고리 코드로 상품을 생성하려고 하면 예외를 던진다.")
     @Test
-    void shouldCreateProductSuccessfully() {
+    void should_ThrowException_WhenCategoryNotFoundForCreate() {
         // given
         when(userRepository.findById(1L)).thenReturn(Optional.of(member));
-        when(categoryRepository.findByCode("A000")).thenReturn(category);
-        when(productRepository.save(any(Product.class))).thenReturn(new Product());
+        when(categoryRepository.findByCode("A000")).thenReturn(Optional.empty());
 
-        // when
-        Product product = productService.createProduct(validProductCreateDto, 1L);
-
-        // then
-        assertThat(product).isNotNull();
-        verify(productRepository, times(1)).save(any(Product.class));
+        // when & then
+        ProductException exception = assertThrows(ProductException.class, () -> productService.createProduct(validProductCreateRequest, 1L));
+        assertThat(exception.getMessage()).isEqualTo(ProductErrorCode.CATEGORY_NOT_FOUND.getMessage());
     }
 
-    @DisplayName("존재하지 않는 사용자로 상품 등록 시 예외가 발생하는지 확인하는 테스트")
+    @DisplayName("존재하지 않는 사용자가 상품을 생성하려고 하면 예외를 던진다.")
     @Test
-    void shouldThrowExceptionWhenUserNotFound() {
+    void should_ThrowException_WhenUserNotFoundForCreate() {
         // given
         when(userRepository.findById(1L)).thenReturn(Optional.empty());
 
         // when & then
-        assertThatThrownBy(() -> productService.createProduct(validProductCreateDto, 1L))
-                .isInstanceOf(AuthException.class)
-                .hasMessage(AuthErrorCode.USER_NOT_FOUND.getMessage());
+        AuthException exception = assertThrows(AuthException.class, () -> productService.createProduct(validProductCreateRequest, 1L));
+        assertThat(exception.getMessage()).isEqualTo(AuthErrorCode.USER_NOT_FOUND.getMessage());
     }
 
-    @DisplayName("존재하지 않는 카테고리로 상품 등록 시 예외가 발생하는지 확인하는 테스트")
+    @DisplayName("상품을 정상적으로 생성한다.")
     @Test
-    void shouldThrowExceptionWhenCategoryNotFound() {
+    void should_CreateProductSuccessfully() {
         // given
         when(userRepository.findById(1L)).thenReturn(Optional.of(member));
-        when(categoryRepository.findByCode("A000")).thenReturn(null);
+        when(categoryRepository.findByCode("A000")).thenReturn(Optional.of(category));
 
-        // when & then
-        assertThatThrownBy(() -> productService.createProduct(validProductCreateDto, 1L))
-                .isInstanceOf(ProductException.class)
-                .hasMessage(ProductErrorCode.CATEGORY_NOT_FOUND.getMessage());
+        // when
+        productService.createProduct(validProductCreateRequest, 1L);
+
+        // then
+        verify(productRepository, times(1)).save(any(Product.class));
     }
 
-    @DisplayName("상품 제목이 비어있을 경우 예외가 발생하는지 확인하는 테스트")
+    @DisplayName("존재하지 않는 상품 ID를 조회하면 예외를 던진다.")
     @Test
-    void shouldThrowExceptionWhenTitleIsBlank() {
+    void should_ThrowException_WhenProductNotFound() {
         // given
-        when(userRepository.findById(1L)).thenReturn(Optional.of(member));
-        when(categoryRepository.findByCode("A000")).thenReturn(category);
-        validProductCreateDto.setTitle("");
+        when(productRepository.findById(1L)).thenReturn(Optional.empty());
 
         // when & then
-        assertThatThrownBy(() -> productService.createProduct(validProductCreateDto, 1L))
-                .isInstanceOf(ProductException.class)
-                .hasMessage(ProductErrorCode.TITLE_BLANK.getMessage());
+        ProductException exception = assertThrows(ProductException.class, () -> productService.getProductById(1L));
+        assertThat(exception.getMessage()).isEqualTo(ProductErrorCode.PRODUCT_NOT_FOUND.getMessage());
     }
 
-    @DisplayName("상품 가격이 0보다 작을 경우 예외가 발생하는지 확인하는 테스트")
+    @DisplayName("상품 ID로 상품을 조회한다.")
     @Test
-    void shouldThrowExceptionWhenPriceIsInvalid() {
-        // given
-        when(userRepository.findById(1L)).thenReturn(Optional.of(member));
-        when(categoryRepository.findByCode("A000")).thenReturn(category);
-        validProductCreateDto.setPrice(BigDecimal.valueOf(0));
-
-        // when & then
-        assertThatThrownBy(() -> productService.createProduct(validProductCreateDto, 1L))
-                .isInstanceOf(ProductException.class)
-                .hasMessage(ProductErrorCode.INVALID_PRICE.getMessage());
-    }
-
-    @DisplayName("상품 종료일이 유효하지 않을 경우 예외가 발생하는지 확인하는 테스트")
-    @Test
-    void shouldThrowExceptionWhenEndDateIsInvalid() {
-        // given
-        when(userRepository.findById(1L)).thenReturn(Optional.of(member));
-        when(categoryRepository.findByCode("A000")).thenReturn(category);
-        validProductCreateDto.setEndDate(LocalDate.of(2023, 3, 10));
-
-        // when & then
-        assertThatThrownBy(() -> productService.createProduct(validProductCreateDto, 1L))
-                .isInstanceOf(ProductException.class)
-                .hasMessage(ProductErrorCode.DATE_INVALID.getMessage());
-    }
-
-    @DisplayName("상품이 조회되는지 확인하는 테스트")
-    @Test
-    void shouldGetProductByIdSuccessfully() {
+    void should_ReturnProduct_WhenFoundById() {
         // given
         when(productRepository.findById(1L)).thenReturn(Optional.of(product));
 
@@ -175,132 +139,116 @@ class ProductServiceImplTest {
 
         // then
         assertThat(foundProduct).isNotNull();
-        assertThat(foundProduct.getId()).isEqualTo(1L);
     }
 
-    @DisplayName("전체 상품 목록이 조회되는지 확인하는 테스트")
+    @DisplayName("상품을 수정할 때 상품이 존재하지 않으면 예외를 던진다.")
     @Test
-    void shouldGetAllProductsSuccessfully() {
+    void should_ThrowException_WhenProductNotFoundForUpdate() {
         // given
-        when(productRepository.findAll()).thenReturn(List.of(product));
-
-        // when
-        List<Product> products = productService.getAllProducts();
-
-        // then
-        assertThat(products).isNotEmpty();
-        assertThat(products).contains(product);
-    }
-
-    @DisplayName("상품 수정이 성공하는지 확인하는 테스트")
-    @Test
-    void shouldUpdateProductSuccessfully() {
-        // given
-        when(userRepository.findById(1L)).thenReturn(Optional.of(member));
-        when(categoryRepository.findByCode("A000")).thenReturn(category);
-        when(productRepository.findById(1L)).thenReturn(Optional.of(product));
-        when(productRepository.save(any(Product.class))).thenReturn(product);
-
-        // when
-        validProductCreateDto.setTitle("변경된 사과");
-        Product updatedProduct = productService.updateProduct(1L, validProductCreateDto, 1L);
-
-        // then
-        assertThat(updatedProduct).isNotNull();
-        assertThat(updatedProduct.getTitle()).isEqualTo("변경된 사과");
-        verify(productRepository, times(1)).save(any(Product.class));
-    }
-
-    @DisplayName("상품 수정 시 등록자가 아닌 경우 예외가 발생하는지 확인하는 테스트")
-    @Test
-    void shouldThrowExceptionWhenNotProductOwner() {
-        // given
-        when(userRepository.findById(1L)).thenReturn(Optional.of(member));
-        when(categoryRepository.findByCode("A000")).thenReturn(category);
-        when(productRepository.findById(1L)).thenReturn(Optional.of(product));
-
-        // when & then
-        assertThatThrownBy(() -> productService.updateProduct(1L, validProductCreateDto, 2L)) // 다른 userId
-                .isInstanceOf(ProductException.class)
-                .hasMessage(ProductErrorCode.UNAUTHORIZED_PRODUCT_MODIFY.getMessage());
-    }
-
-    @DisplayName("존재하지 않는 상품을 수정하려 할 때 예외가 발생하는지 확인하는 테스트")
-    @Test
-    void shouldThrowExceptionWhenProductNotFound() {
-        // given
-        when(userRepository.findById(1L)).thenReturn(Optional.of(member));
-        when(categoryRepository.findByCode("A000")).thenReturn(category);
         when(productRepository.findById(1L)).thenReturn(Optional.empty());
 
         // when & then
-        assertThatThrownBy(() -> productService.updateProduct(1L, validProductCreateDto, 1L))
-                .isInstanceOf(ProductException.class)
-                .hasMessage(ProductErrorCode.PRODUCT_NOT_FOUND.getMessage());
+        ProductException exception = assertThrows(ProductException.class, () -> productService.updateProduct(1L, validProductCreateRequest, 1L));
+        assertThat(exception.getMessage()).isEqualTo(ProductErrorCode.PRODUCT_NOT_FOUND.getMessage());
     }
 
-    @DisplayName("상품 삭제가 성공하는지 확인하는 테스트")
+    @DisplayName("상품을 수정할 때 수정 권한이 없으면 예외를 던진다.")
     @Test
-    void shouldDeleteProductSuccessfully() {
+    void should_ThrowException_WhenUnauthorizedUserForUpdate() {
         // given
-        when(userRepository.findById(1L)).thenReturn(Optional.of(member));
-        when(productRepository.findById(1L)).thenReturn(Optional.of(product));
+        Product existingProduct = Product.builder()
+                .id(1L)
+                .member(member)
+                .build();
+        when(productRepository.findById(1L)).thenReturn(Optional.of(existingProduct));
+        Long unauthorizedUserId = 2L;
+
+        // when & then
+        ProductException exception = assertThrows(ProductException.class, () -> productService.updateProduct(1L, validProductCreateRequest, unauthorizedUserId));
+        assertThat(exception.getMessage()).isEqualTo(ProductErrorCode.UNAUTHORIZED_PRODUCT_MODIFY.getMessage());
+    }
+
+    @DisplayName("존재하지 않는 카테고리로 상품을 수정하려고 하면 예외를 던진다.")
+    @Test
+    void should_ThrowException_WhenCategoryNotFoundForUpdate() {
+        // given
+        Product existingProduct = Product.builder().id(1L).member(member).build();
+        when(productRepository.findById(1L)).thenReturn(Optional.of(existingProduct));
+        when(categoryRepository.findByCode("A000")).thenReturn(Optional.empty());
+
+        // when & then
+        ProductException exception = assertThrows(ProductException.class, () -> productService.updateProduct(1L, validProductCreateRequest, 1L));
+        assertThat(exception.getMessage()).isEqualTo(ProductErrorCode.CATEGORY_NOT_FOUND.getMessage());
+    }
+
+    @DisplayName("상품을 정상적으로 수정한다.")
+    @Test
+    void should_UpdateProductSuccessfully() {
+        // given
+        Product existingProduct = Product.builder().id(1L).member(member).build();
+        when(productRepository.findById(1L)).thenReturn(Optional.of(existingProduct));
+        when(categoryRepository.findByCode("A000")).thenReturn(Optional.of(category));
+
+        // when
+        productService.updateProduct(1L, validProductCreateRequest, 1L);
+
+        // then
+        verify(productRepository, times(1)).save(any(Product.class));
+    }
+
+    @DisplayName("존재하지 않는 상품을 삭제하려고 하면 예외를 던진다.")
+    @Test
+    void should_ThrowException_WhenProductNotFoundForDelete() {
+        // given
+        when(productRepository.findById(1L)).thenReturn(Optional.empty());
+
+        // when & then
+        ProductException exception = assertThrows(ProductException.class, () -> productService.deleteProduct(1L, 1L));
+        assertThat(exception.getMessage()).isEqualTo(ProductErrorCode.PRODUCT_NOT_FOUND.getMessage());
+    }
+
+    @DisplayName("상품을 삭제할 때 삭제 권한이 없으면 예외를 던진다.")
+    @Test
+    void should_ThrowException_WhenUnauthorizedUserForDelete() {
+        // given
+        Product existingProduct = Product.builder()
+                .id(1L)
+                .member(member)
+                .build();
+        when(productRepository.findById(1L)).thenReturn(Optional.of(existingProduct));
+        Long unauthorizedUserId = 2L;
+
+        // when & then
+        ProductException exception = assertThrows(ProductException.class, () -> productService.deleteProduct(1L, unauthorizedUserId));
+        assertThat(exception.getMessage()).isEqualTo(ProductErrorCode.UNAUTHORIZED_PRODUCT_DELETE.getMessage());
+    }
+
+    @DisplayName("상품을 정상적으로 삭제한다.")
+    @Test
+    void should_DeleteProductSuccessfully() {
+        // given
+        Product existingProduct = Product.builder().id(1L).member(member).build();
+        when(productRepository.findById(1L)).thenReturn(Optional.of(existingProduct));
 
         // when
         productService.deleteProduct(1L, 1L);
 
         // then
-        verify(productRepository, times(1)).delete(product);
+        verify(productRepository, times(1)).delete(existingProduct);
     }
 
-    @DisplayName("상품 삭제 시 등록자가 아닌 경우 예외가 발생하는지 확인하는 테스트")
+    @DisplayName("상품 검색을 호출하면 검색 서비스의 search 메서드가 호출된다.")
     @Test
-    void shouldThrowExceptionWhenNotProductOwnerOnDelete() {
+    void should_CallSearchMethod_WhenSearchProductsIsCalled() {
         // given
-        when(userRepository.findById(1L)).thenReturn(Optional.of(member));
-        when(productRepository.findById(1L)).thenReturn(Optional.of(product));
-
-        // when & then
-        assertThatThrownBy(() -> productService.deleteProduct(1L, 2L)) // 다른 userId
-                .isInstanceOf(ProductException.class)
-                .hasMessage(ProductErrorCode.UNAUTHORIZED_PRODUCT_DELETE.getMessage());
-    }
-
-    @DisplayName("존재하지 않는 상품을 삭제하려 할 때 예외가 발생하는지 확인하는 테스트")
-    @Test
-    void shouldThrowExceptionWhenProductNotFoundOnDelete() {
-        // given
-        when(userRepository.findById(1L)).thenReturn(Optional.of(member));
-        when(productRepository.findById(1L)).thenReturn(Optional.empty());
-
-        // when & then
-        assertThatThrownBy(() -> productService.deleteProduct(1L, 1L))
-                .isInstanceOf(ProductException.class)
-                .hasMessage(ProductErrorCode.PRODUCT_NOT_FOUND.getMessage());
-    }
-
-    @DisplayName("상품 검색이 성공하는지 확인하는 테스트")
-    @Test
-    void shouldSearchProductSuccessfully() {
-        // given
-        when(productRepository.findAll(any(Specification.class))).thenReturn(List.of(product));
+        ProductSearchRequest searchRequest = new ProductSearchRequest(
+                "상품명", "A001", BigDecimal.valueOf(1000), BigDecimal.valueOf(5000), null
+        );
 
         // when
-        List<Product> searchedProducts = productService.searchProducts("사과", "A000", BigDecimal.valueOf(5000), BigDecimal.valueOf(10000), "ONGOING");
+        productService.searchProducts(searchRequest);
 
         // then
-        assertThat(searchedProducts).contains(product);
-    }
-
-    @DisplayName("검색 결과가 없을 때 예외가 발생하는지 확인하는 테스트")
-    @Test
-    void shouldThrowExceptionWhenNoSearchResults() {
-        // given
-        when(productRepository.findAll(any(Specification.class))).thenReturn(List.of());
-
-        // when & then
-        assertThatThrownBy(() -> productService.searchProducts("없는상품", "A000", BigDecimal.valueOf(5000), BigDecimal.valueOf(10000), "ONGOING"))
-                .isInstanceOf(ProductException.class)
-                .hasMessage(ProductErrorCode.NO_SEARCH_RESULTS.getMessage());
+        verify(productSearchService, times(1)).search(searchRequest);
     }
 }

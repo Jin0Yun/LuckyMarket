@@ -1,9 +1,9 @@
 package com.luckymarket.application.service.user.impl;
 
-import com.luckymarket.application.validation.AddressValidationRule;
-import com.luckymarket.application.validation.PhoneNumberValidationRule;
-import com.luckymarket.application.validation.UserValidationRule;
-import com.luckymarket.application.validation.PasswordValidationRule;
+import com.luckymarket.application.validation.user.AddressValidationRule;
+import com.luckymarket.application.validation.user.PhoneNumberValidationRule;
+import com.luckymarket.application.validation.user.UserValidationRule;
+import com.luckymarket.application.validation.user.PasswordValidationRule;
 import com.luckymarket.application.validation.ValidationRule;
 import com.luckymarket.application.service.user.MemberValidationService;
 import org.springframework.beans.factory.annotation.Autowired;

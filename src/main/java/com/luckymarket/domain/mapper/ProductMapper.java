@@ -2,13 +2,13 @@ package com.luckymarket.domain.mapper;
 
 import com.luckymarket.domain.entity.product.Category;
 import com.luckymarket.domain.entity.product.Product;
-import com.luckymarket.application.dto.product.ProductCreateDto;
+import com.luckymarket.application.dto.product.ProductCreateRequest;
 import com.luckymarket.domain.entity.user.Member;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ProductMapper {
-    public static Product toEntity(ProductCreateDto dto, Member member, Category category) {
+    public static Product toEntity(ProductCreateRequest dto, Member member, Category category) {
         return Product.builder()
                 .title(dto.getTitle())
                 .description(dto.getDescription())
@@ -20,5 +20,16 @@ public class ProductMapper {
                 .imageUrl(dto.getImageUrl())
                 .member(member)
                 .build();
+    }
+
+    public static void updateEntity(Product product, ProductCreateRequest dto, Category category) {
+        product.setTitle(dto.getTitle());
+        product.setDescription(dto.getDescription());
+        product.setPrice(dto.getPrice());
+        product.setCategory(category);
+        product.setStatus(dto.getStatus());
+        product.setMaxParticipants(dto.getMaxParticipants());
+        product.setEndDate(dto.getEndDate());
+        product.setImageUrl(dto.getImageUrl());
     }
 }

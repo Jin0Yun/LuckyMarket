@@ -36,14 +36,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(readOnly = true)
-    public MemberResponseDto getUser(Long userId) {
+    public UserProfileResponse getUser(Long userId) {
         Member member = getUserById(userId);
         return userMapper.toMemberResponseDto(member);
     }
 
     @Override
     @Transactional
-    public MemberResponseDto updateName(Long userId, NameUpdateDto dto) {
+    public UserProfileResponse updateName(Long userId, UserNameUpdateRequest dto) {
         Member member = getUserById(userId);
         member.setUsername(dto.getNewName());
         return userMapper.toMemberResponseDto(member);
@@ -51,7 +51,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public MemberResponseDto updatePhoneNumber(Long userId, PhoneNumberUpdateDto dto) {
+    public UserProfileResponse updatePhoneNumber(Long userId, UserPhoneUpdateRequest dto) {
         Member member = getUserById(userId);
         memberValidationService.validatePhoneNumber(dto.getPhoneNumber());
         member.setPhoneNumber(dto.getPhoneNumber());
@@ -60,7 +60,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public MemberResponseDto updateAddress(Long userId, AddressUpdateDto dto) {
+    public UserProfileResponse updateAddress(Long userId, UserAddressUpdateRequest dto) {
         Member member = getUserById(userId);
         memberValidationService.validateAddress(dto.getAddress());
         member.setAddress(dto.getAddress());
@@ -69,7 +69,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public MemberResponseDto updatePhoneNumberAndAddress(Long userId, PhoneNumberAndAddressUpdateDto dto) {
+    public UserProfileResponse updatePhoneNumberAndAddress(Long userId, UserContactUpdateRequest dto) {
         Member member = getUserById(userId);
         memberValidationService.validateAddress(dto.getAddress());
         memberValidationService.validatePhoneNumber(dto.getPhoneNumber());
@@ -80,7 +80,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void changePassword(Long userId, PasswordUpdateDto dto) {
+    public void changePassword(Long userId, UserPasswordUpdateRequest dto) {
         Member member = getUserById(userId);
         memberValidationService.validatePassword(dto.getPassword());
         String encodedPassword = passwordService.encodePassword(dto.getPassword());

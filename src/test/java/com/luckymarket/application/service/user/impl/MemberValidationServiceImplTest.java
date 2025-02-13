@@ -1,9 +1,9 @@
 package com.luckymarket.application.service.user.impl;
 
-import com.luckymarket.application.validation.AddressValidationRule;
-import com.luckymarket.application.validation.PhoneNumberValidationRule;
-import com.luckymarket.application.validation.UserValidationRule;
-import com.luckymarket.application.validation.PasswordValidationRule;
+import com.luckymarket.application.validation.user.AddressValidationRule;
+import com.luckymarket.application.validation.user.PhoneNumberValidationRule;
+import com.luckymarket.application.validation.user.UserValidationRule;
+import com.luckymarket.application.validation.user.PasswordValidationRule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

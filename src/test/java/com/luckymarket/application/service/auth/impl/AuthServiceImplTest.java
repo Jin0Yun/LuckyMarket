@@ -1,9 +1,9 @@
 package com.luckymarket.application.service.auth.impl;
 
-import com.luckymarket.application.dto.auth.LoginRequestDto;
-import com.luckymarket.application.dto.auth.LoginResponseDto;
-import com.luckymarket.application.dto.auth.SignupRequestDto;
-import com.luckymarket.application.dto.auth.TokenResponseDto;
+import com.luckymarket.application.dto.auth.AuthLoginRequest;
+import com.luckymarket.application.dto.auth.AuthTokenResponse;
+import com.luckymarket.application.dto.auth.SignupRequest;
+import com.luckymarket.application.dto.auth.AuthRefreshTokenResponse;
 import com.luckymarket.domain.exception.auth.AuthErrorCode;
 import com.luckymarket.domain.exception.auth.AuthException;
 import com.luckymarket.infrastructure.security.JwtTokenProvider;
@@ -61,15 +61,15 @@ class AuthServiceImplTest {
     @Test
     void signup_ShouldSaveMember_WhenValidData() {
         // given
-        SignupRequestDto signupRequestDto = new SignupRequestDto("test@example.com", "ValidPassword123!", "userA");
+        SignupRequest signupRequest = new SignupRequest("test@example.com", "ValidPassword123!", "userA");
 
-        doNothing().when(authValidationService).validateEmail(signupRequestDto.getEmail());
-        doNothing().when(authValidationService).validatePassword(signupRequestDto.getPassword());
-        when(userRepository.existsByEmail(signupRequestDto.getEmail())).thenReturn(false);
-        when(passwordService.encodePassword(signupRequestDto.getPassword())).thenReturn("encodedPassword");
+        doNothing().when(authValidationService).validateEmail(signupRequest.getEmail());
+        doNothing().when(authValidationService).validatePassword(signupRequest.getPassword());
+        when(userRepository.existsByEmail(signupRequest.getEmail())).thenReturn(false);
+        when(passwordService.encodePassword(signupRequest.getPassword())).thenReturn("encodedPassword");
 
         // when
-        authService.signup(signupRequestDto);
+        authService.signup(signupRequest);
 
         // then
         verify(userRepository, times(1)).save(any(Member.class));
@@ -79,14 +79,14 @@ class AuthServiceImplTest {
     @Test
     void signup_ShouldThrowException_WhenEmailAlreadyUsed() {
         // given
-        SignupRequestDto signupRequestDto = new SignupRequestDto("test@example.com", "ValidPassword123!", "userA");
+        SignupRequest signupRequest = new SignupRequest("test@example.com", "ValidPassword123!", "userA");
 
-        doNothing().when(authValidationService).validateEmail(signupRequestDto.getEmail());
-        doNothing().when(authValidationService).validatePassword(signupRequestDto.getPassword());
-        when(userRepository.existsByEmail(signupRequestDto.getEmail())).thenReturn(true);
+        doNothing().when(authValidationService).validateEmail(signupRequest.getEmail());
+        doNothing().when(authValidationService).validatePassword(signupRequest.getPassword());
+        when(userRepository.existsByEmail(signupRequest.getEmail())).thenReturn(true);
 
         // when & then
-        AuthException exception = assertThrows(AuthException.class, () -> authService.signup(signupRequestDto));
+        AuthException exception = assertThrows(AuthException.class, () -> authService.signup(signupRequest));
         assertThat(exception.getMessage()).isEqualTo(AuthErrorCode.EMAIL_ALREADY_USED.getMessage());
     }
 
@@ -94,14 +94,14 @@ class AuthServiceImplTest {
     @Test
     void login_ShouldReturnTokens_WhenValidData() {
         // given
-        LoginRequestDto loginRequestDto = new LoginRequestDto("test@example.com", "ValidPassword123!");
+        AuthLoginRequest authLoginRequest = new AuthLoginRequest("test@example.com", "ValidPassword123!");
 
-        when(userRepository.findByEmail(loginRequestDto.getEmail())).thenReturn(Optional.of(member));
+        when(userRepository.findByEmail(authLoginRequest.getEmail())).thenReturn(Optional.of(member));
         when(jwtTokenProvider.createAccessToken(member.getId(), member.getEmail())).thenReturn("accessToken");
         when(jwtTokenProvider.createRefreshToken(member.getId(), member.getEmail())).thenReturn("refreshToken");
 
         // when
-        LoginResponseDto loginResponse = authService.login(loginRequestDto);
+        AuthTokenResponse loginResponse = authService.login(authLoginRequest);
 
         // then
         assertEquals("accessToken", loginResponse.getAccessToken());
@@ -112,12 +112,12 @@ class AuthServiceImplTest {
     @Test
     void login_ShouldThrowException_WhenEmailNotFound() {
         // given
-        LoginRequestDto loginRequestDto = new LoginRequestDto("test@example.com", "ValidPassword123!");
+        AuthLoginRequest authLoginRequest = new AuthLoginRequest("test@example.com", "ValidPassword123!");
 
-        when(userRepository.findByEmail(loginRequestDto.getEmail())).thenReturn(Optional.empty());
+        when(userRepository.findByEmail(authLoginRequest.getEmail())).thenReturn(Optional.empty());
 
         // when & then
-        AuthException exception = assertThrows(AuthException.class, () -> authService.login(loginRequestDto));
+        AuthException exception = assertThrows(AuthException.class, () -> authService.login(authLoginRequest));
         assertEquals(AuthErrorCode.USER_NOT_FOUND.getMessage(), exception.getMessage());
     }
 
@@ -125,13 +125,13 @@ class AuthServiceImplTest {
     @Test
     void login_ShouldThrowException_WhenPasswordDoesNotMatch() {
         // given
-        LoginRequestDto loginRequestDto = new LoginRequestDto("test@example.com", "InvalidPassword123!");
+        AuthLoginRequest authLoginRequest = new AuthLoginRequest("test@example.com", "InvalidPassword123!");
 
-        when(userRepository.findByEmail(loginRequestDto.getEmail())).thenReturn(Optional.of(member));
-        doThrow(new AuthException(AuthErrorCode.PASSWORD_MISMATCH)).when(passwordService).matches(loginRequestDto.getPassword(), member.getPassword());
+        when(userRepository.findByEmail(authLoginRequest.getEmail())).thenReturn(Optional.of(member));
+        doThrow(new AuthException(AuthErrorCode.PASSWORD_MISMATCH)).when(passwordService).matches(authLoginRequest.getPassword(), member.getPassword());
 
         // when & then
-        AuthException exception = assertThrows(AuthException.class, () -> authService.login(loginRequestDto));
+        AuthException exception = assertThrows(AuthException.class, () -> authService.login(authLoginRequest));
         assertThat(exception.getMessage()).isEqualTo(AuthErrorCode.PASSWORD_MISMATCH.getMessage());
     }
 
@@ -139,12 +139,12 @@ class AuthServiceImplTest {
     @Test
     void login_ShouldThrowException_WhenUserAlreadyLoggedInOtherDevice() {
         // given
-        LoginRequestDto loginRequestDto = new LoginRequestDto("test@example.com", "ValidPassword123!");
-        when(userRepository.findByEmail(loginRequestDto.getEmail())).thenReturn(Optional.of(member));
+        AuthLoginRequest authLoginRequest = new AuthLoginRequest("test@example.com", "ValidPassword123!");
+        when(userRepository.findByEmail(authLoginRequest.getEmail())).thenReturn(Optional.of(member));
         doThrow(new AuthException(AuthErrorCode.ALREADY_LOGGED_IN_OTHER_DEVICE)).when(redisService).markUserAsLoggedIn(member.getId());
 
         // when & then
-        AuthException exception = assertThrows(AuthException.class, () -> authService.login(loginRequestDto));
+        AuthException exception = assertThrows(AuthException.class, () -> authService.login(authLoginRequest));
         assertThat(exception.getMessage()).isEqualTo(AuthErrorCode.ALREADY_LOGGED_IN_OTHER_DEVICE.getMessage());
     }
 
@@ -182,7 +182,7 @@ class AuthServiceImplTest {
         when(jwtTokenProvider.createAccessToken(member.getId(), member.getEmail())).thenReturn(newAccessToken);
 
         // when
-        TokenResponseDto tokenResponse = authService.refreshAccessToken(refreshToken);
+        AuthRefreshTokenResponse tokenResponse = authService.refreshAccessToken(refreshToken);
 
         // then
         assertThat(tokenResponse.getAccessToken()).isEqualTo(newAccessToken);
