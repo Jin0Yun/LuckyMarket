@@ -1,9 +1,10 @@
 package com.luckymarket.application.service.user.impl;
 
-import com.luckymarket.adapter.out.persistence.user.UserRepository;
+import com.luckymarket.adapter.out.persistence.product.ProductRepository;
 import com.luckymarket.application.dto.user.*;
-import com.luckymarket.domain.exception.auth.AuthErrorCode;
-import com.luckymarket.domain.exception.auth.AuthException;
+import com.luckymarket.application.validation.participation.UserExistenceValidationRule;
+import com.luckymarket.domain.entity.product.Product;
+import com.luckymarket.domain.mapper.ProductMapper;
 import com.luckymarket.infrastructure.redis.RedisService;
 import com.luckymarket.domain.mapper.UserMapper;
 import com.luckymarket.domain.entity.user.Member;
@@ -17,21 +18,25 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
-    private final UserRepository userRepository;
+    private final ProductRepository productRepository;
     private final RedisService redisService;
     private final PasswordService passwordService;
     private final MemberValidationService memberValidationService;
+    private final UserExistenceValidationRule userExistenceValidationRule;
     private final UserMapper userMapper;
+    private final ProductMapper productMapper;
 
     @Override
     @Transactional(readOnly = true)
     public Member getUserById(Long userId) {
         memberValidationService.validateUser(userId);
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new AuthException(AuthErrorCode.USER_NOT_FOUND));
+        return userExistenceValidationRule.getEntity(userId);
     }
 
     @Override
@@ -97,5 +102,17 @@ public class UserServiceImpl implements UserService {
         redisService.removeRefreshToken(userId);
         redisService.markUserAsLoggedOut(userId);
         member.setStatus(Status.DELETED);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<UserProductSummaryResponse> getCreatedProducts(Long userId) {
+        List<Product> createdProducts = productRepository.findByMemberId(userId);
+        if (createdProducts.isEmpty()) {
+            throw new UserException(UserErrorCode.NO_CREATED_PRODUCTS_FOUND);
+        }
+        return createdProducts.stream()
+                .map(productMapper::toProductSummaryResponse)
+                .collect(Collectors.toList());
     }
 }
