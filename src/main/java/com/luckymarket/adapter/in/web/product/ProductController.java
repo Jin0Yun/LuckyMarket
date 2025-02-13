@@ -1,6 +1,7 @@
 package com.luckymarket.adapter.in.web.product;
 
 import com.luckymarket.application.dto.ApiResponse;
+import com.luckymarket.application.dto.product.ProductSearchRequest;
 import com.luckymarket.domain.entity.product.Product;
 import com.luckymarket.application.dto.product.ProductCreateRequest;
 import com.luckymarket.application.service.product.ProductService;
@@ -72,7 +73,8 @@ public class ProductController {
             @RequestParam(required = false) BigDecimal priceMax,
             @RequestParam(required = false) ProductStatus status
     ) {
-        List<Product> products = productService.searchProducts(title, categoryCode, priceMin, priceMax, status);
+        ProductSearchRequest searchRequest = new ProductSearchRequest(title, categoryCode, priceMin, priceMax, status);
+        List<Product> products = productService.searchProducts(searchRequest);
         return ApiResponse.success("상품 검색 결과를 성공적으로 조회했습니다", products);
     }
 }
