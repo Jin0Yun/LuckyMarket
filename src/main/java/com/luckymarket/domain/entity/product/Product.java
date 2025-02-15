@@ -63,6 +63,7 @@ public class Product {
     @JsonBackReference
     private Member member;
 
+    @Builder.Default
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<Participation> participations = new ArrayList<>();
