@@ -36,13 +36,13 @@ public class SecurityConfig {
                 "/v3/api-docs/**"
         };
 
-        http.csrf().disable()
+        http.csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(publicUrls).permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
-                .formLogin().disable();
+                .formLogin(form -> form.disable());
         return http.build();
     }
 }
